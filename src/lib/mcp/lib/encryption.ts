@@ -56,10 +56,12 @@ export async function decryptNumber(
   if (!ivB64 || !ctB64) return 0;
   try {
     const key = await getKey();
+    const iv = fromB64(ivB64);
+    const ct = fromB64(ctB64);
     const pt = await crypto.subtle.decrypt(
-      { name: "AES-GCM", iv: fromB64(ivB64) },
+      { name: "AES-GCM", iv: iv as BufferSource },
       key,
-      fromB64(ctB64),
+      ct as BufferSource,
     );
     const n = Number(new TextDecoder().decode(pt));
     return Number.isFinite(n) ? n : 0;

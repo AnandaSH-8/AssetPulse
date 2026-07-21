@@ -76,10 +76,12 @@ async function decryptNumber(stored) {
   if (!ivB64 || !ctB64) return 0;
   try {
     const key = await getKey();
+    const iv = fromB64(ivB64);
+    const ct = fromB64(ctB64);
     const pt = await crypto.subtle.decrypt(
-      { name: "AES-GCM", iv: fromB64(ivB64) },
+      { name: "AES-GCM", iv },
       key,
-      fromB64(ctB64)
+      ct
     );
     const n = Number(new TextDecoder().decode(pt));
     return Number.isFinite(n) ? n : 0;
@@ -260,7 +262,6 @@ var delete_particular_default = defineTool5({
     id: z4.string().uuid()
   },
   annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
-  needsApproval: true,
   handler: async ({ id }, ctx) => {
     const guard = requireAuth(ctx);
     if (guard) return guard;

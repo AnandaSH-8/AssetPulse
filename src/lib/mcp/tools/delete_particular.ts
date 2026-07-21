@@ -10,7 +10,6 @@ export default defineTool({
     id: z.string().uuid(),
   },
   annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
-  needsApproval: true,
   handler: async ({ id }, ctx) => {
     const guard = requireAuth(ctx);
     if (guard) return guard;
