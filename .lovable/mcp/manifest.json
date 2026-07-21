@@ -1,0 +1,215 @@
+{
+  "version": 1,
+  "sdk_version": "0.24.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://xkyhvkuahdvvlwjgnipt.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "assetpulse-mcp",
+      "version": "0.1.0",
+      "title": "AssetPulse MCP"
+    },
+    "tools": [
+      {
+        "name": "list_particulars",
+        "title": "List financial particulars",
+        "description": "List the signed-in user's financial particulars (assets/entries). Optionally filter by month and year, and cap the result count.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "month": {
+              "type": "string",
+              "description": "Month name filter, e.g. 'Jan'."
+            },
+            "year": {
+              "type": "integer",
+              "description": "Year filter, e.g. 2026."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "description": "Max rows (default 100)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_stats",
+        "title": "Get portfolio statistics",
+        "description": "Aggregate the signed-in user's financial particulars: total amount, cash, investment, entry count, per-category breakdown, and average.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_particular",
+        "title": "Create financial particular",
+        "description": "Insert a new financial particular for the signed-in user. Monetary values are encrypted at rest.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "amount": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "cash": {
+              "type": "number",
+              "minimum": 0
+            },
+            "investment": {
+              "type": "number",
+              "minimum": 0
+            },
+            "current_value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "month": {
+              "type": "string",
+              "maxLength": 20
+            },
+            "month_number": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "year": {
+              "type": "integer",
+              "minimum": 1900,
+              "maximum": 2100
+            }
+          },
+          "required": [
+            "category",
+            "amount"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_particular",
+        "title": "Update financial particular",
+        "description": "Update an existing financial particular by id for the signed-in user.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "category": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "amount": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "cash": {
+              "type": "number",
+              "minimum": 0
+            },
+            "investment": {
+              "type": "number",
+              "minimum": 0
+            },
+            "current_value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "month": {
+              "type": "string",
+              "maxLength": 20
+            },
+            "month_number": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "delete_particular",
+        "title": "Delete financial particular",
+        "description": "Delete a financial particular by id for the signed-in user. Irreversible.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

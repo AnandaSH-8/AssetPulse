@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
 import { NeomorphInput } from '@/components/ui/neomorph-input';
@@ -8,6 +8,13 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Mail, Lock, LogIn, UserPlus, User, Eye, EyeOff } from 'lucide-react';
+
+const safeNext = (raw: string | null): string => {
+  if (!raw) return '/';
+  // Only allow same-origin relative paths.
+  if (!raw.startsWith('/') || raw.startsWith('//')) return '/';
+  return raw;
+};
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -21,6 +28,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const nextPath = safeNext(params.get('next'));
   const { toast } = useToast();
 
   useEffect(() => {
@@ -30,11 +39,12 @@ const Auth = () => {
         data: { session },
       } = await supabase.auth.getSession();
       if (session) {
-        navigate('/');
+        navigate(nextPath);
       }
     };
     checkUser();
-  }, [navigate]);
+  }, [navigate, nextPath]);
+
 
   const validatePassword = (pwd: string) => {
     const checks = {
@@ -135,7 +145,7 @@ const Auth = () => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: `${window.location.origin}${nextPath}`,
             data: {
               name: sanitizeInput(name.trim()),
               username: sanitizeInput(username.trim().toLowerCase()),
@@ -156,7 +166,7 @@ const Auth = () => {
         });
 
         if (error) throw error;
-        navigate('/');
+        navigate(nextPath);
       }
     } catch (error: any) {
       toast({
