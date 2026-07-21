@@ -14,6 +14,7 @@ import Statistics from './pages/Statistics';
 import Comparison from './pages/Comparison';
 import Settings from './pages/Settings';
 import Auth from './pages/Auth';
+import OAuthConsent from './pages/OAuthConsent';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
