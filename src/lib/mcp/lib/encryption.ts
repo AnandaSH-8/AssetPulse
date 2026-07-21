@@ -35,9 +35,9 @@ export async function encryptNumber(value: number): Promise<string> {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const ct = new Uint8Array(
     await crypto.subtle.encrypt(
-      { name: "AES-GCM", iv },
+      { name: "AES-GCM", iv: iv as BufferSource },
       key,
-      new TextEncoder().encode(String(value)),
+      new TextEncoder().encode(String(value)) as BufferSource,
     ),
   );
   return `${ENC_PREFIX}${toB64(iv)}:${toB64(ct)}`;
