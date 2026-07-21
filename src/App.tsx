@@ -44,6 +44,7 @@ const AppContent = () => {
     <SidebarProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
           <Route
             path="/auth"
             element={user ? <Navigate to="/" replace /> : <Auth />}
