@@ -145,7 +145,7 @@ const Auth = () => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: `${window.location.origin}${nextPath}`,
             data: {
               name: sanitizeInput(name.trim()),
               username: sanitizeInput(username.trim().toLowerCase()),
@@ -166,7 +166,7 @@ const Auth = () => {
         });
 
         if (error) throw error;
-        navigate('/');
+        navigate(nextPath);
       }
     } catch (error: any) {
       toast({
