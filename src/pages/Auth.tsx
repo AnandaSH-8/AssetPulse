@@ -7,6 +7,7 @@ import { PasswordStrengthMeter } from '@/components/ui/password-strength-meter';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { DEMO_EMAIL, DEMO_PASSWORD } from '@/lib/demo-user';
 import { Mail, Lock, LogIn, UserPlus, User, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
@@ -24,8 +25,8 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(initialSignUp);
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState(initialSignUp ? '' : 'user@yopmail.com');
-  const [password, setPassword] = useState(initialSignUp ? '' : 'userAssets@123');
+  const [email, setEmail] = useState(initialSignUp ? '' : DEMO_EMAIL);
+  const [password, setPassword] = useState(initialSignUp ? '' : DEMO_PASSWORD);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -364,8 +365,8 @@ const Auth = () => {
               const next = !isSignUp;
               setIsSignUp(next);
               // Clear demo credentials when switching to sign up; restore them for sign in
-              setEmail(next ? '' : 'user@yopmail.com');
-              setPassword(next ? '' : 'userAssets@123');
+              setEmail(next ? '' : DEMO_EMAIL);
+              setPassword(next ? '' : DEMO_PASSWORD);
               setConfirmPassword('');
               setErrors({});
             }}
