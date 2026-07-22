@@ -8,6 +8,7 @@ import {
   Plus,
   BarChart3,
 } from 'lucide-react'
+import { SEO } from '@/components/SEO'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Button } from '@/components/ui/button'
 import {
