@@ -10,9 +10,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Mail, Lock, LogIn, UserPlus, User, Eye, EyeOff } from 'lucide-react';
 
 const safeNext = (raw: string | null): string => {
-  if (!raw) return '/';
+  if (!raw) return '/dashboard';
   // Only allow same-origin relative paths.
-  if (!raw.startsWith('/') || raw.startsWith('//')) return '/';
+  if (!raw.startsWith('/') || raw.startsWith('//')) return '/dashboard';
   return raw;
 };
 
