@@ -32,6 +32,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { AuthProviderHealth } from '@/components/AuthProviderHealth';
 
 export default function Settings() {
   const { toast } = useToast();
