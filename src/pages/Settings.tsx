@@ -33,6 +33,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthProviderHealth } from '@/components/AuthProviderHealth';
+import { DEMO_EMAIL } from '@/lib/demo-user';
 
 export default function Settings() {
   const { toast } = useToast();
@@ -489,7 +490,7 @@ export default function Settings() {
               <div className="pr-4">
                 <h3 className="font-semibold mb-1">Allow demo account to edit data</h3>
                 <p className="text-sm text-muted-foreground">
-                  When ON, the shared demo account (user@yopmail.com) can add, edit,
+                  When ON, the shared demo account ({DEMO_EMAIL}) can add, edit,
                   and delete entries. Turn OFF to restore the public read-only demo.
                 </p>
               </div>

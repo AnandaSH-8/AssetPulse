@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 
-const API_BASE_URL = 'https://xkyhvkuahdvvlwjgnipt.supabase.co/functions/v1';
+const API_BASE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 
 // Helper function to get auth token
 const getAuthToken = async () => {

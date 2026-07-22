@@ -19,6 +19,9 @@ interface HealthCheck {
 // These reflect the current known Supabase Auth configuration surfaced by the
 // security scanner. They are informational — Supabase Auth settings can only
 // be changed from the Supabase dashboard, not from the app.
+const PROJECT_REF = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+const AUTH_PROVIDERS_URL = `https://supabase.com/dashboard/project/${PROJECT_REF}/auth/providers`;
+
 const checks: HealthCheck[] = [
   {
     id: 'leaked-password',
@@ -29,8 +32,7 @@ const checks: HealthCheck[] = [
     explanation:
       'Blocks users from choosing passwords that appear in known breach corpora (HaveIBeenPwned). Currently disabled for this project, so weak/breached passwords can still be accepted at signup.',
     fixLabel: 'Enable in Supabase',
-    fixHref:
-      'https://supabase.com/dashboard/project/xkyhvkuahdvvlwjgnipt/auth/providers',
+    fixHref: AUTH_PROVIDERS_URL,
   },
   {
     id: 'otp-expiry',
@@ -41,8 +43,7 @@ const checks: HealthCheck[] = [
     explanation:
       'One-time passwords for email/magic-link flows currently expire later than the recommended threshold. A shorter window reduces the blast radius if an OTP email is intercepted or forwarded.',
     fixLabel: 'Shorten in Supabase',
-    fixHref:
-      'https://supabase.com/dashboard/project/xkyhvkuahdvvlwjgnipt/auth/providers',
+    fixHref: AUTH_PROVIDERS_URL,
   },
 ];
 
