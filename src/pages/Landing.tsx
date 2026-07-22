@@ -164,16 +164,26 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* Bars placeholder */}
+              {/* Growth trend */}
               <div>
-                <p className="text-xs text-muted-foreground mb-2">Growth Overview</p>
-                <div className="h-24 rounded-xl bg-background/50 border border-border/50 flex items-end gap-2 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-muted-foreground">Growth Overview</p>
+                  <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                    <TrendingUp className="h-3 w-3" />
+                    +18.4%
+                  </span>
+                </div>
+                <div className="h-28 rounded-xl bg-background/50 border border-border/50 flex items-end gap-1.5 p-3">
                   {[35, 55, 42, 68, 60, 82, 74, 90].map((h, i) => (
-                    <div
-                      key={i}
-                      className="flex-1 rounded-md bg-gradient-primary/80"
-                      style={{ height: `${h}%` }}
-                    />
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                      <div
+                        className="w-full rounded-md bg-gradient-to-t from-primary to-emerald-400"
+                        style={{ height: `${h}%` }}
+                      />
+                      <span className="text-[9px] text-muted-foreground">
+                        {['J','F','M','A','M','J','J','A'][i]}
+                      </span>
+                    </div>
                   ))}
                 </div>
               </div>
