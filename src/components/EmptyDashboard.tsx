@@ -43,7 +43,7 @@ export default function EmptyDashboard() {
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-2xl font-semibold">No Assets Added Yet</h3>
+              <h2 className="text-2xl font-semibold">No Assets Added Yet</h2>
               <p className="text-muted-foreground max-w-md mx-auto">
                 Get started by adding your first financial asset. Track
                 investments, savings, and watch your portfolio grow over time.
