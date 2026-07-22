@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { AppSidebar } from '@/components/AppSidebar';
 import Footer from '@/components/Footer';
+import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import AddParticulars from './pages/AddParticulars';
 import Statistics from './pages/Statistics';
@@ -44,10 +45,11 @@ const AppContent = () => {
     <SidebarProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
           <Route
             path="/auth"
-            element={user ? <Navigate to="/" replace /> : <Auth />}
+            element={user ? <Navigate to="/dashboard" replace /> : <Auth />}
           />
           <Route
             path="/*"
@@ -70,7 +72,7 @@ const AppContent = () => {
                     <div className="flex-1 flex flex-col overflow-auto">
                       <div className="flex-1">
                         <Routes>
-                          <Route path="/" element={<Dashboard />} />
+                          <Route path="/dashboard" element={<Dashboard />} />
                           <Route
                             path="/add-particulars"
                             element={<AddParticulars />}

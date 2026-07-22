@@ -35,7 +35,7 @@ import { useTheme } from '@/components/ThemeProvider';
 const navigationItems = [
   {
     title: 'Dashboard',
-    url: '/',
+    url: '/dashboard',
     icon: Home,
     description: 'Overview of your assets',
     alwaysShow: true,
