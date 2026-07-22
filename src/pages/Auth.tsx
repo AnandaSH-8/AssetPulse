@@ -183,12 +183,20 @@ const Auth = () => {
   return (
     <div className="min-h-screen w-full bg-slate-150 flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <GlassCard
-        className="w-full max-w-sm sm:max-w-md lg:max-w-lg p-6 sm:p-8 space-y-4 sm:space-y-6"
+        className="w-full max-w-sm sm:max-w-md lg:max-w-lg p-6 sm:p-8 space-y-4 sm:space-y-6 relative"
         style={{
           boxShadow:
             '0 -10px 25px rgba(0,0,0,0.1), 0 10px 25px rgba(0,0,0,0.1), -10px 0 25px rgba(0,0,0,0.1), 10px 0 25px rgba(0,0,0,0.1)',
         }}
       >
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to home
+        </Link>
+
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
             AssetPulse
@@ -197,6 +205,7 @@ const Auth = () => {
             {isSignUp ? 'Create your account' : 'Welcome back'}
           </p>
         </div>
+
 
         <form onSubmit={handleEmailAuth} className="space-y-4">
           {isSignUp && (
