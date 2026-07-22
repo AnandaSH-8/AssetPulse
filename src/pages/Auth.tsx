@@ -183,7 +183,16 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-150 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <main className="min-h-screen w-full bg-slate-150 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <SEO
+        title={isSignUp ? 'Create your AssetPulse account' : 'Sign in to AssetPulse'}
+        description={
+          isSignUp
+            ? 'Create your free AssetPulse account to start tracking assets, investments, and monthly net-worth growth.'
+            : 'Sign in to AssetPulse to view your portfolio dashboard, analytics, and asset comparisons.'
+        }
+        path="/auth"
+      />
       <GlassCard
         className="w-full max-w-sm sm:max-w-md lg:max-w-lg p-6 sm:p-8 space-y-4 sm:space-y-6 relative"
         style={{
