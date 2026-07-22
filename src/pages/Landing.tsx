@@ -248,32 +248,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section id="cta" className="border-t border-border/50">
-        <div className="max-w-4xl mx-auto px-6 py-16">
-          <GlassCard className="p-10 text-center space-y-5">
-            <h3 className="text-3xl sm:text-4xl font-bold">
-              Ready to take control of your finances?
-            </h3>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              Join AssetPulse and start tracking your wealth with clarity and confidence.
-            </p>
-            <div className="flex items-center justify-center gap-3">
-              <Link to="/auth">
-                <Button size="lg" className="gap-2">
-                  Sign Up
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link to="/auth">
-                <Button size="lg" variant="outline">
-                  Sign In
-                </Button>
-              </Link>
-            </div>
-          </GlassCard>
-        </div>
-      </section>
 
       <Footer />
     </div>
