@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
 import Footer from '@/components/Footer';
+import { SEO } from '@/components/SEO';
 
 
 const features = [
