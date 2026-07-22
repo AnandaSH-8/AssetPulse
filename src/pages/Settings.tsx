@@ -503,7 +503,9 @@ export default function Settings() {
         </motion.div>
       )}
 
-      <AuthProviderHealth />
+      {user?.email?.toLowerCase() === import.meta.env.VITE_CREATOR_EMAIL?.toLowerCase() && (
+        <AuthProviderHealth />
+      )}
 
       {/* Danger Zone */}
 
