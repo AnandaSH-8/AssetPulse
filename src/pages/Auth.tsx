@@ -18,7 +18,8 @@ const safeNext = (raw: string | null): string => {
 };
 
 const Auth = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [params] = useSearchParams();
+  const [isSignUp, setIsSignUp] = useState(params.get('mode') === 'signup');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('user@yopmail.com');
