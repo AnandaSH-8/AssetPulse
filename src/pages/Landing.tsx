@@ -59,17 +59,15 @@ export default function Landing() {
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#features" className="hover:text-foreground transition-colors">Features</a>
             <a href="#how" className="hover:text-foreground transition-colors">How It Works</a>
-            <a href="#cta" className="hover:text-foreground transition-colors">Get Started</a>
-            <a href="#about" className="hover:text-foreground transition-colors">About</a>
           </nav>
 
           <div className="flex items-center gap-2">
-            <Link to="/auth">
+            <Link to="/auth?mode=signin">
               <Button size="sm" variant="outline">
                 Sign In
               </Button>
             </Link>
-            <Link to="/auth">
+            <Link to="/auth?mode=signup">
               <Button size="sm">
                 Sign Up
               </Button>
