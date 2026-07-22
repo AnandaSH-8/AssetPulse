@@ -49,6 +49,11 @@ const features = [
 export default function Landing() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <SEO
+        title="AssetPulse — Track, analyze & grow your wealth"
+        description="Personal wealth tracker with monthly snapshots, net-worth analytics, and category performance. Sign up free and take control of your portfolio."
+        path="/"
+      />
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
