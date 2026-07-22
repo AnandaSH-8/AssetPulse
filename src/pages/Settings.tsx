@@ -489,7 +489,7 @@ export default function Settings() {
               <div className="pr-4">
                 <h3 className="font-semibold mb-1">Allow demo account to edit data</h3>
                 <p className="text-sm text-muted-foreground">
-                  When ON, the shared demo account (user@yopmail.com) can add, edit,
+                  When ON, the shared demo account ({DEMO_EMAIL}) can add, edit,
                   and delete entries. Turn OFF to restore the public read-only demo.
                 </p>
               </div>
