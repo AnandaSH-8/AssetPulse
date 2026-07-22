@@ -18,7 +18,8 @@ const safeNext = (raw: string | null): string => {
 };
 
 const Auth = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [params] = useSearchParams();
+  const [isSignUp, setIsSignUp] = useState(params.get('mode') === 'signup');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('user@yopmail.com');
@@ -29,7 +30,6 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const navigate = useNavigate();
-  const [params] = useSearchParams();
   const nextPath = safeNext(params.get('next'));
   const { toast } = useToast();
 

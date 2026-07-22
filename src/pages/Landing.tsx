@@ -59,17 +59,15 @@ export default function Landing() {
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#features" className="hover:text-foreground transition-colors">Features</a>
             <a href="#how" className="hover:text-foreground transition-colors">How It Works</a>
-            <a href="#cta" className="hover:text-foreground transition-colors">Get Started</a>
-            <a href="#about" className="hover:text-foreground transition-colors">About</a>
           </nav>
 
           <div className="flex items-center gap-2">
-            <Link to="/auth">
+            <Link to="/auth?mode=signin">
               <Button size="sm" variant="outline">
                 Sign In
               </Button>
             </Link>
-            <Link to="/auth">
+            <Link to="/auth?mode=signup">
               <Button size="sm">
                 Sign Up
               </Button>
@@ -102,9 +100,9 @@ export default function Landing() {
               grow your wealth with smart insights.
             </p>
             <div className="flex flex-wrap items-center gap-3">
-              <Link to="/auth">
+              <Link to="/auth?mode=signup">
                 <Button size="lg" className="gap-2">
-                  Get Started Free
+                  Get Started
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
@@ -166,16 +164,26 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* Bars placeholder */}
+              {/* Growth trend */}
               <div>
-                <p className="text-xs text-muted-foreground mb-2">Growth Overview</p>
-                <div className="h-24 rounded-xl bg-background/50 border border-border/50 flex items-end gap-2 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-muted-foreground">Growth Overview</p>
+                  <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                    <TrendingUp className="h-3 w-3" />
+                    +18.4%
+                  </span>
+                </div>
+                <div className="h-28 rounded-xl bg-background/50 border border-border/50 flex items-end gap-1.5 p-3">
                   {[35, 55, 42, 68, 60, 82, 74, 90].map((h, i) => (
-                    <div
-                      key={i}
-                      className="flex-1 rounded-md bg-gradient-primary/80"
-                      style={{ height: `${h}%` }}
-                    />
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                      <div
+                        className="w-full rounded-md bg-gradient-to-t from-primary to-emerald-400"
+                        style={{ height: `${h}%` }}
+                      />
+                      <span className="text-[9px] text-muted-foreground">
+                        {['J','F','M','A','M','J','J','A'][i]}
+                      </span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -240,32 +248,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section id="cta" className="border-t border-border/50">
-        <div className="max-w-4xl mx-auto px-6 py-16">
-          <GlassCard className="p-10 text-center space-y-5">
-            <h3 className="text-3xl sm:text-4xl font-bold">
-              Ready to take control of your finances?
-            </h3>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              Join AssetPulse and start tracking your wealth with clarity and confidence.
-            </p>
-            <div className="flex items-center justify-center gap-3">
-              <Link to="/auth">
-                <Button size="lg" className="gap-2">
-                  Sign Up
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link to="/auth">
-                <Button size="lg" variant="outline">
-                  Sign In
-                </Button>
-              </Link>
-            </div>
-          </GlassCard>
-        </div>
-      </section>
 
       <Footer />
     </div>
