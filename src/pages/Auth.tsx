@@ -30,7 +30,6 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const navigate = useNavigate();
-  const [params] = useSearchParams();
   const nextPath = safeNext(params.get('next'));
   const { toast } = useToast();
 
