@@ -7,7 +7,8 @@ import { PasswordStrengthMeter } from '@/components/ui/password-strength-meter';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Mail, Lock, LogIn, UserPlus, User, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, LogIn, UserPlus, User, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const safeNext = (raw: string | null): string => {
   if (!raw) return '/dashboard';
