@@ -348,7 +348,15 @@ const Auth = () => {
         <div className="text-center">
           <button
             type="button"
-            onClick={() => setIsSignUp(!isSignUp)}
+            onClick={() => {
+              const next = !isSignUp;
+              setIsSignUp(next);
+              // Clear demo credentials when switching to sign up; restore them for sign in
+              setEmail(next ? '' : 'user@yopmail.com');
+              setPassword(next ? '' : 'userAssets@123');
+              setConfirmPassword('');
+              setErrors({});
+            }}
             className="text-primary hover:underline"
           >
             {isSignUp
