@@ -503,6 +503,8 @@ export default function Settings() {
         </motion.div>
       )}
 
+      <AuthProviderHealth />
+
       {/* Danger Zone */}
 
 
