@@ -2,7 +2,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export const DEMO_EMAIL = 'user@yopmail.com';
+export const DEMO_EMAIL = (import.meta.env.VITE_DEMO_EMAIL || '').toLowerCase();
+export const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD || '';
 
 export const isDemoEmail = (email?: string | null) =>
   !!email && email.toLowerCase() === DEMO_EMAIL;
