@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
 import Footer from '@/components/Footer';
+import { SEO } from '@/components/SEO';
 
 
 const features = [
@@ -48,6 +49,11 @@ const features = [
 export default function Landing() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <SEO
+        title="AssetPulse — Track, analyze & grow your wealth"
+        description="Personal wealth tracker with monthly snapshots, net-worth analytics, and category performance. Sign up free and take control of your portfolio."
+        path="/"
+      />
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
@@ -80,6 +86,7 @@ export default function Landing() {
         </div>
       </header>
 
+      <main className="flex-1 flex flex-col">
       {/* Hero */}
       <section className="flex-1">
         <div className="max-w-7xl mx-auto px-6 py-16 sm:py-24 grid gap-12 lg:grid-cols-2 items-center">
@@ -329,6 +336,7 @@ export default function Landing() {
           </div>
         </div>
       </section>
+      </main>
 
 
       <Footer />

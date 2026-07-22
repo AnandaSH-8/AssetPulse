@@ -8,6 +8,7 @@ import {
   Plus,
   BarChart3,
 } from 'lucide-react'
+import { SEO } from '@/components/SEO'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Button } from '@/components/ui/button'
 import {
@@ -372,6 +373,11 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 p-6">
+      <SEO
+        title="Portfolio Dashboard — AssetPulse"
+        description="Your live AssetPulse dashboard: net worth, liquid assets, investments, monthly growth, and category breakdowns at a glance."
+        path="/dashboard"
+      />
       {/* Welcome Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -379,7 +385,7 @@ export default function Dashboard() {
         transition={{ duration: 0.5 }}
       >
         <h1 className="text-4xl font-bold mb-2 bg-gradient-primary bg-clip-text text-transparent">
-          Welcome to AssetPulse
+          Financial Portfolio Overview
         </h1>
         <p className="text-muted-foreground text-lg">
           Track, analyze, and grow your wealth with confidence.

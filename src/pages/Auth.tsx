@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Mail, Lock, LogIn, UserPlus, User, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SEO } from '@/components/SEO';
 
 const safeNext = (raw: string | null): string => {
   if (!raw) return '/dashboard';
@@ -182,7 +183,16 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-150 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <main className="min-h-screen w-full bg-slate-150 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <SEO
+        title={isSignUp ? 'Create your AssetPulse account' : 'Sign in to AssetPulse'}
+        description={
+          isSignUp
+            ? 'Create your free AssetPulse account to start tracking assets, investments, and monthly net-worth growth.'
+            : 'Sign in to AssetPulse to view your portfolio dashboard, analytics, and asset comparisons.'
+        }
+        path="/auth"
+      />
       <GlassCard
         className="w-full max-w-sm sm:max-w-md lg:max-w-lg p-6 sm:p-8 space-y-4 sm:space-y-6 relative"
         style={{
@@ -200,7 +210,7 @@ const Auth = () => {
 
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-            AssetPulse
+            AssetPulse — Your personal wealth tracker
           </h1>
           <p className="text-muted-foreground">
             {isSignUp ? 'Create your account' : 'Welcome back'}
@@ -283,6 +293,7 @@ const Auth = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 {showPassword ? (
@@ -312,6 +323,7 @@ const Auth = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showConfirmPassword ? (
@@ -365,7 +377,7 @@ const Auth = () => {
           </button>
         </div>
       </GlassCard>
-    </div>
+    </main>
   )
 };
 
