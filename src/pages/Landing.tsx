@@ -7,8 +7,8 @@ import {
   BarChart3,
   Wallet,
   LineChart,
-  LogIn,
   ArrowRight,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -17,27 +17,27 @@ import Footer from '@/components/Footer';
 const features = [
   {
     icon: Wallet,
-    title: 'Track Every Asset',
+    title: 'Track Everything',
     description:
-      'Log cash, investments, and current values across categories in one place.',
+      'Track all your investments and liquid assets in one place.',
   },
   {
     icon: BarChart3,
-    title: 'Rich Analytics',
+    title: 'Smart Analytics',
     description:
-      'Month-over-month growth, category breakdowns, and clear percentage insights.',
-  },
-  {
-    icon: LineChart,
-    title: 'Visual Comparisons',
-    description:
-      'Compare months side by side and spot trends with beautiful charts.',
+      'Get insights with beautiful charts and performance analytics.',
   },
   {
     icon: ShieldCheck,
-    title: 'Secure by Default',
+    title: 'Secure & Private',
     description:
-      'AES-GCM encrypted amounts, Supabase auth, and row-level security.',
+      'Your data is encrypted and 100% secure with us.',
+  },
+  {
+    icon: LineChart,
+    title: 'Easy to Use',
+    description:
+      'Simple, clean and intuitive interface for everyone.',
   },
 ];
 
@@ -51,27 +51,27 @@ export default function Landing() {
             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-primary text-white shadow-lg">
               <IndianRupee className="w-5 h-5" />
             </div>
-            <div>
-              <h1 className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">
-                AssetPulse
-              </h1>
-              <p className="text-[10px] text-muted-foreground -mt-0.5">
-                Track. Analyze. Grow.
-              </p>
-            </div>
+            <h1 className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">
+              AssetPulse
+            </h1>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-            <a href="#how" className="hover:text-foreground transition-colors">How it works</a>
-            <a href="#cta" className="hover:text-foreground transition-colors">Get started</a>
+            <a href="#how" className="hover:text-foreground transition-colors">How It Works</a>
+            <a href="#cta" className="hover:text-foreground transition-colors">Get Started</a>
+            <a href="#about" className="hover:text-foreground transition-colors">About</a>
           </nav>
 
           <div className="flex items-center gap-2">
             <Link to="/auth">
-              <Button size="sm" className="gap-2">
-                <LogIn className="h-4 w-4" />
-                Sign in / Sign up
+              <Button size="sm" variant="outline">
+                Sign In
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button size="sm">
+                Sign Up
               </Button>
             </Link>
           </div>
@@ -88,69 +88,96 @@ export default function Landing() {
             className="space-y-6"
           >
             <span className="inline-flex items-center gap-2 text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
-              <TrendingUp className="h-3.5 w-3.5" />
-              Personal finance, reimagined
+              <Sparkles className="h-3.5 w-3.5" />
+              Take Control of Your Wealth
             </span>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
-              Your net worth,{' '}
+              Track. Analyze.{' '}
               <span className="bg-gradient-primary bg-clip-text text-transparent">
-                clearly tracked
-              </span>{' '}
-              month after month.
+                Grow Your Assets.
+              </span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-xl">
-              AssetPulse helps you record assets, monitor growth, and understand
-              exactly where your money is moving — with encrypted storage and a
-              delightful glass-morphism UI.
+              AssetPulse helps you track investments, analyze performance, and
+              grow your wealth with smart insights.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Link to="/auth">
                 <Button size="lg" className="gap-2">
-                  Get started free
+                  Get Started Free
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
               <a href="#features">
                 <Button size="lg" variant="outline">
-                  Explore features
+                  Learn More
                 </Button>
               </a>
             </div>
           </motion.div>
 
+          {/* Illustrative preview — clearly a sample, no real user data */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.1 }}
+            aria-hidden="true"
           >
-            <GlassCard className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { label: 'Total Assets', value: '₹12,45,000', chip: '+8.2%' },
-                  { label: 'Liquid', value: '₹3,20,500', chip: '+2.1%' },
-                  { label: 'Investments', value: '₹9,24,500', chip: '+11.5%' },
-                  { label: 'Monthly Growth', value: '₹74,900', chip: '+6.4%' },
-                ].map(k => (
-                  <div
-                    key={k.label}
-                    className="p-4 rounded-xl bg-background/60 border border-border/50"
-                  >
-                    <p className="text-xs text-muted-foreground">{k.label}</p>
-                    <p className="text-xl font-bold mt-1">{k.value}</p>
-                    <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                      {k.chip} vs last month
-                    </p>
-                  </div>
-                ))}
+            <GlassCard className="p-6 space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">Sample preview</p>
+                  <p className="text-sm font-semibold">Portfolio Overview</p>
+                </div>
+                <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  <TrendingUp className="h-3 w-3" />
+                  Demo
+                </span>
               </div>
-              <div className="h-32 rounded-xl bg-gradient-to-tr from-primary/10 via-emerald-200/30 to-transparent border border-border/50 flex items-end gap-2 p-3">
-                {[35, 55, 42, 68, 60, 82, 74, 90].map((h, i) => (
-                  <div
-                    key={i}
-                    className="flex-1 rounded-md bg-gradient-primary/80"
-                    style={{ height: `${h}%` }}
-                  />
-                ))}
+
+              {/* Donut placeholder */}
+              <div className="flex items-center gap-6">
+                <div
+                  className="w-28 h-28 rounded-full"
+                  style={{
+                    background:
+                      'conic-gradient(hsl(var(--primary)) 0 62%, #34d399 62% 84%, #94a3b8 84% 100%)',
+                  }}
+                >
+                  <div className="w-full h-full rounded-full flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-background/90 flex items-center justify-center">
+                      <BarChart3 className="h-5 w-5 text-primary" />
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-primary" />
+                    <span className="text-muted-foreground">Investments</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                    <span className="text-muted-foreground">Liquid Assets</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
+                    <span className="text-muted-foreground">Others</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bars placeholder */}
+              <div>
+                <p className="text-xs text-muted-foreground mb-2">Growth Overview</p>
+                <div className="h-24 rounded-xl bg-background/50 border border-border/50 flex items-end gap-2 p-3">
+                  {[35, 55, 42, 68, 60, 82, 74, 90].map((h, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 rounded-md bg-gradient-primary/80"
+                      style={{ height: `${h}%` }}
+                    />
+                  ))}
+                </div>
               </div>
             </GlassCard>
           </motion.div>
@@ -161,7 +188,7 @@ export default function Landing() {
       <section id="features" className="border-t border-border/50 bg-background/40 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
-            <h3 className="text-3xl sm:text-4xl font-bold">Everything you need</h3>
+            <h3 className="text-3xl sm:text-4xl font-bold">Why choose AssetPulse?</h3>
             <p className="text-muted-foreground">
               Purpose-built tools to make personal wealth tracking effortless.
             </p>
@@ -226,14 +253,13 @@ export default function Landing() {
             <div className="flex items-center justify-center gap-3">
               <Link to="/auth">
                 <Button size="lg" className="gap-2">
-                  Sign up now
+                  Sign Up
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
               <Link to="/auth">
-                <Button size="lg" variant="outline" className="gap-2">
-                  <LogIn className="h-4 w-4" />
-                  Sign in
+                <Button size="lg" variant="outline">
+                  Sign In
                 </Button>
               </Link>
             </div>
