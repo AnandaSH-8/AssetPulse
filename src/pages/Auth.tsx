@@ -19,11 +19,12 @@ const safeNext = (raw: string | null): string => {
 
 const Auth = () => {
   const [params] = useSearchParams();
-  const [isSignUp, setIsSignUp] = useState(params.get('mode') === 'signup');
+  const initialSignUp = params.get('mode') === 'signup';
+  const [isSignUp, setIsSignUp] = useState(initialSignUp);
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('user@yopmail.com');
-  const [password, setPassword] = useState('userAssets@123');
+  const [email, setEmail] = useState(initialSignUp ? '' : 'user@yopmail.com');
+  const [password, setPassword] = useState(initialSignUp ? '' : 'userAssets@123');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
