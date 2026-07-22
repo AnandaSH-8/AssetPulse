@@ -100,9 +100,9 @@ export default function Landing() {
               grow your wealth with smart insights.
             </p>
             <div className="flex flex-wrap items-center gap-3">
-              <Link to="/auth">
+              <Link to="/auth?mode=signup">
                 <Button size="lg" className="gap-2">
-                  Get Started Free
+                  Get Started
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
