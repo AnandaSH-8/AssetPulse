@@ -66,7 +66,7 @@ const navigationItems = [
     url: '/comparison',
     icon: TrendingUp,
     description: 'Compare periods and trends',
-    alwaysShow: false,
+    alwaysShow: true,
   },
   {
     title: 'Settings',
