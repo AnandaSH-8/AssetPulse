@@ -377,7 +377,7 @@ const Auth = () => {
           </button>
         </div>
       </GlassCard>
-    </div>
+    </main>
   )
 };
 
