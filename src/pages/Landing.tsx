@@ -8,11 +8,15 @@ import {
   Wallet,
   LineChart,
   ArrowRight,
+  ArrowUpRight,
   Sparkles,
+  PieChart,
+  Activity,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
 import Footer from '@/components/Footer';
+
 
 const features = [
   {
