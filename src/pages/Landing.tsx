@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
 import Footer from '@/components/Footer';
 import { SEO } from '@/components/SEO';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 
 const features = [
@@ -72,6 +73,7 @@ export default function Landing() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <ThemeToggle className="mr-1" />
             <Link to="/auth?mode=signin">
               <Button size="sm" variant="outline">
                 Sign In
