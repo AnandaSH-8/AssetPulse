@@ -48,7 +48,7 @@ const features = [
 
 export default function Landing() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen w-full overflow-x-hidden flex flex-col bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <SEO
         title="AssetPulse — Track, analyze & grow your wealth"
         description="Personal wealth tracker with monthly snapshots, net-worth analytics, and category performance. Sign up free and take control of your portfolio."
@@ -268,7 +268,7 @@ export default function Landing() {
               initial={{ opacity: 0, x: 20, y: -20 }}
               animate={{ opacity: 1, x: 0, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="hidden sm:flex absolute -right-4 -bottom-4 items-center gap-3 rounded-2xl bg-gradient-primary text-white shadow-xl shadow-primary/30 px-4 py-3"
+              className="hidden sm:flex absolute right-0 -bottom-4 items-center gap-3 rounded-2xl bg-gradient-primary text-white shadow-xl shadow-primary/30 px-4 py-3 xl:-right-4"
             >
               <TrendingUp className="h-5 w-5" />
               <div>
