@@ -44,7 +44,7 @@ export default function Footer() {
 
   return (
     <footer className="mt-auto border-t border-border/50 bg-background/80 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="w-full px-6 lg:px-10 py-8">
         <GlassCard className="p-6">
           <div className="flex flex-col items-center space-y-6">
             {/* Logo and Brand */}
