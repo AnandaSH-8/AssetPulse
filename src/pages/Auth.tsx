@@ -502,6 +502,8 @@ const Auth = () => {
               : "Don't have an account? Sign up"}
           </button>
         </div>
+        </>
+        )}
       </GlassCard>
     </main>
   )
