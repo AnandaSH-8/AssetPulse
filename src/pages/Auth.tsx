@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { DEMO_EMAIL, DEMO_PASSWORD } from '@/lib/demo-user';
-import { Mail, Lock, LogIn, UserPlus, User, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, LogIn, UserPlus, User, Eye, EyeOff, ArrowLeft, MailCheck, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
 
@@ -32,9 +32,45 @@ const Auth = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [signupSuccessEmail, setSignupSuccessEmail] = useState<string | null>(null);
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const navigate = useNavigate();
   const nextPath = safeNext(params.get('next'));
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const id = setInterval(() => setResendCooldown((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(id);
+  }, [resendCooldown]);
+
+  const handleResendConfirmation = async (targetEmail: string) => {
+    if (resendCooldown > 0 || resendLoading) return;
+    try {
+      setResendLoading(true);
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: targetEmail,
+        options: { emailRedirectTo: `${window.location.origin}${nextPath}` },
+      });
+      if (error) throw error;
+      toast({
+        title: 'Verification email sent',
+        description: `We resent the link to ${targetEmail}.`,
+      });
+      setResendCooldown(30);
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Could not resend email',
+        description: error.message,
+      });
+    } finally {
+      setResendLoading(false);
+    }
+  };
 
   useEffect(() => {
     // Check if user is already logged in
@@ -159,9 +195,11 @@ const Auth = () => {
 
         if (error) throw error;
 
+        setSignupSuccessEmail(email);
+        setUnconfirmedEmail(null);
         toast({
           title: 'Account created!',
-          description: 'Please check your email to verify your account.',
+          description: "We've sent a verification link to your email. Confirm it before signing in.",
         });
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -173,11 +211,25 @@ const Auth = () => {
         navigate(nextPath);
       }
     } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Authentication Error',
-        description: error.message,
-      });
+      const msg: string = error?.message ?? '';
+      const isUnconfirmed =
+        error?.code === 'email_not_confirmed' ||
+        /email not confirmed/i.test(msg);
+      if (!isSignUp && isUnconfirmed) {
+        setUnconfirmedEmail(email);
+        toast({
+          variant: 'destructive',
+          title: 'Email not verified',
+          description:
+            'Please check your inbox for the verification link before signing in.',
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Authentication Error',
+          description: msg,
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -209,6 +261,54 @@ const Auth = () => {
           Back to home
         </Link>
 
+        {signupSuccessEmail ? (
+          <div className="space-y-5 text-center">
+            <div className="mx-auto h-14 w-14 rounded-full bg-emerald-500/10 flex items-center justify-center">
+              <MailCheck className="h-7 w-7 text-emerald-500" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold">Check your inbox</h2>
+              <p className="text-sm text-muted-foreground">
+                We sent a verification link to{' '}
+                <span className="font-medium text-foreground">
+                  {signupSuccessEmail}
+                </span>
+                . Click it to activate your account, then come back to sign in.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Button
+                type="button"
+                className="w-full"
+                disabled={resendLoading || resendCooldown > 0}
+                onClick={() => handleResendConfirmation(signupSuccessEmail)}
+              >
+                {resendLoading ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : resendCooldown > 0 ? (
+                  `Resend in ${resendCooldown}s`
+                ) : (
+                  'Resend verification email'
+                )}
+              </Button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSignupSuccessEmail(null);
+                  setIsSignUp(false);
+                  setEmail(DEMO_EMAIL);
+                  setPassword(DEMO_PASSWORD);
+                  setConfirmPassword('');
+                  setErrors({});
+                }}
+                className="text-sm text-primary hover:underline"
+              >
+                Back to sign in
+              </button>
+            </div>
+          </div>
+        ) : (
+        <>
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
             AssetPulse — Your personal wealth tracker
@@ -220,6 +320,7 @@ const Auth = () => {
 
 
         <form onSubmit={handleEmailAuth} className="space-y-4">
+
           {isSignUp && (
             <>
               <div className="space-y-2">
@@ -358,6 +459,30 @@ const Auth = () => {
           </Button>
         </form>
 
+        {!isSignUp && unconfirmedEmail && (
+          <div className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-left">
+            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+            <div className="flex-1 space-y-2">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                Your email <span className="font-medium">{unconfirmedEmail}</span> isn't verified yet.
+              </p>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={resendLoading || resendCooldown > 0}
+                onClick={() => handleResendConfirmation(unconfirmedEmail)}
+              >
+                {resendLoading
+                  ? 'Sending...'
+                  : resendCooldown > 0
+                  ? `Resend in ${resendCooldown}s`
+                  : 'Resend verification email'}
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="text-center">
           <button
             type="button"
@@ -377,6 +502,8 @@ const Auth = () => {
               : "Don't have an account? Sign up"}
           </button>
         </div>
+        </>
+        )}
       </GlassCard>
     </main>
   )
