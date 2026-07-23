@@ -459,6 +459,30 @@ const Auth = () => {
           </Button>
         </form>
 
+        {!isSignUp && unconfirmedEmail && (
+          <div className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-left">
+            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+            <div className="flex-1 space-y-2">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                Your email <span className="font-medium">{unconfirmedEmail}</span> isn't verified yet.
+              </p>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={resendLoading || resendCooldown > 0}
+                onClick={() => handleResendConfirmation(unconfirmedEmail)}
+              >
+                {resendLoading
+                  ? 'Sending...'
+                  : resendCooldown > 0
+                  ? `Resend in ${resendCooldown}s`
+                  : 'Resend verification email'}
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="text-center">
           <button
             type="button"
