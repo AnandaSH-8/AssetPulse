@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { DEMO_EMAIL, DEMO_PASSWORD } from '@/lib/demo-user';
-import { Mail, Lock, LogIn, UserPlus, User, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, LogIn, UserPlus, User, Eye, EyeOff, ArrowLeft, MailCheck, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
 
