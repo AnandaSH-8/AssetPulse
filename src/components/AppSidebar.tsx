@@ -75,7 +75,6 @@ const navigationItems = [
 
 export function AppSidebar() {
   const { state } = useSidebar();
-  const { theme, toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -210,26 +209,8 @@ export function AppSidebar() {
         <motion.div
           className="flex items-center gap-2"
           initial={false}
-          animate={{ justifyContent: isCollapsed ? 'center' : 'space-between' }}
+          animate={{ justifyContent: isCollapsed ? 'center' : 'flex-end' }}
         >
-          <Button
-            variant="ghost"
-            size={isCollapsed ? 'icon' : 'sm'}
-            onClick={toggleTheme}
-            className="rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-          >
-            {theme === 'light' ? (
-              <Moon className="w-4 h-4" />
-            ) : (
-              <Sun className="w-4 h-4" />
-            )}
-            {!isCollapsed && (
-              <span className="ml-2">
-                {theme === 'light' ? 'Dark' : 'Light'} Mode
-              </span>
-            )}
-          </Button>
-
           {!isCollapsed && (
             <Button
               variant="ghost"
