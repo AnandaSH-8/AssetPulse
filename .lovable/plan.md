@@ -1,31 +1,42 @@
-## Goal
-Handle Supabase's "Confirm email" requirement in the UI so users understand they must verify before signing in.
+## Auth Page Redesign — "Compact Emerald"
 
-## Changes
+Refresh `/auth` with a modern dark glassmorphism look matching the selected direction, while preserving every existing behavior (demo prefill, mode query param, verification inbox state, resend cooldown, error banners, forced-mask on demo creds, back-to-home).
 
-### 1. `src/pages/Auth.tsx` — post-signup "Check your inbox" screen
-- Add local state `signupSuccessEmail: string | null`.
-- On successful `supabase.auth.signUp(...)`, instead of just showing a toast, set `signupSuccessEmail` to the submitted email.
-- When `signupSuccessEmail` is set, render a dedicated confirmation view inside the existing `GlassCard`:
-  - Mail icon + heading "Check your inbox"
-  - Body: "We sent a verification link to **{email}**. Click it to activate your account, then come back to sign in."
-  - Primary button: **Resend verification email** → calls `supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: \`${window.location.origin}${nextPath}\` } })`, with loading state + success/error toast, plus a 30s cooldown to prevent spam.
-  - Secondary link: **Back to sign in** → resets `signupSuccessEmail`, switches to sign-in mode.
+### Scope
+Frontend/presentation only. No changes to auth logic, Supabase calls, routes, or environment variables.
 
-### 2. `src/pages/Auth.tsx` — friendly error on unconfirmed sign-in
-- In the `signInWithPassword` catch block, detect Supabase's unconfirmed-email error (`error.code === 'email_not_confirmed'` or message includes "Email not confirmed").
-- Show a specific toast: title "Email not verified", description "Please check your inbox for the verification link before signing in."
-- Add an inline banner below the sign-in form (only when this error was the last one) with a **Resend verification email** button that calls the same `supabase.auth.resend` flow.
+### Files
+- `src/pages/Auth.tsx` — full visual rewrite; logic preserved.
 
-### 3. Signup toast copy
-- Update the existing success toast description to: "We've sent a verification link to your email. Confirm it before signing in." (The main UX is the new inbox screen; toast is fallback.)
+### Visual system
+- Background: `#020617` full-screen with two blurred emerald ambient glows (top-left emerald-600/20, bottom-right emerald-900/20).
+- Centered column, max-w 440px.
+- Brand header above card: 12x12 emerald-500 rounded square with trending-up icon + glow, "AssetPulse" wordmark, "Your wealth, refined." tagline.
+- Auth card: `bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl`.
+- Segmented Sign In / Sign Up tab toggle (emerald-600 active pill inside `bg-white/5` track) replacing the current bottom text link. Drives existing `mode` state and updates the URL `?mode=` param.
+- Inputs: dark translucent (`bg-white/5`, `border-white/10`), rounded-xl, uppercase tracked labels, emerald focus ring. Password field keeps existing show/hide eye toggle (hidden when demo creds match, per existing rule).
+- Primary submit: full-width emerald-600 with soft glow shadow, hover scale.
+- Back-to-home: keep as a small link in the top-left of the column (above brand block) with ArrowLeft icon, muted slate.
+- Footer legal line under card (Terms / Privacy) — links only if routes exist, otherwise plain text.
 
-## Notes for the user (not code changes)
-- **Leaked Password Protection**: not under Auth → Providers. In the current Supabase dashboard it lives under **Authentication → Settings** (search for "leaked" or scroll to the **Password Security / Auth Protection** section) — enable "Prevent use of leaked passwords". Once enabled, the existing `AuthProviderHealth` widget will still show it as "action recommended" until the scanner re-runs.
-- No changes needed to the existing auth email templates — Supabase's default confirmation email works; the app just needs to guide users through it.
-- No new route required: Supabase's confirmation link auto-signs the user in and redirects to `emailRedirectTo` (`${origin}${nextPath}`, defaulting to `/dashboard`), which is already handled by the existing auth state listener.
+### Social auth
+- Show a single Google button only. Apple button removed as requested.
+- The Google button remains decorative unless the existing Google OAuth flow is already wired; no backend changes.
 
-## Technical detail
-- `supabase.auth.resend` signature: `{ type: 'signup', email, options?: { emailRedirectTo } }`. Returns `{ error }`.
-- Cooldown implemented with `useState<number>` + `setInterval` on click.
-- No DB or edge function changes.
+### Preserved behaviors (unchanged logic)
+- Demo prefill only in sign-in mode; clears when switching to sign-up.
+- `mode=signin|signup` URL param sync on tab switch.
+- Signup success → "Check your inbox" panel with email, resend button, 30s cooldown.
+- `email_not_confirmed` amber banner with resend.
+- Generic error alerts.
+- Confirm password field in sign-up mode + strength requirements.
+- Forced password masking when input equals demo creds.
+- SEO component and semantic `<main>` retained.
+
+### Out of scope
+- No changes to Landing, Dashboard, or any other page.
+- No new dependencies.
+
+### Verification
+- Typecheck.
+- Playwright screenshots of `/auth?mode=signin`, `/auth?mode=signup`, and the post-signup inbox state to confirm rendering and that demo prefill + tab switching still work.
