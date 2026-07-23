@@ -20,10 +20,10 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const safeNext = (raw: string | null): string => {
   if (!raw) return '/dashboard';
-  // Only allow same-origin relative paths.
   if (!raw.startsWith('/') || raw.startsWith('//')) return '/dashboard';
   return raw;
 };
@@ -55,7 +55,6 @@ const Auth = () => {
     return () => clearInterval(id);
   }, [resendCooldown]);
 
-  // Keep URL mode param in sync with active tab.
   const setMode = (signUp: boolean) => {
     setIsSignUp(signUp);
     const next = params.get('next');
@@ -92,7 +91,6 @@ const Auth = () => {
   };
 
   useEffect(() => {
-    // Check if user is already logged in
     const checkUser = async () => {
       const {
         data: { session },
@@ -112,17 +110,14 @@ const Auth = () => {
       numbers: /\d/.test(pwd),
       special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
     };
-
     return Object.values(checks).every((check) => check);
   };
 
   const validateUsername = (username: string) => {
-    // Username: 3-30 chars, alphanumeric + underscore, no consecutive underscores
     const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
     const noConsecutiveUnderscores = !/__/.test(username);
     const noStartEndUnderscore =
       !username.startsWith('_') && !username.endsWith('_');
-
     return (
       usernameRegex.test(username) &&
       noConsecutiveUnderscores &&
@@ -130,15 +125,11 @@ const Auth = () => {
     );
   };
 
-  const sanitizeInput = (input: string) => {
-    // Remove potentially dangerous characters
-    return input.replace(/[<>"']/g, '');
-  };
+  const sanitizeInput = (input: string) => input.replace(/[<>"']/g, '');
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    // Email validation with more robust regex
     if (!email) {
       newErrors.email = 'Email is required';
     } else if (
@@ -149,7 +140,6 @@ const Auth = () => {
       newErrors.email = 'Please enter a valid email address';
     }
 
-    // Password validation
     if (!password) {
       newErrors.password = 'Password is required';
     } else if (isSignUp && !validatePassword(password)) {
@@ -159,7 +149,6 @@ const Auth = () => {
     }
 
     if (isSignUp) {
-      // Name validation
       if (!name) {
         newErrors.name = 'Name is required';
       } else if (name.trim().length < 2) {
@@ -168,7 +157,6 @@ const Auth = () => {
         newErrors.name = 'Name must be less than 50 characters';
       }
 
-      // Username validation
       if (!username) {
         newErrors.username = 'Username is required';
       } else if (!validateUsername(username)) {
@@ -176,7 +164,6 @@ const Auth = () => {
           'Username must be 3-30 characters, letters, numbers, and underscores only';
       }
 
-      // Confirm password validation
       if (!confirmPassword) {
         newErrors.confirmPassword = 'Please confirm your password';
       } else if (password !== confirmPassword) {
@@ -190,14 +177,10 @@ const Auth = () => {
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       setLoading(true);
-
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({
           email,
@@ -210,9 +193,7 @@ const Auth = () => {
             },
           },
         });
-
         if (error) throw error;
-
         setSignupSuccessEmail(email);
         setUnconfirmedEmail(null);
         toast({
@@ -225,7 +206,6 @@ const Auth = () => {
           email,
           password,
         });
-
         if (error) throw error;
         navigate(nextPath);
       }
@@ -274,8 +254,11 @@ const Auth = () => {
 
   const isDemoCreds = !isSignUp && email === DEMO_EMAIL && password === DEMO_PASSWORD;
 
+  const inputCls =
+    'w-full bg-muted/40 border border-border rounded-xl pl-10 pr-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500/60 focus:ring-4 focus:ring-emerald-500/10 transition-all';
+
   return (
-    <main className="min-h-screen w-full flex items-center justify-center bg-slate-950 selection:bg-emerald-500/30 relative overflow-hidden p-6">
+    <main className="min-h-screen w-full flex items-center justify-center bg-background selection:bg-emerald-500/30 relative overflow-hidden p-6">
       <SEO
         title={isSignUp ? 'Create your AssetPulse account' : 'Sign in to AssetPulse'}
         description={
@@ -287,13 +270,17 @@ const Auth = () => {
       />
 
       {/* Ambient background glows */}
-      <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-emerald-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-emerald-900/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-emerald-500/15 dark:bg-emerald-600/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-emerald-400/10 dark:bg-emerald-900/20 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
 
       <div className="relative z-10 w-full max-w-[440px]">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors mb-6"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to home
@@ -304,22 +291,22 @@ const Auth = () => {
           <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)] mb-4">
             <TrendingUp className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">AssetPulse</h1>
-          <p className="text-slate-400 text-sm mt-1">Your wealth, refined.</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">AssetPulse</h1>
+          <p className="text-muted-foreground text-sm mt-1">Your wealth, refined.</p>
         </div>
 
         {/* Auth card */}
-        <div className="bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+        <div className="bg-card/60 backdrop-blur-2xl border border-border rounded-3xl p-8 shadow-2xl">
           {signupSuccessEmail ? (
             <div className="space-y-5 text-center">
               <div className="mx-auto h-14 w-14 rounded-full bg-emerald-500/10 flex items-center justify-center">
                 <MailCheck className="h-7 w-7 text-emerald-500" />
               </div>
               <div className="space-y-2">
-                <h2 className="text-2xl font-semibold text-white">Check your inbox</h2>
-                <p className="text-sm text-slate-400">
+                <h2 className="text-2xl font-semibold text-foreground">Check your inbox</h2>
+                <p className="text-sm text-muted-foreground">
                   We sent a verification link to{' '}
-                  <span className="font-medium text-white">{signupSuccessEmail}</span>. Click it to
+                  <span className="font-medium text-foreground">{signupSuccessEmail}</span>. Click it to
                   activate your account, then come back to sign in.
                 </p>
               </div>
@@ -348,7 +335,7 @@ const Auth = () => {
                     setConfirmPassword('');
                     setErrors({});
                   }}
-                  className="text-sm text-emerald-500 hover:text-emerald-400"
+                  className="text-sm text-emerald-600 dark:text-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400"
                 >
                   Back to sign in
                 </button>
@@ -357,7 +344,7 @@ const Auth = () => {
           ) : (
             <>
               {/* Tab toggle */}
-              <div className="flex p-1 bg-white/5 rounded-xl mb-8">
+              <div className="flex p-1 bg-muted rounded-xl mb-8">
                 <button
                   type="button"
                   onClick={() => {
@@ -372,7 +359,7 @@ const Auth = () => {
                   className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
                     !isSignUp
                       ? 'bg-emerald-600 text-white shadow-lg'
-                      : 'text-slate-400 hover:text-white'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   Sign In
@@ -391,7 +378,7 @@ const Auth = () => {
                   className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
                     isSignUp
                       ? 'bg-emerald-600 text-white shadow-lg'
-                      : 'text-slate-400 hover:text-white'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   Sign Up
@@ -404,35 +391,35 @@ const Auth = () => {
                     <div className="space-y-2">
                       <label
                         htmlFor="name"
-                        className="block text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1"
+                        className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1"
                       >
                         Name
                       </label>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4" />
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
                         <input
                           id="name"
                           type="text"
                           value={name}
                           onChange={(e) => setName(sanitizeInput(e.target.value))}
                           placeholder="Enter your name"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                          className={inputCls}
                         />
                       </div>
                       {errors.name && (
-                        <p className="text-xs text-red-400 ml-1">{errors.name}</p>
+                        <p className="text-xs text-destructive ml-1">{errors.name}</p>
                       )}
                     </div>
 
                     <div className="space-y-2">
                       <label
                         htmlFor="username"
-                        className="block text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1"
+                        className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1"
                       >
                         Username
                       </label>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4" />
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
                         <input
                           id="username"
                           type="text"
@@ -441,11 +428,11 @@ const Auth = () => {
                             setUsername(sanitizeInput(e.target.value.toLowerCase()))
                           }
                           placeholder="Enter your username (min 3 characters)"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                          className={inputCls}
                         />
                       </div>
                       {errors.username && (
-                        <p className="text-xs text-red-400 ml-1">{errors.username}</p>
+                        <p className="text-xs text-destructive ml-1">{errors.username}</p>
                       )}
                     </div>
                   </>
@@ -454,23 +441,23 @@ const Auth = () => {
                 <div className="space-y-2">
                   <label
                     htmlFor="email"
-                    className="block text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1"
+                    className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1"
                   >
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <input
                       id="email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@company.com"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                      className={inputCls}
                     />
                   </div>
                   {errors.email && (
-                    <p className="text-xs text-red-400 ml-1">{errors.email}</p>
+                    <p className="text-xs text-destructive ml-1">{errors.email}</p>
                   )}
                 </div>
 
@@ -478,7 +465,7 @@ const Auth = () => {
                   <div className="flex justify-between items-center ml-1">
                     <label
                       htmlFor="password"
-                      className="text-xs font-semibold text-slate-400 uppercase tracking-wider"
+                      className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
                     >
                       Password
                     </label>
@@ -489,14 +476,14 @@ const Auth = () => {
                           setEmail(DEMO_EMAIL);
                           setPassword(DEMO_PASSWORD);
                         }}
-                        className="text-xs font-medium text-emerald-500 hover:text-emerald-400 transition-colors"
+                        className="text-xs font-medium text-emerald-600 dark:text-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
                       >
                         Use demo?
                       </button>
                     )}
                   </div>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <input
                       id="password"
                       type={!isDemoCreds && showPassword ? 'text' : 'password'}
@@ -507,16 +494,16 @@ const Auth = () => {
                           ? 'Enter a strong password (min 12 characters)'
                           : 'Enter your password'
                       }
-                      className={`w-full bg-white/5 border border-white/10 rounded-xl pl-10 ${
+                      className={`w-full bg-muted/40 border border-border rounded-xl pl-10 ${
                         isDemoCreds ? 'pr-4' : 'pr-10'
-                      } py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all`}
+                      } py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500/60 focus:ring-4 focus:ring-emerald-500/10 transition-all`}
                     />
                     {!isDemoCreds && (
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         aria-label={showPassword ? 'Hide password' : 'Show password'}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -527,7 +514,7 @@ const Auth = () => {
                     )}
                   </div>
                   {errors.password && (
-                    <p className="text-xs text-red-400 ml-1">{errors.password}</p>
+                    <p className="text-xs text-destructive ml-1">{errors.password}</p>
                   )}
                   {isSignUp && <PasswordStrengthMeter password={password} />}
                 </div>
@@ -536,25 +523,25 @@ const Auth = () => {
                   <div className="space-y-2">
                     <label
                       htmlFor="confirmPassword"
-                      className="block text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1"
+                      className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1"
                     >
                       Confirm Password
                     </label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4" />
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
                       <input
                         id="confirmPassword"
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Confirm your password"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-10 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                        className={`w-full bg-muted/40 border border-border rounded-xl pl-10 pr-10 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500/60 focus:ring-4 focus:ring-emerald-500/10 transition-all`}
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {showConfirmPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -564,7 +551,7 @@ const Auth = () => {
                       </button>
                     </div>
                     {errors.confirmPassword && (
-                      <p className="text-xs text-red-400 ml-1">{errors.confirmPassword}</p>
+                      <p className="text-xs text-destructive ml-1">{errors.confirmPassword}</p>
                     )}
                   </div>
                 )}
@@ -573,7 +560,7 @@ const Auth = () => {
                   <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-left">
                     <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-amber-500" />
                     <div className="flex-1 space-y-2">
-                      <p className="text-sm text-amber-200">
+                      <p className="text-sm text-amber-700 dark:text-amber-200">
                         Your email <span className="font-medium">{unconfirmedEmail}</span> isn't
                         verified yet.
                       </p>
@@ -616,10 +603,10 @@ const Auth = () => {
 
               <div className="relative my-8">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/10" />
+                  <div className="w-full border-t border-border" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-slate-950 px-4 text-slate-500 tracking-widest font-medium">
+                  <span className="bg-card px-4 text-muted-foreground tracking-widest font-medium">
                     Or continue with
                   </span>
                 </div>
@@ -629,7 +616,7 @@ const Auth = () => {
                 type="button"
                 onClick={handleGoogleAuth}
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white py-2.5 rounded-xl transition-all disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 bg-muted/40 border border-border hover:bg-muted text-foreground py-2.5 rounded-xl transition-all disabled:opacity-50"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12.545 11.033v4.309h6.203c-.538 2.447-2.26 3.91-4.754 3.91-2.859 0-5.18-2.26-5.18-5.18s2.321-5.18 5.18-5.18c1.35 0 2.47.49 3.328 1.28l3.126-3.126C18.571 5.432 15.805 4.5 12.545 4.5 7.121 4.5 2.736 8.885 2.736 14.309s4.385 9.809 9.809 9.809c5.424 0 9.561-3.842 9.561-9.561 0-.61-.051-1.22-.153-1.805H12.545z" />
@@ -640,7 +627,7 @@ const Auth = () => {
           )}
         </div>
 
-        <p className="text-center text-slate-500 text-xs mt-8">
+        <p className="text-center text-muted-foreground text-xs mt-8">
           By continuing, you agree to AssetPulse's{' '}
           <Link to="/" className="underline hover:text-emerald-500 transition-colors">
             Terms of Service

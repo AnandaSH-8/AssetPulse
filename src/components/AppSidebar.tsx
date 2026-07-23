@@ -206,12 +206,8 @@ export function AppSidebar() {
           </motion.div>
         )}
 
-        <motion.div
-          className="flex items-center gap-2"
-          initial={false}
-          animate={{ justifyContent: isCollapsed ? 'center' : 'flex-end' }}
-        >
-          {!isCollapsed && (
+        {isCollapsed ? (
+          <div className="flex justify-center">
             <Button
               variant="ghost"
               size="icon"
@@ -221,8 +217,17 @@ export function AppSidebar() {
             >
               <LogOut className="w-4 h-4" />
             </Button>
-          )}
-        </motion.div>
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            onClick={signOut}
+            className="w-full justify-start gap-2 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sign out</span>
+          </Button>
+        )}
       </SidebarFooter>
     </Sidebar>
   )
