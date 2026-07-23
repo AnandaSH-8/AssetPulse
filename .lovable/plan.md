@@ -1,42 +1,37 @@
-## Auth Page Redesign — "Compact Emerald"
+## Problems
 
-Refresh `/auth` with a modern dark glassmorphism look matching the selected direction, while preserving every existing behavior (demo prefill, mode query param, verification inbox state, resend cooldown, error banners, forced-mask on demo creds, back-to-home).
+1. **Auth page ignores the theme toggle.** `src/pages/Auth.tsx` hardcodes dark-only colors (`bg-slate-950`, `text-white`, `bg-white/[0.03]`, `bg-white/5`, `placeholder:text-slate-600`, `border-white/10`, etc.), so switching to light mode on the landing page has no visual effect once you land on `/auth`.
+2. **Sidebar footer looks off.** After removing the theme button from `AppSidebar.tsx`, the footer row contains only a small ghost icon button (Sign Out) aligned to the right of an empty flex row, which looks orphaned.
 
-### Scope
-Frontend/presentation only. No changes to auth logic, Supabase calls, routes, or environment variables.
+## Fix plan
 
-### Files
-- `src/pages/Auth.tsx` — full visual rewrite; logic preserved.
+### 1. Make the Auth page theme-aware
 
-### Visual system
-- Background: `#020617` full-screen with two blurred emerald ambient glows (top-left emerald-600/20, bottom-right emerald-900/20).
-- Centered column, max-w 440px.
-- Brand header above card: 12x12 emerald-500 rounded square with trending-up icon + glow, "AssetPulse" wordmark, "Your wealth, refined." tagline.
-- Auth card: `bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl`.
-- Segmented Sign In / Sign Up tab toggle (emerald-600 active pill inside `bg-white/5` track) replacing the current bottom text link. Drives existing `mode` state and updates the URL `?mode=` param.
-- Inputs: dark translucent (`bg-white/5`, `border-white/10`), rounded-xl, uppercase tracked labels, emerald focus ring. Password field keeps existing show/hide eye toggle (hidden when demo creds match, per existing rule).
-- Primary submit: full-width emerald-600 with soft glow shadow, hover scale.
-- Back-to-home: keep as a small link in the top-left of the column (above brand block) with ArrowLeft icon, muted slate.
-- Footer legal line under card (Terms / Privacy) — links only if routes exist, otherwise plain text.
+Rework `src/pages/Auth.tsx` to use semantic Tailwind tokens instead of raw dark colors, so the same layout renders correctly in both light and dark themes:
 
-### Social auth
-- Show a single Google button only. Apple button removed as requested.
-- The Google button remains decorative unless the existing Google OAuth flow is already wired; no backend changes.
+- Page background: `bg-slate-950` → `bg-background` (with the ambient emerald glows kept — they read well on both themes).
+- Card surface: `bg-white/[0.03]` → `bg-card/60 backdrop-blur-2xl border-border`.
+- Inputs: `bg-white/5 border-white/10 text-white placeholder:text-slate-600` → `bg-muted/40 border-border text-foreground placeholder:text-muted-foreground`.
+- Segmented tab track: `bg-white/5` → `bg-muted`. Active pill keeps the emerald accent.
+- Divider label pill: replace `bg-slate-950` with `bg-background`.
+- Google button: `bg-white/5 hover:bg-white/10 text-white` → `bg-muted/40 hover:bg-muted text-foreground`.
+- Body copy currently forced to `text-white` / `text-slate-*` → `text-foreground` / `text-muted-foreground`.
+- Keep emerald brand accents (icon, active tab, focus ring, CTA button) unchanged — they already look correct on both themes.
 
-### Preserved behaviors (unchanged logic)
-- Demo prefill only in sign-in mode; clears when switching to sign-up.
-- `mode=signin|signup` URL param sync on tab switch.
-- Signup success → "Check your inbox" panel with email, resend button, 30s cooldown.
-- `email_not_confirmed` amber banner with resend.
-- Generic error alerts.
-- Confirm password field in sign-up mode + strength requirements.
-- Forced password masking when input equals demo creds.
-- SEO component and semantic `<main>` retained.
+No logic changes: demo prefill, `mode` sync, "Check your inbox" flow, resend cooldown, password-mask override for demo creds all stay as they are.
 
-### Out of scope
-- No changes to Landing, Dashboard, or any other page.
-- No new dependencies.
+### 2. Clean up the sidebar footer
+
+In `src/components/AppSidebar.tsx`, restructure the footer row so the lone Sign Out control looks intentional:
+
+- When expanded: render a single full-width `Button` styled `variant="ghost"` with `<LogOut />` + "Sign out" label, matching the visual weight of the nav items above.
+- When collapsed: render just the icon button, centered.
+- Drop the now-unneeded outer `motion.div` with `justify-content` animation since there is only one child.
+
+No behaviour changes — same `signOut()` handler, same user-info block above it.
 
 ### Verification
+
+- Toggle theme on `/` → navigate to `/auth?mode=signin` and `?mode=signup` in both themes; confirm background, card, inputs, tabs, and divider all follow the theme.
+- Sign in as any user, open the sidebar expanded and collapsed; confirm the footer Sign Out row looks balanced in both states and in both themes.
 - Typecheck.
-- Playwright screenshots of `/auth?mode=signin`, `/auth?mode=signup`, and the post-signup inbox state to confirm rendering and that demo prefill + tab switching still work.
