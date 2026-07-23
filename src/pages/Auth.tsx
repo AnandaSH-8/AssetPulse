@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
-import { ThemeToggle } from '@/components/ThemeToggle';
+
 
 const safeNext = (raw: string | null): string => {
   if (!raw) return '/dashboard';
@@ -255,10 +255,10 @@ const Auth = () => {
   const isDemoCreds = !isSignUp && email === DEMO_EMAIL && password === DEMO_PASSWORD;
 
   const inputCls =
-    'w-full bg-muted/40 border border-border rounded-xl pl-10 pr-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500/60 focus:ring-4 focus:ring-emerald-500/10 transition-all';
+    'w-full bg-muted/40 border border-border rounded-xl pl-10 pr-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-4 focus:ring-ring/20 transition-all';
 
   return (
-    <main className="min-h-screen w-full flex items-center justify-center bg-background selection:bg-emerald-500/30 relative overflow-hidden p-6">
+    <main className="min-h-screen w-full flex items-center justify-center bg-background selection:bg-primary/30 relative overflow-hidden p-6">
       <SEO
         title={isSignUp ? 'Create your AssetPulse account' : 'Sign in to AssetPulse'}
         description={
@@ -270,12 +270,9 @@ const Auth = () => {
       />
 
       {/* Ambient background glows */}
-      <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-emerald-500/15 dark:bg-emerald-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-emerald-400/10 dark:bg-emerald-900/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/15 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="absolute top-4 right-4 z-20">
-        <ThemeToggle />
-      </div>
 
       <div className="relative z-10 w-full max-w-[440px]">
         <Link
@@ -288,8 +285,8 @@ const Auth = () => {
 
         {/* Brand header */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)] mb-4">
-            <TrendingUp className="w-7 h-7 text-white" />
+          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-[0_0_20px_hsl(var(--primary)/0.4)] mb-4">
+            <TrendingUp className="w-7 h-7 text-primary-foreground" />
           </div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">AssetPulse</h1>
           <p className="text-muted-foreground text-sm mt-1">Your wealth, refined.</p>
@@ -299,8 +296,8 @@ const Auth = () => {
         <div className="bg-card/60 backdrop-blur-2xl border border-border rounded-3xl p-8 shadow-2xl">
           {signupSuccessEmail ? (
             <div className="space-y-5 text-center">
-              <div className="mx-auto h-14 w-14 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                <MailCheck className="h-7 w-7 text-emerald-500" />
+              <div className="mx-auto h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
+                <MailCheck className="h-7 w-7 text-primary" />
               </div>
               <div className="space-y-2">
                 <h2 className="text-2xl font-semibold text-foreground">Check your inbox</h2>
@@ -313,7 +310,7 @@ const Auth = () => {
               <div className="space-y-3">
                 <Button
                   type="button"
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                   disabled={resendLoading || resendCooldown > 0}
                   onClick={() => handleResendConfirmation(signupSuccessEmail)}
                 >
@@ -335,7 +332,7 @@ const Auth = () => {
                     setConfirmPassword('');
                     setErrors({});
                   }}
-                  className="text-sm text-emerald-600 dark:text-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400"
+                  className="text-sm text-primary hover:text-primary/80"
                 >
                   Back to sign in
                 </button>
@@ -358,7 +355,7 @@ const Auth = () => {
                   }}
                   className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
                     !isSignUp
-                      ? 'bg-emerald-600 text-white shadow-lg'
+                      ? 'bg-primary text-primary-foreground shadow-lg'
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
@@ -377,7 +374,7 @@ const Auth = () => {
                   }}
                   className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
                     isSignUp
-                      ? 'bg-emerald-600 text-white shadow-lg'
+                      ? 'bg-primary text-primary-foreground shadow-lg'
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
@@ -476,7 +473,7 @@ const Auth = () => {
                           setEmail(DEMO_EMAIL);
                           setPassword(DEMO_PASSWORD);
                         }}
-                        className="text-xs font-medium text-emerald-600 dark:text-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
+                        className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
                       >
                         Use demo?
                       </button>
@@ -496,7 +493,7 @@ const Auth = () => {
                       }
                       className={`w-full bg-muted/40 border border-border rounded-xl pl-10 ${
                         isDemoCreds ? 'pr-4' : 'pr-10'
-                      } py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500/60 focus:ring-4 focus:ring-emerald-500/10 transition-all`}
+                      } py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-4 focus:ring-ring/20 transition-all`}
                     />
                     {!isDemoCreds && (
                       <button
@@ -535,7 +532,7 @@ const Auth = () => {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Confirm your password"
-                        className={`w-full bg-muted/40 border border-border rounded-xl pl-10 pr-10 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500/60 focus:ring-4 focus:ring-emerald-500/10 transition-all`}
+                        className={`w-full bg-muted/40 border border-border rounded-xl pl-10 pr-10 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-4 focus:ring-ring/20 transition-all`}
                       />
                       <button
                         type="button"
@@ -584,7 +581,7 @@ const Auth = () => {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 h-auto rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] transition-all transform hover:scale-[1.01] active:scale-[0.98]"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 h-auto rounded-xl shadow-[0_0_20px_hsl(var(--primary)/0.25)] transition-all transform hover:scale-[1.01] active:scale-[0.98]"
                 >
                   {loading ? (
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -629,11 +626,11 @@ const Auth = () => {
 
         <p className="text-center text-muted-foreground text-xs mt-8">
           By continuing, you agree to AssetPulse's{' '}
-          <Link to="/" className="underline hover:text-emerald-500 transition-colors">
+          <Link to="/" className="underline hover:text-primary transition-colors">
             Terms of Service
           </Link>{' '}
           and{' '}
-          <Link to="/" className="underline hover:text-emerald-500 transition-colors">
+          <Link to="/" className="underline hover:text-primary transition-colors">
             Privacy Policy
           </Link>
           .
