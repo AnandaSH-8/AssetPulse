@@ -6,9 +6,6 @@ import {
   Plus,
   BarChart3,
   TrendingUp,
-  Wallet,
-  Sun,
-  Moon,
   IndianRupee,
   Settings,
   LogOut,
@@ -30,7 +27,6 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/components/ThemeProvider';
 
 const navigationItems = [
   {
