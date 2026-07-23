@@ -268,7 +268,7 @@ export default function Landing() {
               initial={{ opacity: 0, x: 20, y: -20 }}
               animate={{ opacity: 1, x: 0, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="hidden sm:flex absolute -right-4 -bottom-4 items-center gap-3 rounded-2xl bg-gradient-primary text-white shadow-xl shadow-primary/30 px-4 py-3"
+              className="hidden sm:flex absolute right-0 -bottom-4 items-center gap-3 rounded-2xl bg-gradient-primary text-white shadow-xl shadow-primary/30 px-4 py-3 xl:-right-4"
             >
               <TrendingUp className="h-5 w-5" />
               <div>
