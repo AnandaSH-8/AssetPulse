@@ -32,9 +32,45 @@ const Auth = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [signupSuccessEmail, setSignupSuccessEmail] = useState<string | null>(null);
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const navigate = useNavigate();
   const nextPath = safeNext(params.get('next'));
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const id = setInterval(() => setResendCooldown((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(id);
+  }, [resendCooldown]);
+
+  const handleResendConfirmation = async (targetEmail: string) => {
+    if (resendCooldown > 0 || resendLoading) return;
+    try {
+      setResendLoading(true);
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: targetEmail,
+        options: { emailRedirectTo: `${window.location.origin}${nextPath}` },
+      });
+      if (error) throw error;
+      toast({
+        title: 'Verification email sent',
+        description: `We resent the link to ${targetEmail}.`,
+      });
+      setResendCooldown(30);
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Could not resend email',
+        description: error.message,
+      });
+    } finally {
+      setResendLoading(false);
+    }
+  };
 
   useEffect(() => {
     // Check if user is already logged in
