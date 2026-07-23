@@ -375,16 +375,22 @@ const Auth = () => {
             </div>
           </div>
 
+          {(() => {
+            const isDemoCreds =
+              !isSignUp &&
+              email === DEMO_EMAIL &&
+              password === DEMO_PASSWORD;
+            return (
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <NeomorphInput
                 id="password"
-                type={showPassword ? 'text' : 'password'}
+                type={!isDemoCreds && showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="pl-10 pr-10 border border-gray-300"
+                className={`pl-10 ${isDemoCreds ? '' : 'pr-10'} border border-gray-300`}
                 placeholder={
                   isSignUp
                     ? 'Enter a strong password (min 12 characters)'
@@ -392,6 +398,7 @@ const Auth = () => {
                 }
                 error={errors.password}
               />
+              {!isDemoCreds && (
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -404,9 +411,12 @@ const Auth = () => {
                   <Eye className="h-4 w-4" />
                 )}
               </button>
+              )}
             </div>
             {isSignUp && <PasswordStrengthMeter password={password} />}
           </div>
+            );
+          })()}
 
           {isSignUp && (
             <div className="space-y-2">
