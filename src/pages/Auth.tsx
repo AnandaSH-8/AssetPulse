@@ -482,7 +482,7 @@ const Auth = () => {
                     >
                       Password
                     </label>
-                    {!isSignUp && (
+                    {!isSignUp && !(email === DEMO_EMAIL && password === DEMO_PASSWORD) && (
                       <button
                         type="button"
                         onClick={() => {
