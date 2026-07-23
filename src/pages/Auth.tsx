@@ -195,9 +195,11 @@ const Auth = () => {
 
         if (error) throw error;
 
+        setSignupSuccessEmail(email);
+        setUnconfirmedEmail(null);
         toast({
           title: 'Account created!',
-          description: 'Please check your email to verify your account.',
+          description: "We've sent a verification link to your email. Confirm it before signing in.",
         });
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -209,11 +211,25 @@ const Auth = () => {
         navigate(nextPath);
       }
     } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Authentication Error',
-        description: error.message,
-      });
+      const msg: string = error?.message ?? '';
+      const isUnconfirmed =
+        error?.code === 'email_not_confirmed' ||
+        /email not confirmed/i.test(msg);
+      if (!isSignUp && isUnconfirmed) {
+        setUnconfirmedEmail(email);
+        toast({
+          variant: 'destructive',
+          title: 'Email not verified',
+          description:
+            'Please check your inbox for the verification link before signing in.',
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Authentication Error',
+          description: msg,
+        });
+      }
     } finally {
       setLoading(false);
     }
