@@ -335,7 +335,7 @@ const Auth = () => {
                     setConfirmPassword('');
                     setErrors({});
                   }}
-                  className="text-sm text-emerald-600 dark:text-primary hover:text-primary dark:hover:text-emerald-400"
+                  className="text-sm text-primary hover:text-primary/80"
                 >
                   Back to sign in
                 </button>
@@ -476,7 +476,7 @@ const Auth = () => {
                           setEmail(DEMO_EMAIL);
                           setPassword(DEMO_PASSWORD);
                         }}
-                        className="text-xs font-medium text-emerald-600 dark:text-primary hover:text-primary dark:hover:text-emerald-400 transition-colors"
+                        className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
                       >
                         Use demo?
                       </button>
