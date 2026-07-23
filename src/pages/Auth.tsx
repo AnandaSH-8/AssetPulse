@@ -261,6 +261,54 @@ const Auth = () => {
           Back to home
         </Link>
 
+        {signupSuccessEmail ? (
+          <div className="space-y-5 text-center">
+            <div className="mx-auto h-14 w-14 rounded-full bg-emerald-500/10 flex items-center justify-center">
+              <MailCheck className="h-7 w-7 text-emerald-500" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold">Check your inbox</h2>
+              <p className="text-sm text-muted-foreground">
+                We sent a verification link to{' '}
+                <span className="font-medium text-foreground">
+                  {signupSuccessEmail}
+                </span>
+                . Click it to activate your account, then come back to sign in.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Button
+                type="button"
+                className="w-full"
+                disabled={resendLoading || resendCooldown > 0}
+                onClick={() => handleResendConfirmation(signupSuccessEmail)}
+              >
+                {resendLoading ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : resendCooldown > 0 ? (
+                  `Resend in ${resendCooldown}s`
+                ) : (
+                  'Resend verification email'
+                )}
+              </Button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSignupSuccessEmail(null);
+                  setIsSignUp(false);
+                  setEmail(DEMO_EMAIL);
+                  setPassword(DEMO_PASSWORD);
+                  setConfirmPassword('');
+                  setErrors({});
+                }}
+                className="text-sm text-primary hover:underline"
+              >
+                Back to sign in
+              </button>
+            </div>
+          </div>
+        ) : (
+        <>
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
             AssetPulse — Your personal wealth tracker
@@ -272,6 +320,7 @@ const Auth = () => {
 
 
         <form onSubmit={handleEmailAuth} className="space-y-4">
+
           {isSignUp && (
             <>
               <div className="space-y-2">
