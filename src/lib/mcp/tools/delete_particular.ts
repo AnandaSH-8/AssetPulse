@@ -1,6 +1,6 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-import { supabaseForUser, requireAuth } from "../lib/supabase";
+import { supabaseForUser, requireAuth, requireWritable } from "../lib/supabase";
 
 export default defineTool({
   name: "delete_particular",
