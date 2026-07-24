@@ -16,9 +16,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Require an authenticated user. Any logged-in user can trigger this
-    // one-shot migration; the admin client only updates rows belonging to
-    // non-demo users.
+    // Restrict to the app creator/admin only. This runs with the service role
+    // and rewrites rows across ALL users, so a plain authenticated check is
+    // insufficient.
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) return json({ error: 'No authorization header' }, 401);
     const token = authHeader.replace('Bearer ', '');
@@ -30,6 +30,12 @@ Deno.serve(async (req) => {
     );
     const { data: { user }, error: userErr } = await userClient.auth.getUser(token);
     if (userErr || !user) return json({ error: 'Invalid token' }, 401);
+
+    const creatorEmail = (Deno.env.get('CREATOR_EMAIL') || '').toLowerCase();
+    const callerEmail = (user.email || '').toLowerCase();
+    if (!creatorEmail || callerEmail !== creatorEmail) {
+      return json({ error: 'Forbidden' }, 403);
+    }
 
     // Service-role client for the migration writes
     const admin = createClient(

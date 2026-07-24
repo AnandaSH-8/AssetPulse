@@ -1,6 +1,6 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-import { supabaseForUser, requireAuth } from "../lib/supabase";
+import { supabaseForUser, requireAuth, requireWritable } from "../lib/supabase";
 import { encryptNumber, decryptRecord } from "../lib/encryption";
 
 const sanitize = (t: string) => t.replace(/[<>"']/g, "");
@@ -25,6 +25,8 @@ export default defineTool({
   handler: async (input, ctx) => {
     const guard = requireAuth(ctx);
     if (guard) return guard;
+    const writeGuard = await requireWritable(ctx);
+    if (writeGuard) return writeGuard;
     const { data, error } = await supabaseForUser(ctx)
       .from("financial_particulars")
       .insert({

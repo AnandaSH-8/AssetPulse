@@ -27,6 +27,28 @@ function requireAuth(ctx) {
   }
   return null;
 }
+async function requireWritable(ctx) {
+  const env = globalThis.process?.env ?? {};
+  const demoEmail = (env.DEMO_EMAIL || "user@yopmail.com").toLowerCase();
+  const callerEmail = ((ctx.getUser?.() ?? ctx.user)?.email || "").toLowerCase();
+  if (callerEmail !== demoEmail) return null;
+  const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = env.SUPABASE_URL;
+  if (url && serviceKey) {
+    try {
+      const admin = createClient(url, serviceKey, {
+        auth: { persistSession: false, autoRefreshToken: false }
+      });
+      const { data } = await admin.from("app_settings").select("value").eq("key", "demo_editable").maybeSingle();
+      if (data?.value === true) return null;
+    } catch {
+    }
+  }
+  return {
+    content: [{ type: "text", text: "Demo account is read-only" }],
+    isError: true
+  };
+}
 
 // src/lib/mcp/lib/encryption.ts
 var ENC_PREFIX = "enc:v1:";
@@ -188,6 +210,8 @@ var create_particular_default = defineTool3({
   handler: async (input, ctx) => {
     const guard = requireAuth(ctx);
     if (guard) return guard;
+    const writeGuard = await requireWritable(ctx);
+    if (writeGuard) return writeGuard;
     const { data, error } = await supabaseForUser(ctx).from("financial_particulars").insert({
       user_id: ctx.getUserId(),
       category: sanitize(input.category),
@@ -232,6 +256,8 @@ var update_particular_default = defineTool4({
   handler: async ({ id, ...input }, ctx) => {
     const guard = requireAuth(ctx);
     if (guard) return guard;
+    const writeGuard = await requireWritable(ctx);
+    if (writeGuard) return writeGuard;
     const updates = {};
     if (input.category !== void 0) updates.category = sanitize2(input.category);
     if (input.description !== void 0) updates.description = sanitize2(input.description);
@@ -265,6 +291,8 @@ var delete_particular_default = defineTool5({
   handler: async ({ id }, ctx) => {
     const guard = requireAuth(ctx);
     if (guard) return guard;
+    const writeGuard = await requireWritable(ctx);
+    if (writeGuard) return writeGuard;
     const { error } = await supabaseForUser(ctx).from("financial_particulars").delete().eq("id", id).eq("user_id", ctx.getUserId());
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
