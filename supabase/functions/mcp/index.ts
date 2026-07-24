@@ -256,6 +256,8 @@ var update_particular_default = defineTool4({
   handler: async ({ id, ...input }, ctx) => {
     const guard = requireAuth(ctx);
     if (guard) return guard;
+    const writeGuard = await requireWritable(ctx);
+    if (writeGuard) return writeGuard;
     const updates = {};
     if (input.category !== void 0) updates.category = sanitize2(input.category);
     if (input.description !== void 0) updates.description = sanitize2(input.description);

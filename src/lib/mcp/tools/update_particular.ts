@@ -24,6 +24,8 @@ export default defineTool({
   handler: async ({ id, ...input }, ctx) => {
     const guard = requireAuth(ctx);
     if (guard) return guard;
+    const writeGuard = await requireWritable(ctx);
+    if (writeGuard) return writeGuard;
     const updates: Record<string, any> = {};
     if (input.category !== undefined) updates.category = sanitize(input.category);
     if (input.description !== undefined) updates.description = sanitize(input.description);
