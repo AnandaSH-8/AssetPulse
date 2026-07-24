@@ -13,6 +13,8 @@ export default defineTool({
   handler: async ({ id }, ctx) => {
     const guard = requireAuth(ctx);
     if (guard) return guard;
+    const writeGuard = await requireWritable(ctx);
+    if (writeGuard) return writeGuard;
     const { error } = await supabaseForUser(ctx)
       .from("financial_particulars")
       .delete()

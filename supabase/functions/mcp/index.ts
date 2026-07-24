@@ -291,6 +291,8 @@ var delete_particular_default = defineTool5({
   handler: async ({ id }, ctx) => {
     const guard = requireAuth(ctx);
     if (guard) return guard;
+    const writeGuard = await requireWritable(ctx);
+    if (writeGuard) return writeGuard;
     const { error } = await supabaseForUser(ctx).from("financial_particulars").delete().eq("id", id).eq("user_id", ctx.getUserId());
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
