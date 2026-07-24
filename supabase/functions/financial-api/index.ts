@@ -125,6 +125,33 @@ Deno.serve(async req => {
         },
       );
     }
+    // Enforce demo read-only mode server-side. The demo account credentials are
+    // publicly displayed on the sign-in page, so we cannot rely on the UI to
+    // block writes — a caller could invoke this endpoint directly. When the
+    // logged-in user is the demo user and the `demo_editable` flag is off,
+    // reject all mutating requests.
+    const demoEmail = (Deno.env.get('DEMO_EMAIL') || 'user@yopmail.com').toLowerCase();
+    const callerEmail = (user.email || '').toLowerCase();
+    const isMutation = req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE';
+    if (isMutation && callerEmail === demoEmail) {
+      const admin = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      );
+      const { data: settingRow } = await admin
+        .from('app_settings')
+        .select('value')
+        .eq('key', 'demo_editable')
+        .maybeSingle();
+      const demoEditable = settingRow?.value === true;
+      if (!demoEditable) {
+        return new Response(
+          JSON.stringify({ error: 'Demo account is read-only' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+    }
+
     switch (req.method) {
       case 'GET':
         if (action === 'all') {
