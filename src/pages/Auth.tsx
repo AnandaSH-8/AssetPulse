@@ -485,7 +485,7 @@ const Auth = () => {
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <input
                       id="password"
-                      type={!isDemoCreds && showPassword ? 'text' : 'password'}
+                      type={!isDemoPassword && showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder={
@@ -494,10 +494,10 @@ const Auth = () => {
                           : 'Enter your password'
                       }
                       className={`w-full bg-muted/40 border border-border rounded-xl pl-10 ${
-                        isDemoCreds ? 'pr-4' : 'pr-10'
+                        isDemoPassword ? 'pr-4' : 'pr-10'
                       } py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-4 focus:ring-ring/20 transition-all`}
                     />
-                    {!isDemoCreds && (
+                    {!isDemoPassword && (
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
