@@ -227,6 +227,21 @@ export default function BulkTemplateCard({
           })
           return
         }
+
+        const badNumberRows = parsed
+          .map((r, i) => (r.error?.startsWith('Amounts must contain') ? i + 2 : 0))
+          .filter(Boolean)
+        if (badNumberRows.length) {
+          toast({
+            title: 'Invalid amounts found',
+            description: `Cash, Invested and Current must contain numbers only. Fix row${
+              badNumberRows.length > 1 ? 's' : ''
+            } ${badNumberRows.join(', ')} and upload again.`,
+            variant: 'destructive',
+          })
+          return
+        }
+
         setRows(parsed)
         setOpen(true)
       } catch {
