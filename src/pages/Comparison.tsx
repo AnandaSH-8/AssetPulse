@@ -505,58 +505,75 @@ export default function Comparison() {
         <GlassCard className="p-6">
           <div className="flex items-center gap-3 mb-6">
             <TrendingUp className="h-6 w-6 text-success" />
-            <h2 className="text-xl font-semibold">Monthly Trend Comparison</h2>
+            <h2 className="text-xl font-semibold">Monthly Trend</h2>
           </div>
 
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={monthlyComparison}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="hsl(var(--border))"
-                />
-                <XAxis
-                  dataKey="month"
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
-                />
-                <YAxis
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
-                  tickFormatter={value => `₹${(value / 100000).toFixed(0)}L`}
-                />
-                <Tooltip
-                  formatter={(value, name) => [
-                    formatCurrency(Number(value)),
-                    name === 'period1' ? 'Q2 2024' : 'Q1 2024',
-                  ]}
-                  labelStyle={{ color: 'hsl(var(--foreground))' }}
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--background))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="period1"
-                  stroke="hsl(var(--primary))"
-                  strokeWidth={3}
-                  dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 6 }}
-                  name="period1"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="period2"
-                  stroke="hsl(var(--chart-2))"
-                  strokeWidth={3}
-                  strokeDasharray="5 5"
-                  dot={{ fill: 'hsl(var(--chart-2))', strokeWidth: 2, r: 6 }}
-                  name="period2"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          {trendData.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-10 text-center">
+              {isLoadingPeriods ? 'Loading data...' : 'No data available.'}
+            </p>
+          ) : (
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trendData}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="hsl(var(--border))"
+                  />
+                  <XAxis
+                    dataKey="month"
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={12}
+                  />
+                  <YAxis
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={12}
+                    tickFormatter={value => `₹${(value / 100000).toFixed(0)}L`}
+                  />
+                  <Tooltip
+                    formatter={(value) => [
+                      formatCurrency(Number(value)),
+                      'Total value',
+                    ]}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--background))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="total"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={3}
+                    dot={(props: { cx?: number; cy?: number; payload?: { month: string } }) => {
+                      const label = props.payload?.month;
+                      const highlight =
+                        label === period1Label || label === period2Label;
+                      return (
+                        <circle
+                          key={`${label}-dot`}
+                          cx={props.cx}
+                          cy={props.cy}
+                          r={highlight ? 7 : 4}
+                          fill={
+                            label === period1Label
+                              ? 'hsl(var(--primary))'
+                              : label === period2Label
+                                ? 'hsl(var(--chart-2))'
+                                : 'hsl(var(--muted-foreground))'
+                          }
+                        />
+                      );
+                    }}
+                    name="total"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
         </GlassCard>
       </motion.div>
     </div>
