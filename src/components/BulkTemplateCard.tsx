@@ -270,7 +270,8 @@ export default function BulkTemplateCard({
         </div>
         <p className="text-xs text-muted-foreground mb-4">
           Columns: <span className="font-medium">Title, Category, Cash, Invested, Current</span>.
-          Do not rename or reorder the header row — it is validated on upload.
+          Category is a dropdown in the downloaded Excel template. Do not rename or reorder the
+          header row — it is validated on upload.
         </p>
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
