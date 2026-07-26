@@ -186,19 +186,27 @@ export default function BulkTemplateCard({
           const invested = parseNumber(raw?.[iInv])
           const current = parseNumber(raw?.[iCur])
 
-          // Skip fully blank rows (e.g. pre-filled titles left untouched)
-          if (!title && !category && !cash && !invested && !current) continue
+          const rawCash = String(raw?.[iCash] ?? '').trim()
+          const rawInv = String(raw?.[iInv] ?? '').trim()
+          const rawCur = String(raw?.[iCur] ?? '').trim()
+          const amountsUntouched = [rawCash, rawInv, rawCur].every(
+            v => v === '' || v === '0' || Number(v) === 0
+          )
+
+          // Skip untouched rows (pre-filled titles with zero/blank amounts and no category)
+          if (!category && amountsUntouched) continue
 
           let error: string | undefined
-          if (!title) error = 'Title is required'
+          if ([cash, invested, current].some(n => Number.isNaN(n)))
+            error = 'Amounts must contain numbers only'
+          else if (!title) error = 'Title is required'
           else if (!category) error = 'Category is required'
           else if (!categories.some(c => norm(c) === norm(category)))
             error = `Unknown category "${category}"`
-          else if ([cash, invested, current].some(n => Number.isNaN(n)))
-            error = 'Amounts must be numbers'
           else if ([cash, invested, current].some(n => n < 0))
             error = 'Amounts cannot be negative'
           else if (!cash && !invested && !current) error = 'Enter at least one amount'
+
 
           const matchedCategory = categories.find(c => norm(c) === norm(category)) || category
           parsed.push({
