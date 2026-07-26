@@ -75,7 +75,7 @@ export default function BulkTemplateCard({
     ]
 
     const titles = savedTitles.length > 0 ? savedTitles : ['']
-    titles.forEach(t => ws.addRow([t, '', '', '', '']))
+    titles.forEach(t => ws.addRow([t, '', 0, 0, 0]))
 
     const lastRow = Math.max(ws.rowCount, 200)
     for (let r = 2; r <= lastRow; r++) {
@@ -86,6 +86,20 @@ export default function BulkTemplateCard({
         showErrorMessage: true,
         errorTitle: 'Invalid category',
         error: 'Pick a category from the dropdown list.',
+      }
+      for (const c of [3, 4, 5]) {
+        const cell = ws.getCell(r, c)
+        if (cell.value === null || cell.value === undefined) cell.value = 0
+        cell.numFmt = '#,##0.00'
+        cell.dataValidation = {
+          type: 'decimal',
+          operator: 'greaterThanOrEqual',
+          allowBlank: false,
+          formulae: [0],
+          showErrorMessage: true,
+          errorTitle: 'Numbers only',
+          error: 'Enter a non-negative number (no text).',
+        }
       }
     }
 
