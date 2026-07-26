@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { ToolContext } from "@lovable.dev/mcp-js";
+import { DEMO_EMAIL } from "./config";
 
 export function supabaseForUser(ctx: ToolContext): SupabaseClient {
   const env = (globalThis as any).process?.env ?? {};
@@ -25,9 +26,8 @@ export function requireAuth(ctx: ToolContext) {
 // `demo_editable` flag is off.
 export async function requireWritable(ctx: ToolContext) {
   const env = (globalThis as any).process?.env ?? {};
-  const demoEmail = (env.DEMO_EMAIL || "user@yopmail.com").toLowerCase();
   const callerEmail = (((ctx as any).getUser?.() ?? (ctx as any).user)?.email || "").toLowerCase();
-  if (callerEmail !== demoEmail) return null;
+  if (callerEmail !== DEMO_EMAIL) return null;
 
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY as string | undefined;
   const url = env.SUPABASE_URL as string | undefined;

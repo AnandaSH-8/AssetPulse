@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { DEMO_EMAIL } from '../_shared/config.ts';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 import { encryptNumber, decryptRecord, decryptNumber } from '../_shared/encryption.ts';
 
@@ -130,10 +131,9 @@ Deno.serve(async req => {
     // block writes — a caller could invoke this endpoint directly. When the
     // logged-in user is the demo user and the `demo_editable` flag is off,
     // reject all mutating requests.
-    const demoEmail = (Deno.env.get('DEMO_EMAIL') || 'user@yopmail.com').toLowerCase();
     const callerEmail = (user.email || '').toLowerCase();
     const isMutation = req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE';
-    if (isMutation && callerEmail === demoEmail) {
+    if (isMutation && callerEmail === DEMO_EMAIL) {
       const admin = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
