@@ -373,115 +373,126 @@ export default function Comparison() {
             <h2 className="text-xl font-semibold">Category-wise Comparison</h2>
           </div>
 
-          <div className="h-80 mb-6">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={periodComparison}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="hsl(var(--border))"
-                />
-                <XAxis
-                  dataKey="category"
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
-                />
-                <YAxis
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
-                  tickFormatter={value => `₹${(value / 100000).toFixed(0)}L`}
-                />
-                <Tooltip
-                  formatter={(value, name) => [
-                    formatCurrency(Number(value)),
-                    name === 'q2Assets' ? 'Q2 2024' : 'Q1 2024',
-                  ]}
-                  labelStyle={{ color: 'hsl(var(--foreground))' }}
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--background))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
-                <Bar
-                  dataKey="q2Assets"
-                  fill="hsl(var(--primary))"
-                  radius={[4, 4, 0, 0]}
-                  name="q2Assets"
-                />
-                <Bar
-                  dataKey="q1Assets"
-                  fill="hsl(var(--chart-2))"
-                  radius={[4, 4, 0, 0]}
-                  name="q1Assets"
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {periodComparison.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-10 text-center">
+              {isLoadingPeriods
+                ? 'Loading data...'
+                : 'No data available for the selected periods.'}
+            </p>
+          ) : (
+            <>
+              <div className="h-80 mb-6">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={periodComparison}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                    />
+                    <XAxis
+                      dataKey="category"
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                    />
+                    <YAxis
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickFormatter={value => `₹${(value / 100000).toFixed(0)}L`}
+                    />
+                    <Tooltip
+                      formatter={(value, name) => [
+                        formatCurrency(Number(value)),
+                        name === 'p1' ? period1Label : period2Label,
+                      ]}
+                      labelStyle={{ color: 'hsl(var(--foreground))' }}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Bar
+                      dataKey="p1"
+                      fill="hsl(var(--primary))"
+                      radius={[4, 4, 0, 0]}
+                      name="p1"
+                    />
+                    <Bar
+                      dataKey="p2"
+                      fill="hsl(var(--chart-2))"
+                      radius={[4, 4, 0, 0]}
+                      name="p2"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
 
-          {/* Detailed Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border/50">
-                  <th className="text-left py-3 font-medium text-muted-foreground">
-                    Category
-                  </th>
-                  <th className="text-right py-3 font-medium text-muted-foreground">
-                    Q2 2024
-                  </th>
-                  <th className="text-right py-3 font-medium text-muted-foreground">
-                    Q1 2024
-                  </th>
-                  <th className="text-right py-3 font-medium text-muted-foreground">
-                    Growth %
-                  </th>
-                  <th className="text-right py-3 font-medium text-muted-foreground">
-                    Difference
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {periodComparison.map((item, index) => {
-                  const difference = item.q2Assets - item.q1Assets;
-                  const isPositive = difference >= 0;
+              {/* Detailed Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border/50">
+                      <th className="text-left py-3 font-medium text-muted-foreground">
+                        Category
+                      </th>
+                      <th className="text-right py-3 font-medium text-muted-foreground">
+                        {period1Label}
+                      </th>
+                      <th className="text-right py-3 font-medium text-muted-foreground">
+                        {period2Label}
+                      </th>
+                      <th className="text-right py-3 font-medium text-muted-foreground">
+                        Growth %
+                      </th>
+                      <th className="text-right py-3 font-medium text-muted-foreground">
+                        Difference
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {periodComparison.map((item, index) => {
+                      const difference = item.p1 - item.p2;
+                      const isPositive = difference >= 0;
 
-                  return (
-                    <motion.tr
-                      key={item.category}
-                      className="border-b border-border/20 hover:bg-accent/20"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <td className="py-4 font-medium">{item.category}</td>
-                      <td className="py-4 text-right">
-                        {formatCurrency(item.q2Assets)}
-                      </td>
-                      <td className="py-4 text-right">
-                        {formatCurrency(item.q1Assets)}
-                      </td>
-                      <td
-                        className={`py-4 text-right font-bold ${
-                          isPositive ? 'text-success' : 'text-destructive'
-                        }`}
-                      >
-                        {isPositive ? '+' : ''}
-                        {item.growth.toFixed(1)}%
-                      </td>
-                      <td
-                        className={`py-4 text-right font-bold ${
-                          isPositive ? 'text-success' : 'text-destructive'
-                        }`}
-                      >
-                        {isPositive ? '+' : ''}
-                        {formatCurrency(difference)}
-                      </td>
-                    </motion.tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      return (
+                        <motion.tr
+                          key={item.category}
+                          className="border-b border-border/20 hover:bg-accent/20"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <td className="py-4 font-medium">{item.category}</td>
+                          <td className="py-4 text-right">
+                            {formatCurrency(item.p1)}
+                          </td>
+                          <td className="py-4 text-right">
+                            {formatCurrency(item.p2)}
+                          </td>
+                          <td
+                            className={`py-4 text-right font-bold ${
+                              isPositive ? 'text-success' : 'text-destructive'
+                            }`}
+                          >
+                            {item.growth >= 0 ? '+' : ''}
+                            {item.growth.toFixed(2)}%
+                          </td>
+                          <td
+                            className={`py-4 text-right font-bold ${
+                              isPositive ? 'text-success' : 'text-destructive'
+                            }`}
+                          >
+                            {isPositive ? '+' : ''}
+                            {formatCurrency(difference)}
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
         </GlassCard>
       </motion.div>
 
