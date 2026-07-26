@@ -24,55 +24,27 @@ import {
   Line,
 } from 'recharts';
 
-// Mock comparison data
-const periodComparison = [
-  {
-    category: 'Bank Account',
-    q1Assets: 420000,
-    q1Investments: 420000,
-    q2Assets: 450000,
-    q2Investments: 430000,
-    growth: 7.1,
-  },
-  {
-    category: 'Mutual Fund',
-    q1Assets: 280000,
-    q1Investments: 250000,
-    q2Assets: 320000,
-    q2Investments: 270000,
-    growth: 14.3,
-  },
-  {
-    category: 'Stocks',
-    q1Assets: 230000,
-    q1Investments: 200000,
-    q2Assets: 280000,
-    q2Investments: 220000,
-    growth: 21.7,
-  },
-  {
-    category: 'Fixed Deposit',
-    q1Assets: 145000,
-    q1Investments: 140000,
-    q2Assets: 150000,
-    q2Investments: 145000,
-    growth: 3.4,
-  },
-];
-
-const monthlyComparison = [
-  { month: 'Jan', period1: 1100000, period2: 950000 },
-  { month: 'Feb', period1: 1150000, period2: 1000000 },
-  { month: 'Mar', period1: 1200000, period2: 1080000 },
-  { month: 'Apr', period1: 1250000, period2: 1120000 },
-  { month: 'May', period1: 1280000, period2: 1180000 },
-  { month: 'Jun', period1: 1320000, period2: 1220000 },
-];
-
 type PeriodOption = { value: string; label: string };
+
+type Row = {
+  category: string;
+  month: string;
+  year: number;
+  month_number?: number;
+  current_value?: number | string;
+  amount?: number | string;
+  investment?: number | string;
+  created_at?: string;
+};
+
+const num = (v: unknown) => {
+  const n = typeof v === 'number' ? v : parseFloat(String(v ?? '0'));
+  return Number.isFinite(n) ? n : 0;
+};
 
 export default function Comparison() {
   const { user } = useAuth();
+  const [rows, setRows] = useState<Row[]>([]);
   const [periodOptions, setPeriodOptions] = useState<PeriodOption[]>([]);
   const [isLoadingPeriods, setIsLoadingPeriods] = useState(true);
   const [selectedPeriod1, setSelectedPeriod1] = useState('');
@@ -89,12 +61,12 @@ export default function Comparison() {
       try {
         setIsLoadingPeriods(true);
         const response = await financialAPI.getAll();
-        const rows = response?.data ?? [];
+        const data: Row[] = response?.data ?? [];
         const monthSet = new Map<
           string,
           { month: string; year: number; monthNumber: number }
         >();
-        for (const item of rows) {
+        for (const item of data) {
           const key = `${item.month}-${item.year}`;
           if (!monthSet.has(key)) {
             monthSet.set(key, {
@@ -114,12 +86,16 @@ export default function Comparison() {
           }));
 
         if (cancelled) return;
+        setRows(data);
         setPeriodOptions(options);
         // Default to the two most recent periods.
         setSelectedPeriod1((prev) => prev || options[0]?.value || '');
         setSelectedPeriod2((prev) => prev || options[1]?.value || '');
       } catch {
-        if (!cancelled) setPeriodOptions([]);
+        if (!cancelled) {
+          setRows([]);
+          setPeriodOptions([]);
+        }
       } finally {
         if (!cancelled) setIsLoadingPeriods(false);
       }
@@ -150,6 +126,62 @@ export default function Comparison() {
     setSelectedPeriod2(value);
   };
 
+  const period1Label =
+    periodOptions.find((o) => o.value === selectedPeriod1)?.label ?? 'Period 1';
+  const period2Label =
+    periodOptions.find((o) => o.value === selectedPeriod2)?.label ?? 'Period 2';
+
+  // Latest entry per category within a given period.
+  const totalsFor = (period: string) => {
+    const map = new Map<string, number>();
+    for (const r of rows) {
+      if (`${r.month}-${r.year}` !== period) continue;
+      const value = num(r.current_value) || num(r.amount);
+      map.set(r.category, (map.get(r.category) ?? 0) + value);
+    }
+    return map;
+  };
+
+  // Category rows combining both selected periods.
+  const periodComparison = useMemo(() => {
+    if (!selectedPeriod1) return [];
+    const t1 = totalsFor(selectedPeriod1);
+    const t2 = selectedPeriod2 ? totalsFor(selectedPeriod2) : new Map();
+    const categories = Array.from(
+      new Set([...t1.keys(), ...t2.keys()]),
+    ).sort();
+    return categories.map((category) => {
+      const p1 = t1.get(category) ?? 0;
+      const p2 = t2.get(category) ?? 0;
+      const growth = p2 !== 0 ? ((p1 - p2) / p2) * 100 : 0;
+      return { category, p1, p2, growth };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, selectedPeriod1, selectedPeriod2]);
+
+  // Total value per period across the whole history, oldest first.
+  const trendData = useMemo(() => {
+    const map = new Map<
+      string,
+      { label: string; year: number; monthNumber: number; total: number }
+    >();
+    for (const r of rows) {
+      const key = `${r.month}-${r.year}`;
+      const existing = map.get(key) ?? {
+        label: `${String(r.month).substring(0, 3)}-${r.year}`,
+        year: r.year,
+        monthNumber: r.month_number || 0,
+        total: 0,
+      };
+      existing.total += num(r.current_value) || num(r.amount);
+      map.set(key, existing);
+    }
+    return Array.from(map.values())
+      .sort((a, b) =>
+        a.year !== b.year ? a.year - b.year : a.monthNumber - b.monthNumber,
+      )
+      .map((m) => ({ month: m.label, total: m.total }));
+  }, [rows]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -160,17 +192,16 @@ export default function Comparison() {
     }).format(value);
   };
 
-  const calculateTotalGrowth = () => {
-    const period1Total = periodComparison.reduce(
-      (acc, item) => acc + item.q2Assets,
-      0,
-    );
-    const period2Total = periodComparison.reduce(
-      (acc, item) => acc + item.q1Assets,
-      0,
-    );
-    return (((period1Total - period2Total) / period2Total) * 100).toFixed(1);
-  };
+  const period1Total = periodComparison.reduce((acc, i) => acc + i.p1, 0);
+  const period2Total = periodComparison.reduce((acc, i) => acc + i.p2, 0);
+  const totalDifference = period1Total - period2Total;
+  const totalGrowth =
+    period2Total !== 0 ? (totalDifference / period2Total) * 100 : 0;
+  const bestPerformer = periodComparison.reduce<
+    (typeof periodComparison)[number] | null
+  >((best, item) => (!best || item.growth > best.growth ? item : best), null);
+  const hasComparison = Boolean(selectedPeriod1 && selectedPeriod2);
+
 
   return (
     <div className="space-y-8 p-6">
