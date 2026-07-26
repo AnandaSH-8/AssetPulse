@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { financialAPI } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import { useDemoReadOnly } from '@/lib/demo-user';
+import BulkTemplateCard from '@/components/BulkTemplateCard';
 
 const categories = [
   'Bank Account',
@@ -568,6 +569,21 @@ export default function AddParticulars() {
               </fieldset>
             </form>
           </GlassCard>
+
+          {!isEditMode && (
+            <div className="mt-6">
+              <BulkTemplateCard
+                savedTitles={savedTitles}
+                categories={categories}
+                cashOnlyCategories={cashOnlyCategories}
+                month={formData.month}
+                year={formData.year}
+                monthNumber={MONTHS.indexOf(formData.month) + 1}
+                isReadOnly={isReadOnly}
+                onImported={() => navigate('/statistics')}
+              />
+            </div>
+          )}
         </motion.div>
 
         {/* Summary Sidebar */}
