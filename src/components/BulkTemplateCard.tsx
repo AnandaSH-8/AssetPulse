@@ -54,21 +54,59 @@ export default function BulkTemplateCard({
 
   const validRows = rows.filter(r => !r.error)
 
-  const handleDownload = () => {
-    const body =
-      savedTitles.length > 0
-        ? savedTitles.map(t => [t, '', '', '', ''])
-        : [['', '', '', '', '']]
-    const ws = XLSX.utils.aoa_to_sheet([[...TEMPLATE_HEADERS], ...body])
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Particulars')
-    XLSX.writeFile(wb, `AssetsManager_Template_${month}_${year}.csv`, { bookType: 'csv' })
+  const handleDownload = async () => {
+    const ExcelJS = (await import('exceljs')).default
+    const wb = new ExcelJS.Workbook()
+    const ws = wb.addWorksheet('Particulars')
+    const lists = wb.addWorksheet('Lists')
+    lists.state = 'veryHidden'
+    categories.forEach((c, i) => {
+      lists.getCell(i + 1, 1).value = c
+    })
+
+    ws.addRow([...TEMPLATE_HEADERS])
+    ws.getRow(1).font = { bold: true }
+    ws.columns = [
+      { width: 28 },
+      { width: 22 },
+      { width: 14 },
+      { width: 14 },
+      { width: 14 },
+    ]
+
+    const titles = savedTitles.length > 0 ? savedTitles : ['']
+    titles.forEach(t => ws.addRow([t, '', '', '', '']))
+
+    const lastRow = Math.max(ws.rowCount, 200)
+    for (let r = 2; r <= lastRow; r++) {
+      ws.getCell(r, 2).dataValidation = {
+        type: 'list',
+        allowBlank: true,
+        formulae: [`Lists!$A$1:$A$${categories.length}`],
+        showErrorMessage: true,
+        errorTitle: 'Invalid category',
+        error: 'Pick a category from the dropdown list.',
+      }
+    }
+
+    const buf = await wb.xlsx.writeBuffer()
+    const url = URL.createObjectURL(
+      new Blob([buf], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+    )
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `AssetPulse_Template_${month}_${year}.xlsx`
+    a.click()
+    URL.revokeObjectURL(url)
+
     toast({
       title: 'Template downloaded',
       description:
         savedTitles.length > 0
-          ? `${savedTitles.length} existing titles included. Fill in Category and amounts.`
-          : 'Fill in Title, Category and amounts, then upload it back.',
+          ? `${savedTitles.length} existing titles included. Pick Category from the dropdown and fill amounts.`
+          : 'Fill in Title, pick Category from the dropdown, add amounts, then upload it back.',
     })
   }
 
