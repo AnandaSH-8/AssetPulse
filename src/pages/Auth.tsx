@@ -253,6 +253,8 @@ const Auth = () => {
   };
 
   const isDemoCreds = !isSignUp && email === DEMO_EMAIL && password === DEMO_PASSWORD;
+  const isDemoPassword = !isSignUp && password === DEMO_PASSWORD;
+
 
   const inputCls =
     'w-full bg-muted/40 border border-border rounded-xl pl-10 pr-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-4 focus:ring-ring/20 transition-all';
