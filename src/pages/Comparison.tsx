@@ -205,16 +205,24 @@ export default function Comparison() {
               <label className="block text-sm font-medium mb-2">Period 1</label>
               <Select
                 value={selectedPeriod1}
-                onValueChange={setSelectedPeriod1}
+                onValueChange={handlePeriod1Change}
+                disabled={isLoadingPeriods || periodOptions.length === 0}
               >
                 <SelectTrigger className="h-12 rounded-xl">
-                  <SelectValue />
+                  <SelectValue
+                    placeholder={
+                      isLoadingPeriods
+                        ? 'Loading periods...'
+                        : 'No periods available'
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="q2-2024">Q2 2024 (Apr-Jun)</SelectItem>
-                  <SelectItem value="q1-2024">Q1 2024 (Jan-Mar)</SelectItem>
-                  <SelectItem value="q4-2023">Q4 2023 (Oct-Dec)</SelectItem>
-                  <SelectItem value="q3-2023">Q3 2023 (Jul-Sep)</SelectItem>
+                  {period1Options.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -229,19 +237,28 @@ export default function Comparison() {
               <label className="block text-sm font-medium mb-2">Period 2</label>
               <Select
                 value={selectedPeriod2}
-                onValueChange={setSelectedPeriod2}
+                onValueChange={handlePeriod2Change}
+                disabled={isLoadingPeriods || periodOptions.length < 2}
               >
                 <SelectTrigger className="h-12 rounded-xl">
-                  <SelectValue />
+                  <SelectValue
+                    placeholder={
+                      isLoadingPeriods
+                        ? 'Loading periods...'
+                        : 'No other period available'
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="q1-2024">Q1 2024 (Jan-Mar)</SelectItem>
-                  <SelectItem value="q4-2023">Q4 2023 (Oct-Dec)</SelectItem>
-                  <SelectItem value="q3-2023">Q3 2023 (Jul-Sep)</SelectItem>
-                  <SelectItem value="q2-2023">Q2 2023 (Apr-Jun)</SelectItem>
+                  {period2Options.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
+
           </div>
         </GlassCard>
       </motion.div>
