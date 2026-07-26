@@ -306,11 +306,19 @@ export default function Comparison() {
             <p className="text-sm font-medium text-muted-foreground mb-1">
               Overall Growth
             </p>
-            <p className="text-3xl font-bold text-success">
-              +{calculateTotalGrowth()}%
+            <p
+              className={`text-3xl font-bold ${
+                totalGrowth >= 0 ? 'text-success' : 'text-destructive'
+              }`}
+            >
+              {hasComparison
+                ? `${totalGrowth >= 0 ? '+' : ''}${totalGrowth.toFixed(2)}%`
+                : '—'}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Period over period
+              {hasComparison
+                ? `${period1Label} vs ${period2Label}`
+                : 'Select two periods'}
             </p>
           </div>
         </GlassCard>
@@ -320,8 +328,20 @@ export default function Comparison() {
             <p className="text-sm font-medium text-muted-foreground mb-1">
               Best Performer
             </p>
-            <p className="text-2xl font-bold text-primary">Stocks</p>
-            <p className="text-xs text-success mt-1">+21.7% growth</p>
+            <p className="text-2xl font-bold text-primary">
+              {hasComparison && bestPerformer ? bestPerformer.category : '—'}
+            </p>
+            <p
+              className={`text-xs mt-1 ${
+                (bestPerformer?.growth ?? 0) >= 0
+                  ? 'text-success'
+                  : 'text-destructive'
+              }`}
+            >
+              {hasComparison && bestPerformer
+                ? `${bestPerformer.growth >= 0 ? '+' : ''}${bestPerformer.growth.toFixed(2)}% growth`
+                : 'No data'}
+            </p>
           </div>
         </GlassCard>
 
@@ -331,13 +351,14 @@ export default function Comparison() {
               Total Difference
             </p>
             <p className="text-2xl font-bold text-foreground">
-              {formatCurrency(120000)}
+              {hasComparison ? formatCurrency(totalDifference) : '—'}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Absolute increase
+              {totalDifference >= 0 ? 'Absolute increase' : 'Absolute decrease'}
             </p>
           </div>
         </GlassCard>
+
       </motion.div>
 
       {/* Category-wise Comparison */}
