@@ -1,12 +1,12 @@
 // One-shot migration: encrypt all existing plaintext monetary values in
-// financial_particulars. Skips the demo user (user@yopmail.com).
+// financial_particulars. Skips the demo user (see _shared/config.ts).
 // Safe to re-run — already-encrypted values (prefix "enc:v1:") are left alone.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 import { encryptNumber } from '../_shared/encryption.ts';
+import { DEMO_EMAIL, CREATOR_EMAIL } from '../_shared/config.ts';
 
-const DEMO_EMAIL = 'user@yopmail.com';
 const ENC_PREFIX = 'enc:v1:';
 const FIELDS = ['amount', 'cash', 'investment', 'current_value'] as const;
 
@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
     const { data: { user }, error: userErr } = await userClient.auth.getUser(token);
     if (userErr || !user) return json({ error: 'Invalid token' }, 401);
 
-    const creatorEmail = (Deno.env.get('CREATOR_EMAIL') || '').toLowerCase();
+    const creatorEmail = CREATOR_EMAIL;
     const callerEmail = (user.email || '').toLowerCase();
     if (!creatorEmail || callerEmail !== creatorEmail) {
       return json({ error: 'Forbidden' }, 403);
