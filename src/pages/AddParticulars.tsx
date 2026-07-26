@@ -569,6 +569,21 @@ export default function AddParticulars() {
               </fieldset>
             </form>
           </GlassCard>
+
+          {!isEditMode && (
+            <div className="mt-6">
+              <BulkTemplateCard
+                savedTitles={savedTitles}
+                categories={categories}
+                cashOnlyCategories={cashOnlyCategories}
+                month={formData.month}
+                year={formData.year}
+                monthNumber={MONTHS.indexOf(formData.month) + 1}
+                isReadOnly={isReadOnly}
+                onImported={() => navigate('/statistics')}
+              />
+            </div>
+          )}
         </motion.div>
 
         {/* Summary Sidebar */}
