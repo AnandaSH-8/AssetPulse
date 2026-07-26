@@ -75,7 +75,7 @@ export default function BulkTemplateCard({
     ]
 
     const titles = savedTitles.length > 0 ? savedTitles : ['']
-    titles.forEach(t => ws.addRow([t, '', '', '', '']))
+    titles.forEach(t => ws.addRow([t, '', 0, 0, 0]))
 
     const lastRow = Math.max(ws.rowCount, 200)
     for (let r = 2; r <= lastRow; r++) {
@@ -86,6 +86,20 @@ export default function BulkTemplateCard({
         showErrorMessage: true,
         errorTitle: 'Invalid category',
         error: 'Pick a category from the dropdown list.',
+      }
+      for (const c of [3, 4, 5]) {
+        const cell = ws.getCell(r, c)
+        if (cell.value === null || cell.value === undefined) cell.value = 0
+        cell.numFmt = '#,##0.00'
+        cell.dataValidation = {
+          type: 'decimal',
+          operator: 'greaterThanOrEqual',
+          allowBlank: false,
+          formulae: [0],
+          showErrorMessage: true,
+          errorTitle: 'Numbers only',
+          error: 'Enter a non-negative number (no text).',
+        }
       }
     }
 
@@ -112,8 +126,11 @@ export default function BulkTemplateCard({
 
   const parseNumber = (v: unknown) => {
     if (v === undefined || v === null || String(v).trim() === '') return 0
-    const n = Number(String(v).replace(/[,₹\s]/g, ''))
-    return Number.isFinite(n) ? n : NaN
+    if (typeof v === 'number') return Number.isFinite(v) ? v : NaN
+    const s = String(v).replace(/[,₹\s]/g, '')
+    // strict: digits with optional single decimal part only — any letter/symbol is invalid
+    if (!/^-?\d+(\.\d+)?$/.test(s)) return NaN
+    return Number(s)
   }
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,19 +186,27 @@ export default function BulkTemplateCard({
           const invested = parseNumber(raw?.[iInv])
           const current = parseNumber(raw?.[iCur])
 
-          // Skip fully blank rows (e.g. pre-filled titles left untouched)
-          if (!title && !category && !cash && !invested && !current) continue
+          const rawCash = String(raw?.[iCash] ?? '').trim()
+          const rawInv = String(raw?.[iInv] ?? '').trim()
+          const rawCur = String(raw?.[iCur] ?? '').trim()
+          const amountsUntouched = [rawCash, rawInv, rawCur].every(
+            v => v === '' || v === '0' || Number(v) === 0
+          )
+
+          // Skip untouched rows (pre-filled titles with zero/blank amounts and no category)
+          if (!category && amountsUntouched) continue
 
           let error: string | undefined
-          if (!title) error = 'Title is required'
+          if ([cash, invested, current].some(n => Number.isNaN(n)))
+            error = 'Amounts must contain numbers only'
+          else if (!title) error = 'Title is required'
           else if (!category) error = 'Category is required'
           else if (!categories.some(c => norm(c) === norm(category)))
             error = `Unknown category "${category}"`
-          else if ([cash, invested, current].some(n => Number.isNaN(n)))
-            error = 'Amounts must be numbers'
           else if ([cash, invested, current].some(n => n < 0))
             error = 'Amounts cannot be negative'
           else if (!cash && !invested && !current) error = 'Enter at least one amount'
+
 
           const matchedCategory = categories.find(c => norm(c) === norm(category)) || category
           parsed.push({
@@ -202,6 +227,21 @@ export default function BulkTemplateCard({
           })
           return
         }
+
+        const badNumberRows = parsed
+          .map((r, i) => (r.error?.startsWith('Amounts must contain') ? i + 2 : 0))
+          .filter(Boolean)
+        if (badNumberRows.length) {
+          toast({
+            title: 'Invalid amounts found',
+            description: `Cash, Invested and Current must contain numbers only. Fix row${
+              badNumberRows.length > 1 ? 's' : ''
+            } ${badNumberRows.join(', ')} and upload again.`,
+            variant: 'destructive',
+          })
+          return
+        }
+
         setRows(parsed)
         setOpen(true)
       } catch {
