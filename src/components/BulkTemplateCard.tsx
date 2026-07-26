@@ -126,8 +126,11 @@ export default function BulkTemplateCard({
 
   const parseNumber = (v: unknown) => {
     if (v === undefined || v === null || String(v).trim() === '') return 0
-    const n = Number(String(v).replace(/[,₹\s]/g, ''))
-    return Number.isFinite(n) ? n : NaN
+    if (typeof v === 'number') return Number.isFinite(v) ? v : NaN
+    const s = String(v).replace(/[,₹\s]/g, '')
+    // strict: digits with optional single decimal part only — any letter/symbol is invalid
+    if (!/^-?\d+(\.\d+)?$/.test(s)) return NaN
+    return Number(s)
   }
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
