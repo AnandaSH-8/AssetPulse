@@ -69,9 +69,87 @@ const monthlyComparison = [
   { month: 'Jun', period1: 1320000, period2: 1220000 },
 ];
 
+type PeriodOption = { value: string; label: string };
+
 export default function Comparison() {
-  const [selectedPeriod1, setSelectedPeriod1] = useState('q2-2024');
-  const [selectedPeriod2, setSelectedPeriod2] = useState('q1-2024');
+  const { user } = useAuth();
+  const [periodOptions, setPeriodOptions] = useState<PeriodOption[]>([]);
+  const [isLoadingPeriods, setIsLoadingPeriods] = useState(true);
+  const [selectedPeriod1, setSelectedPeriod1] = useState('');
+  const [selectedPeriod2, setSelectedPeriod2] = useState('');
+
+  // Build the period list from the user's actual monthly entries, newest first.
+  useEffect(() => {
+    if (!user) {
+      setIsLoadingPeriods(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        setIsLoadingPeriods(true);
+        const response = await financialAPI.getAll();
+        const rows = response?.data ?? [];
+        const monthSet = new Map<
+          string,
+          { month: string; year: number; monthNumber: number }
+        >();
+        for (const item of rows) {
+          const key = `${item.month}-${item.year}`;
+          if (!monthSet.has(key)) {
+            monthSet.set(key, {
+              month: item.month,
+              year: item.year,
+              monthNumber: item.month_number || 0,
+            });
+          }
+        }
+        const options = Array.from(monthSet.values())
+          .sort((a, b) =>
+            a.year !== b.year ? b.year - a.year : b.monthNumber - a.monthNumber,
+          )
+          .map((m) => ({
+            value: `${m.month}-${m.year}`,
+            label: `${m.month.substring(0, 3)}-${m.year}`,
+          }));
+
+        if (cancelled) return;
+        setPeriodOptions(options);
+        // Default to the two most recent periods.
+        setSelectedPeriod1((prev) => prev || options[0]?.value || '');
+        setSelectedPeriod2((prev) => prev || options[1]?.value || '');
+      } catch {
+        if (!cancelled) setPeriodOptions([]);
+      } finally {
+        if (!cancelled) setIsLoadingPeriods(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  // A period picked in one dropdown is removed from the other's option list.
+  const period1Options = useMemo(
+    () => periodOptions.filter((o) => o.value !== selectedPeriod2),
+    [periodOptions, selectedPeriod2],
+  );
+  const period2Options = useMemo(
+    () => periodOptions.filter((o) => o.value !== selectedPeriod1),
+    [periodOptions, selectedPeriod1],
+  );
+
+  // Picking the value already held by the other select swaps them instead of
+  // leaving a duplicate selection.
+  const handlePeriod1Change = (value: string) => {
+    if (value === selectedPeriod2) setSelectedPeriod2(selectedPeriod1);
+    setSelectedPeriod1(value);
+  };
+  const handlePeriod2Change = (value: string) => {
+    if (value === selectedPeriod1) setSelectedPeriod1(selectedPeriod2);
+    setSelectedPeriod2(value);
+  };
+
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-IN', {
