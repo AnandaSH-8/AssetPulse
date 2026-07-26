@@ -11,10 +11,16 @@ import { z } from "npm:zod@^3.23.8";
 
 // src/lib/mcp/lib/supabase.ts
 import { createClient } from "npm:@supabase/supabase-js@^2.52.0";
+
+// src/lib/mcp/lib/config.ts
+var env = globalThis.process?.env ?? {};
+var DEMO_EMAIL = (env.DEMO_EMAIL || "user@yopmail.com").toLowerCase();
+
+// src/lib/mcp/lib/supabase.ts
 function supabaseForUser(ctx) {
-  const env = globalThis.process?.env ?? {};
-  const url = env.SUPABASE_URL;
-  const key = env.SUPABASE_PUBLISHABLE_KEY ?? env.SUPABASE_ANON_KEY;
+  const env2 = globalThis.process?.env ?? {};
+  const url = env2.SUPABASE_URL;
+  const key = env2.SUPABASE_PUBLISHABLE_KEY ?? env2.SUPABASE_ANON_KEY;
   if (!url || !key) throw new Error("Supabase env not configured");
   return createClient(url, key, {
     global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
@@ -28,12 +34,11 @@ function requireAuth(ctx) {
   return null;
 }
 async function requireWritable(ctx) {
-  const env = globalThis.process?.env ?? {};
-  const demoEmail = (env.DEMO_EMAIL || "user@yopmail.com").toLowerCase();
+  const env2 = globalThis.process?.env ?? {};
   const callerEmail = ((ctx.getUser?.() ?? ctx.user)?.email || "").toLowerCase();
-  if (callerEmail !== demoEmail) return null;
-  const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
-  const url = env.SUPABASE_URL;
+  if (callerEmail !== DEMO_EMAIL) return null;
+  const serviceKey = env2.SUPABASE_SERVICE_ROLE_KEY;
+  const url = env2.SUPABASE_URL;
   if (url && serviceKey) {
     try {
       const admin = createClient(url, serviceKey, {
