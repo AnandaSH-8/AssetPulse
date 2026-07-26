@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { financialAPI } from '@/services/api';
+import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { TrendingUp, Calendar, BarChart3, ArrowUpDown } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
