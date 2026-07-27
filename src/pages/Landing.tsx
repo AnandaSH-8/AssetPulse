@@ -94,7 +94,7 @@ export default function Landing() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col pt-16">
       {/* Hero */}
       <section className="flex-1">
         <div className="max-w-7xl mx-auto px-6 py-16 sm:py-24 grid gap-12 lg:grid-cols-2 items-center">
