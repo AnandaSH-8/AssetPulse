@@ -12,6 +12,8 @@ import {
   UserPlus,
   HelpCircle,
   ArrowRight,
+  Info,
+
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
