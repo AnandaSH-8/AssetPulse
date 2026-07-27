@@ -47,7 +47,10 @@ const AppContent = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/docs" element={<Docs />} />
+          <Route path="/about" element={<Navigate to="/docs" replace />} />
           <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+
           <Route
             path="/auth"
             element={user ? <Navigate to="/dashboard" replace /> : <Auth />}
