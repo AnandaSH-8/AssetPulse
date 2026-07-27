@@ -100,7 +100,7 @@ export default function Docs() {
 
       <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-md">
         <div className="w-full px-6 lg:px-10 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
+          <Link to={isLoggedIn ? '/dashboard' : '/'} className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-primary text-white shadow-lg">
               <IndianRupee className="w-5 h-5" />
             </div>
@@ -110,15 +110,18 @@ export default function Docs() {
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle className="mr-1" />
-            <Link to="/">
-              <Button size="sm" variant="outline">
-                Home
-              </Button>
-            </Link>
-            <Link to="/auth?mode=signup">
+            {!isLoggedIn && (
+              <Link to="/">
+                <Button size="sm" variant="outline">
+                  Home
+                </Button>
+              </Link>
+            )}
+            <Link to={isLoggedIn ? '/dashboard' : '/auth?mode=signup'}>
               <Button size="sm">Get Started</Button>
             </Link>
           </div>
+
         </div>
       </header>
 
