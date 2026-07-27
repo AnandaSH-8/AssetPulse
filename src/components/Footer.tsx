@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { IndianRupee } from 'lucide-react';
-import { GlassCard } from '@/components/ui/glass-card';
+
 
 export default function Footer() {
   const LinkedInIcon = () => (
@@ -26,101 +26,83 @@ export default function Footer() {
       name: 'LinkedIn',
       icon: LinkedInIcon,
       url: 'https://www.linkedin.com/in/ananda-s-holla-268b94147/',
-      color: 'hover:text-blue-600 dark:hover:text-blue-400',
     },
     {
       name: 'X (Twitter)',
       icon: XIcon,
       url: 'https://x.com/AnandSHolla8',
-      color: 'hover:text-gray-900 dark:hover:text-gray-100',
     },
     {
       name: 'GitHub',
       icon: GitHubIcon,
       url: 'https://github.com/AnandaSH-8',
-      color: 'hover:text-gray-800 dark:hover:text-gray-200',
     },
   ];
 
   return (
-    <footer className="mt-auto border-t border-border/50 bg-background/80 backdrop-blur-md">
-      <div className="w-full px-6 lg:px-10 py-8">
-        <GlassCard className="p-6">
-          <div className="flex flex-col items-center space-y-6">
-            {/* Logo and Brand */}
-            <motion.div
-              className="flex items-center gap-3"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-primary text-white shadow-lg">
+    <footer className="mt-auto w-full px-4 sm:px-6 lg:px-10 py-8">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.45 }}
+        className="w-full max-w-6xl mx-auto rounded-[2rem] border border-primary/15 bg-card/50 dark:bg-primary/[0.04] backdrop-blur-2xl p-8 md:p-12 shadow-xl shadow-primary/5 transition-all duration-300"
+      >
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10">
+          {/* Brand */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30">
                 <IndianRupee className="w-5 h-5" />
               </div>
-              <div>
-                <h3 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                  AssetPulse
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  Track. Analyze. Grow.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Social Links */}
-            <motion.div
-              className="flex items-center gap-6"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              {socialLinks.map((link, index) => (
-                <motion.a
-                  key={link.name}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`p-3 rounded-xl bg-accent/20 border border-border/50 transition-all duration-300 ${link.color} hover:scale-110 hover:shadow-lg`}
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-                >
-                  <link.icon />
-                  <span className="sr-only">{link.name}</span>
-                </motion.a>
-              ))}
-            </motion.div>
-
-            {/* Divider */}
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
-            {/* Made by ASH */}
-            <motion.div
-              className="text-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-            >
-              <p className="text-sm text-muted-foreground">
-                Made by{' '}
-                <a
-                  href="https://ananda-s-holla.vercel.app/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent hover:underline"
-                >
-                  ASH
-                </a>
-              </p>
-              <p className="text-xs text-muted-foreground/70 mt-1">
-                © {new Date().getFullYear()} AssetPulse All rights reserved.
-              </p>
-            </motion.div>
+              <span className="text-2xl font-bold tracking-tight text-foreground">
+                AssetPulse
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm font-medium text-primary/80 tracking-wide uppercase">
+              Track. Analyze. Grow.
+            </p>
           </div>
-        </GlassCard>
-      </div>
+
+          {/* Social links */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {socialLinks.map((link) => (
+              <motion.a
+                key={link.name}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className="p-3 rounded-xl bg-muted/60 dark:bg-foreground/5 text-muted-foreground border border-transparent transition-colors hover:text-primary hover:border-primary/20 hover:bg-primary/10"
+              >
+                <link.icon />
+                <span className="sr-only">{link.name}</span>
+              </motion.a>
+            ))}
+          </div>
+        </div>
+
+        <div className="w-full h-px bg-border/60 mb-8" />
+
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-muted-foreground font-medium">
+            © {new Date().getFullYear()} AssetPulse. All rights reserved.
+          </p>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>Made by</span>
+            <a
+              href="https://ananda-s-holla.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1 rounded-full bg-primary/10 text-primary font-semibold border border-primary/20 hover:bg-primary/20 transition-all"
+            >
+              ASH
+            </a>
+          </div>
+        </div>
+      </motion.div>
     </footer>
   )
 }
+
