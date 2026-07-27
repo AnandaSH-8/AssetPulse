@@ -344,9 +344,10 @@ export default function BulkTemplateCard({
           cash,
           investment: invested,
           current_value: current,
-          month,
-          month_number: monthNumber,
-          year: Number(year),
+          month: row.month,
+          month_number: TEMPLATE_MONTHS.indexOf(row.month) + 1 || monthNumber,
+          year: row.year,
+
         })
         success++
       } catch {
