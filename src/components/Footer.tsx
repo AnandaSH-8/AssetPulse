@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { IndianRupee } from 'lucide-react';
-import { GlassCard } from '@/components/ui/glass-card';
+
 
 export default function Footer() {
   const LinkedInIcon = () => (
