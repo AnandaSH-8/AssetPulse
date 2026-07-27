@@ -260,6 +260,11 @@ export default function AddParticulars() {
         })
 
         // Navigate back to statistics
+        try {
+          sessionStorage.removeItem(EDIT_CACHE_KEY)
+        } catch {
+          /* ignore */
+        }
         navigate('/statistics')
       } else {
         // Create new record
