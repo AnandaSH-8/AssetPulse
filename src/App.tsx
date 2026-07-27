@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { AppSidebar } from '@/components/AppSidebar';
 import Footer from '@/components/Footer';
 import Landing from './pages/Landing';
+import Docs from './pages/Docs';
 import Dashboard from './pages/Dashboard';
 import AddParticulars from './pages/AddParticulars';
 import Statistics from './pages/Statistics';
