@@ -14,7 +14,30 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { financialAPI } from '@/services/api'
 
-export const TEMPLATE_HEADERS = ['Title', 'Category', 'Cash', 'Invested', 'Current'] as const
+export const TEMPLATE_HEADERS = [
+  'Title',
+  'Category',
+  'Cash',
+  'Invested',
+  'Current',
+  'Month',
+  'Year',
+] as const
+
+export const TEMPLATE_MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
 
 type ParsedRow = {
   title: string
@@ -22,6 +45,8 @@ type ParsedRow = {
   cash: number
   invested: number
   current: number
+  month: string
+  year: number
   error?: string
 }
 
