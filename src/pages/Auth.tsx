@@ -34,12 +34,13 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(initialSignUp);
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState(initialSignUp ? '' : DEMO_EMAIL);
-  const [password, setPassword] = useState(initialSignUp ? '' : DEMO_PASSWORD);
+  const prefillDemo = !initialSignUp && HAS_DEMO_CREDENTIALS;
+  const [email, setEmail] = useState(prefillDemo ? DEMO_EMAIL : '');
+  const [password, setPassword] = useState(prefillDemo ? DEMO_PASSWORD : '');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   // Becomes true only once the demo password field is fully emptied.
-  const [pwUnlocked, setPwUnlocked] = useState(initialSignUp);
+  const [pwUnlocked, setPwUnlocked] = useState(!prefillDemo);
 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
