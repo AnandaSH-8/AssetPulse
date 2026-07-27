@@ -14,7 +14,7 @@ import { createClient } from "npm:@supabase/supabase-js@^2.52.0";
 
 // src/lib/mcp/lib/config.ts
 var env = globalThis.process?.env ?? {};
-var DEMO_EMAIL = (env.DEMO_EMAIL || "user@yopmail.com").toLowerCase();
+var DEMO_EMAIL = (env.DEMO_EMAIL || "").toLowerCase();
 
 // src/lib/mcp/lib/supabase.ts
 function supabaseForUser(ctx) {
