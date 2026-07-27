@@ -133,7 +133,7 @@ Deno.serve(async req => {
     // reject all mutating requests.
     const callerEmail = (user.email || '').toLowerCase();
     const isMutation = req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE';
-    if (isMutation && callerEmail === DEMO_EMAIL) {
+    if (isMutation && !!DEMO_EMAIL && callerEmail === DEMO_EMAIL) {
       const admin = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',

@@ -2,11 +2,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export { DEMO_EMAIL, DEMO_PASSWORD } from '@/config/app-config';
+export { DEMO_EMAIL, DEMO_PASSWORD, HAS_DEMO_CREDENTIALS } from '@/config/app-config';
 import { DEMO_EMAIL } from '@/config/app-config';
 
 export const isDemoEmail = (email?: string | null) =>
-  !!email && email.toLowerCase() === DEMO_EMAIL;
+  !!DEMO_EMAIL && !!email && email.toLowerCase() === DEMO_EMAIL;
 
 export const useIsDemoUser = () => {
   const { user } = useAuth();

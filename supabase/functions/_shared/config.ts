@@ -1,7 +1,8 @@
 // Shared identity config for edge functions.
-// Values are overridable via secrets; fallbacks match the frontend config in
-// src/config/app-config.ts so both runtimes agree on who the demo user is.
+// Both values come from Supabase secrets only — no literal fallbacks, so nothing
+// identifying lives in source. Set `DEMO_EMAIL` and `CREATOR_EMAIL` as
+// edge-function secrets for this project.
 
-export const DEMO_EMAIL = (Deno.env.get('DEMO_EMAIL') || 'user@yopmail.com').toLowerCase();
+export const DEMO_EMAIL = (Deno.env.get('DEMO_EMAIL') || '').toLowerCase();
 
 export const CREATOR_EMAIL = (Deno.env.get('CREATOR_EMAIL') || '').toLowerCase();

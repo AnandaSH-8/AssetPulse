@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { PasswordStrengthMeter } from '@/components/ui/password-strength-meter';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { DEMO_EMAIL, DEMO_PASSWORD } from '@/lib/demo-user';
+import { DEMO_EMAIL, DEMO_PASSWORD, HAS_DEMO_CREDENTIALS } from '@/lib/demo-user';
 import {
   Mail,
   Lock,
@@ -34,12 +34,13 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(initialSignUp);
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState(initialSignUp ? '' : DEMO_EMAIL);
-  const [password, setPassword] = useState(initialSignUp ? '' : DEMO_PASSWORD);
+  const prefillDemo = !initialSignUp && HAS_DEMO_CREDENTIALS;
+  const [email, setEmail] = useState(prefillDemo ? DEMO_EMAIL : '');
+  const [password, setPassword] = useState(prefillDemo ? DEMO_PASSWORD : '');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   // Becomes true only once the demo password field is fully emptied.
-  const [pwUnlocked, setPwUnlocked] = useState(initialSignUp);
+  const [pwUnlocked, setPwUnlocked] = useState(!prefillDemo);
 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -255,10 +256,11 @@ const Auth = () => {
     }
   };
 
-  const isDemoCreds = !isSignUp && email === DEMO_EMAIL && password === DEMO_PASSWORD;
+  const isDemoCreds =
+    HAS_DEMO_CREDENTIALS && !isSignUp && email === DEMO_EMAIL && password === DEMO_PASSWORD;
   // Keep the demo password masked (no reveal icon) until the user fully clears
   // the field — partially deleting characters must not expose it.
-  const isDemoPassword = !isSignUp && !pwUnlocked;
+  const isDemoPassword = HAS_DEMO_CREDENTIALS && !isSignUp && !pwUnlocked;
 
 
 
@@ -335,9 +337,9 @@ const Auth = () => {
                   onClick={() => {
                     setSignupSuccessEmail(null);
                     setMode(false);
-                    setEmail(DEMO_EMAIL);
-                    setPassword(DEMO_PASSWORD);
-                    setPwUnlocked(false);
+                    setEmail(HAS_DEMO_CREDENTIALS ? DEMO_EMAIL : '');
+                    setPassword(HAS_DEMO_CREDENTIALS ? DEMO_PASSWORD : '');
+                    setPwUnlocked(!HAS_DEMO_CREDENTIALS);
                     setConfirmPassword('');
                     setErrors({});
                   }}
@@ -356,9 +358,9 @@ const Auth = () => {
                   onClick={() => {
                     if (isSignUp) {
                       setMode(false);
-                      setEmail(DEMO_EMAIL);
-                      setPassword(DEMO_PASSWORD);
-                    setPwUnlocked(false);
+                      setEmail(HAS_DEMO_CREDENTIALS ? DEMO_EMAIL : '');
+                      setPassword(HAS_DEMO_CREDENTIALS ? DEMO_PASSWORD : '');
+                      setPwUnlocked(!HAS_DEMO_CREDENTIALS);
                       setConfirmPassword('');
                       setErrors({});
                     }
@@ -478,13 +480,13 @@ const Auth = () => {
                     >
                       Password
                     </label>
-                    {!isSignUp && !(email === DEMO_EMAIL && password === DEMO_PASSWORD) && (
+                    {HAS_DEMO_CREDENTIALS && !isSignUp && !isDemoCreds && (
                       <button
                         type="button"
                         onClick={() => {
                           setEmail(DEMO_EMAIL);
                           setPassword(DEMO_PASSWORD);
-                    setPwUnlocked(false);
+                          setPwUnlocked(false);
                         }}
                         className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
                       >

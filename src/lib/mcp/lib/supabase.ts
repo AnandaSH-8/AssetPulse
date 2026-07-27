@@ -27,7 +27,7 @@ export function requireAuth(ctx: ToolContext) {
 export async function requireWritable(ctx: ToolContext) {
   const env = (globalThis as any).process?.env ?? {};
   const callerEmail = (((ctx as any).getUser?.() ?? (ctx as any).user)?.email || "").toLowerCase();
-  if (callerEmail !== DEMO_EMAIL) return null;
+  if (!DEMO_EMAIL || callerEmail !== DEMO_EMAIL) return null;
 
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY as string | undefined;
   const url = env.SUPABASE_URL as string | undefined;

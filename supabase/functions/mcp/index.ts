@@ -14,7 +14,7 @@ import { createClient } from "npm:@supabase/supabase-js@^2.52.0";
 
 // src/lib/mcp/lib/config.ts
 var env = globalThis.process?.env ?? {};
-var DEMO_EMAIL = (env.DEMO_EMAIL || "user@yopmail.com").toLowerCase();
+var DEMO_EMAIL = (env.DEMO_EMAIL || "").toLowerCase();
 
 // src/lib/mcp/lib/supabase.ts
 function supabaseForUser(ctx) {
@@ -36,7 +36,7 @@ function requireAuth(ctx) {
 async function requireWritable(ctx) {
   const env2 = globalThis.process?.env ?? {};
   const callerEmail = ((ctx.getUser?.() ?? ctx.user)?.email || "").toLowerCase();
-  if (callerEmail !== DEMO_EMAIL) return null;
+  if (!DEMO_EMAIL || callerEmail !== DEMO_EMAIL) return null;
   const serviceKey = env2.SUPABASE_SERVICE_ROLE_KEY;
   const url = env2.SUPABASE_URL;
   if (url && serviceKey) {
