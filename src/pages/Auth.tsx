@@ -480,13 +480,13 @@ const Auth = () => {
                     >
                       Password
                     </label>
-                    {!isSignUp && !(email === DEMO_EMAIL && password === DEMO_PASSWORD) && (
+                    {HAS_DEMO_CREDENTIALS && !isSignUp && !isDemoCreds && (
                       <button
                         type="button"
                         onClick={() => {
                           setEmail(DEMO_EMAIL);
                           setPassword(DEMO_PASSWORD);
-                    setPwUnlocked(false);
+                          setPwUnlocked(false);
                         }}
                         className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
                       >
