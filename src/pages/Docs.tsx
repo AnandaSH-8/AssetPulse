@@ -20,6 +20,8 @@ import { GlassCard } from '@/components/ui/glass-card';
 import Footer from '@/components/Footer';
 import { SEO } from '@/components/SEO';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useAuth } from '@/hooks/useAuth';
+
 
 const sections = [
   { id: 'overview', label: 'Overview' },
