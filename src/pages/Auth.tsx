@@ -38,6 +38,9 @@ const Auth = () => {
   const [password, setPassword] = useState(initialSignUp ? '' : DEMO_PASSWORD);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  // Becomes true only once the demo password field is fully emptied.
+  const [pwUnlocked, setPwUnlocked] = useState(initialSignUp);
+
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -253,7 +256,10 @@ const Auth = () => {
   };
 
   const isDemoCreds = !isSignUp && email === DEMO_EMAIL && password === DEMO_PASSWORD;
-  const isDemoPassword = !isSignUp && password === DEMO_PASSWORD;
+  // Keep the demo password masked (no reveal icon) until the user fully clears
+  // the field — partially deleting characters must not expose it.
+  const isDemoPassword = !isSignUp && !pwUnlocked;
+
 
 
   const inputCls =
@@ -331,6 +337,7 @@ const Auth = () => {
                     setMode(false);
                     setEmail(DEMO_EMAIL);
                     setPassword(DEMO_PASSWORD);
+                    setPwUnlocked(false);
                     setConfirmPassword('');
                     setErrors({});
                   }}
@@ -351,6 +358,7 @@ const Auth = () => {
                       setMode(false);
                       setEmail(DEMO_EMAIL);
                       setPassword(DEMO_PASSWORD);
+                    setPwUnlocked(false);
                       setConfirmPassword('');
                       setErrors({});
                     }
@@ -370,6 +378,8 @@ const Auth = () => {
                       setMode(true);
                       setEmail('');
                       setPassword('');
+                      setPwUnlocked(true);
+
                       setConfirmPassword('');
                       setErrors({});
                     }
@@ -474,6 +484,7 @@ const Auth = () => {
                         onClick={() => {
                           setEmail(DEMO_EMAIL);
                           setPassword(DEMO_PASSWORD);
+                    setPwUnlocked(false);
                         }}
                         className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
                       >
@@ -487,7 +498,10 @@ const Auth = () => {
                       id="password"
                       type={!isDemoPassword && showPassword ? 'text' : 'password'}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (e.target.value === "") setPwUnlocked(true);
+                      }}
                       placeholder={
                         isSignUp
                           ? 'Enter a strong password (min 12 characters)'
