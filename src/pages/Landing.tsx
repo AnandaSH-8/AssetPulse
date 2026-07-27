@@ -55,9 +55,13 @@ export default function Landing() {
         description="Personal wealth tracker with monthly snapshots, net-worth analytics, and category performance. Sign up free and take control of your portfolio."
         path="/"
       />
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-md">
-        <div className="w-full px-6 lg:px-10 py-3 flex items-center justify-between">
+      {/* Header — fixed mirror glass */}
+      <header className="fixed inset-x-0 top-0 z-50">
+        <div className="absolute inset-0 bg-background/50 backdrop-blur-2xl backdrop-saturate-150 border-b border-white/10 shadow-[0_8px_32px_-12px_hsl(var(--foreground)/0.25)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-white/5 to-transparent dark:from-white/10 dark:via-white/[0.02] pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent pointer-events-none" />
+        <div className="relative w-full px-6 lg:px-10 py-3 flex items-center justify-between">
+
           <Link to="/" className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-primary text-white shadow-lg">
               <IndianRupee className="w-5 h-5" />
