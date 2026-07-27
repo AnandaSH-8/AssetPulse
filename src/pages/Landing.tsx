@@ -121,11 +121,12 @@ export default function Landing() {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <a href="#features">
+              <Link to="/docs">
                 <Button size="lg" variant="outline">
                   Learn More
                 </Button>
-              </a>
+              </Link>
+
             </div>
           </motion.div>
 
