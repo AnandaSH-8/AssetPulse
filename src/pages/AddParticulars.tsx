@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Save, Plus, Wallet, TrendingUp, BarChart3 } from 'lucide-react'
@@ -45,29 +45,66 @@ const MONTHS = [
   'December',
 ];
 
+const EDIT_CACHE_KEY = 'assetpulse:add-particulars:edit';
+
 export default function AddParticulars() {
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const isReadOnly = useDemoReadOnly();
-  const editData = location.state?.editData;
-  const isEditMode = !!editData;
 
   const currentMonth = MONTHS[new Date().getMonth()];
-  
+
   const currentYear = new Date().getFullYear()
   const YEARS = Array.from({ length: 5 }, (_, i) => currentYear - i)
 
-  const [formData, setFormData] = useState({
-    title: '',
-    category: '',
-    actualCash: '',
-    investedCash: '',
-    currentValue: '',
-    month: currentMonth,
-    year: currentYear.toString(),
+  /**
+   * The auth provider can flip `loading` right after navigation, which unmounts and
+   * remounts this screen and used to wipe the pre-filled edit values. We cache the
+   * navigation payload against the current location key so a remount of the SAME
+   * navigation restores it, while a fresh visit from the sidebar starts empty.
+   */
+  const editData = useMemo(() => {
+    const fromState = (location.state as { editData?: any } | null)?.editData;
+    if (fromState) {
+      try {
+        sessionStorage.setItem(
+          EDIT_CACHE_KEY,
+          JSON.stringify({ key: location.key, data: fromState }),
+        );
+      } catch {
+        /* storage unavailable — in-memory state still works */
+      }
+      return fromState;
+    }
+    try {
+      const cached = sessionStorage.getItem(EDIT_CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed?.key === location.key) return parsed.data;
+        sessionStorage.removeItem(EDIT_CACHE_KEY);
+      }
+    } catch {
+      /* ignore malformed cache */
+    }
+    return null;
+  }, [location.state, location.key]);
+
+  const isEditMode = !!editData;
+
+  const buildInitialForm = (source: any) => ({
+    title: source?.title || '',
+    category: source?.category || '',
+    actualCash: source ? (source.cash?.toString() ?? '0') : '',
+    investedCash: source ? (source.investment?.toString() ?? '0') : '',
+    currentValue: source ? (source.currentValue?.toString() ?? '0') : '',
+    month: source?.month || currentMonth,
+    year: source?.year?.toString() || currentYear.toString(),
   });
+
+  // Lazy init so the pre-filled values are present on the very first render
+  const [formData, setFormData] = useState(() => buildInitialForm(editData));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [savedTitles, setSavedTitles] = useState<string[]>([]);
@@ -81,24 +118,18 @@ export default function AddParticulars() {
         const response = await financialAPI.getTitles();
         setSavedTitles(response.data || []);
       } catch (error) {
-        console.error('Failed to fetch titles:', error);
+        // Silent: titles are a convenience list
       }
     };
     fetchTitles();
+  }, []);
 
-    // Pre-fill form if editing
-    if (editData) {
-      setFormData({
-        title: editData.title || '',
-        category: editData.category || '',
-        actualCash: editData.cash?.toString() || '0',
-        investedCash: editData.investment?.toString() || '0',
-        currentValue: editData.currentValue?.toString() || '0',
-        month: editData.month || currentMonth,
-        year: editData.year?.toString() || currentYear.toString(),
-      });
-    }
+  // Keep the form in sync if a new edit payload arrives while mounted
+  useEffect(() => {
+    if (editData) setFormData(buildInitialForm(editData));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editData]);
+
 
   const handleInputChange = (field: string, value: string) => {
     const newData = { ...formData, [field]: value }
@@ -229,6 +260,11 @@ export default function AddParticulars() {
         })
 
         // Navigate back to statistics
+        try {
+          sessionStorage.removeItem(EDIT_CACHE_KEY)
+        } catch {
+          /* ignore */
+        }
         navigate('/statistics')
       } else {
         // Create new record

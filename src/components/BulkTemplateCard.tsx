@@ -14,7 +14,30 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { financialAPI } from '@/services/api'
 
-export const TEMPLATE_HEADERS = ['Title', 'Category', 'Cash', 'Invested', 'Current'] as const
+export const TEMPLATE_HEADERS = [
+  'Title',
+  'Category',
+  'Cash',
+  'Invested',
+  'Current',
+  'Month',
+  'Year',
+] as const
+
+export const TEMPLATE_MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
 
 type ParsedRow = {
   title: string
@@ -22,6 +45,8 @@ type ParsedRow = {
   cash: number
   invested: number
   current: number
+  month: string
+  year: number
   error?: string
 }
 
@@ -63,6 +88,14 @@ export default function BulkTemplateCard({
     categories.forEach((c, i) => {
       lists.getCell(i + 1, 1).value = c
     })
+    TEMPLATE_MONTHS.forEach((m, i) => {
+      lists.getCell(i + 1, 2).value = m
+    })
+    const currentYear = new Date().getFullYear()
+    const YEAR_OPTIONS = Array.from({ length: 6 }, (_, i) => currentYear - 4 + i)
+    YEAR_OPTIONS.forEach((y, i) => {
+      lists.getCell(i + 1, 3).value = y
+    })
 
     ws.addRow([...TEMPLATE_HEADERS])
     ws.getRow(1).font = { bold: true }
@@ -72,10 +105,12 @@ export default function BulkTemplateCard({
       { width: 14 },
       { width: 14 },
       { width: 14 },
+      { width: 14 },
+      { width: 10 },
     ]
 
     const titles = savedTitles.length > 0 ? savedTitles : ['']
-    titles.forEach(t => ws.addRow([t, '', 0, 0, 0]))
+    titles.forEach(t => ws.addRow([t, '', 0, 0, 0, month, Number(year)]))
 
     const lastRow = Math.max(ws.rowCount, 200)
     for (let r = 2; r <= lastRow; r++) {
@@ -101,7 +136,31 @@ export default function BulkTemplateCard({
           error: 'Enter a non-negative number (no text).',
         }
       }
+
+      const monthCell = ws.getCell(r, 6)
+      if (!monthCell.value) monthCell.value = month
+      monthCell.dataValidation = {
+        type: 'list',
+        allowBlank: false,
+        formulae: [`Lists!$B$1:$B$${TEMPLATE_MONTHS.length}`],
+        showErrorMessage: true,
+        errorTitle: 'Invalid month',
+        error: 'Pick a month from the dropdown list.',
+      }
+
+      const yearCell = ws.getCell(r, 7)
+      if (!yearCell.value) yearCell.value = Number(year)
+      yearCell.numFmt = '0'
+      yearCell.dataValidation = {
+        type: 'list',
+        allowBlank: false,
+        formulae: [`Lists!$C$1:$C$${YEAR_OPTIONS.length}`],
+        showErrorMessage: true,
+        errorTitle: 'Invalid year',
+        error: 'Pick a year from the dropdown list.',
+      }
     }
+
 
     const buf = await wb.xlsx.writeBuffer()
     const url = URL.createObjectURL(
@@ -177,6 +236,8 @@ export default function BulkTemplateCard({
         const iCash = idx('Cash')
         const iInv = idx('Invested')
         const iCur = idx('Current')
+        const iMonth = idx('Month')
+        const iYear = idx('Year')
 
         const parsed: ParsedRow[] = []
         for (const raw of matrix.slice(1)) {
@@ -185,6 +246,8 @@ export default function BulkTemplateCard({
           const cash = parseNumber(raw?.[iCash])
           const invested = parseNumber(raw?.[iInv])
           const current = parseNumber(raw?.[iCur])
+          const rawMonth = String(raw?.[iMonth] ?? '').trim()
+          const rawYear = String(raw?.[iYear] ?? '').trim()
 
           const rawCash = String(raw?.[iCash] ?? '').trim()
           const rawInv = String(raw?.[iInv] ?? '').trim()
@@ -196,6 +259,10 @@ export default function BulkTemplateCard({
           // Skip untouched rows (pre-filled titles with zero/blank amounts and no category)
           if (!category && amountsUntouched) continue
 
+          const matchedMonth =
+            TEMPLATE_MONTHS.find(m => norm(m) === norm(rawMonth)) || (rawMonth ? '' : month)
+          const parsedYear = rawYear === '' ? Number(year) : Number(rawYear)
+
           let error: string | undefined
           if ([cash, invested, current].some(n => Number.isNaN(n)))
             error = 'Amounts must contain numbers only'
@@ -206,7 +273,9 @@ export default function BulkTemplateCard({
           else if ([cash, invested, current].some(n => n < 0))
             error = 'Amounts cannot be negative'
           else if (!cash && !invested && !current) error = 'Enter at least one amount'
-
+          else if (!matchedMonth) error = `Unknown month "${rawMonth}"`
+          else if (!Number.isInteger(parsedYear) || parsedYear < 1900 || parsedYear > 2999)
+            error = `Invalid year "${rawYear}"`
 
           const matchedCategory = categories.find(c => norm(c) === norm(category)) || category
           parsed.push({
@@ -215,9 +284,12 @@ export default function BulkTemplateCard({
             cash: Number.isNaN(cash) ? 0 : cash,
             invested: Number.isNaN(invested) ? 0 : invested,
             current: Number.isNaN(current) ? 0 : current,
+            month: matchedMonth || rawMonth,
+            year: Number.isNaN(parsedYear) ? Number(year) : parsedYear,
             error,
           })
         }
+
 
         if (!parsed.length) {
           toast({
@@ -272,9 +344,10 @@ export default function BulkTemplateCard({
           cash,
           investment: invested,
           current_value: current,
-          month,
-          month_number: monthNumber,
-          year: Number(year),
+          month: row.month,
+          month_number: TEMPLATE_MONTHS.indexOf(row.month) + 1 || monthNumber,
+          year: row.year,
+
         })
         success++
       } catch {
@@ -286,7 +359,7 @@ export default function BulkTemplateCard({
     setRows([])
     toast({
       title: 'Import complete',
-      description: `${success} entr${success === 1 ? 'y' : 'ies'} added for ${month} ${year}${
+      description: `${success} entr${success === 1 ? 'y' : 'ies'} imported${
         failed ? `, ${failed} failed` : ''
       }.`,
       variant: failed ? 'destructive' : 'default',
@@ -304,15 +377,20 @@ export default function BulkTemplateCard({
           <div>
             <h3 className="text-lg font-semibold">Bulk entry via template</h3>
             <p className="text-xs text-muted-foreground">
-              Add many assets at once for {month} {year}
+              Add many assets at once — defaults to {month} {year}
             </p>
           </div>
         </div>
         <p className="text-xs text-muted-foreground mb-4">
-          Columns: <span className="font-medium">Title, Category, Cash, Invested, Current</span>.
-          Category is a dropdown in the downloaded Excel template. Do not rename or reorder the
-          header row — it is validated on upload.
+          Columns:{' '}
+          <span className="font-medium">
+            Title, Category, Cash, Invested, Current, Month, Year
+          </span>
+          . Category, Month and Year are dropdowns in the downloaded Excel template, pre-filled
+          with {month} {year}. Do not rename or reorder the header row — it is validated on
+          upload.
         </p>
+
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
             type="button"
@@ -348,8 +426,8 @@ export default function BulkTemplateCard({
           <DialogHeader>
             <DialogTitle>Review template rows</DialogTitle>
             <DialogDescription>
-              {validRows.length} of {rows.length} rows are valid and will be saved to{' '}
-              {month} {year}. Rows with errors are skipped.
+              {validRows.length} of {rows.length} rows are valid and will be saved to the Month
+              and Year given in each row. Rows with errors are skipped.
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[50vh] overflow-auto rounded-xl border border-border">
@@ -361,6 +439,7 @@ export default function BulkTemplateCard({
                   <th className="text-right p-2 font-medium">Cash</th>
                   <th className="text-right p-2 font-medium">Invested</th>
                   <th className="text-right p-2 font-medium">Current</th>
+                  <th className="text-left p-2 font-medium">Period</th>
                   <th className="text-left p-2 font-medium">Status</th>
                 </tr>
               </thead>
@@ -375,6 +454,10 @@ export default function BulkTemplateCard({
                     <td className="p-2 text-right">{r.cash}</td>
                     <td className="p-2 text-right">{r.invested}</td>
                     <td className="p-2 text-right">{r.current}</td>
+                    <td className="p-2 whitespace-nowrap">
+                      {r.month ? `${r.month.slice(0, 3)}-${r.year}` : '—'}
+                    </td>
+
                     <td className="p-2">
                       {r.error ? (
                         <span className="inline-flex items-center gap-1 text-destructive text-xs">

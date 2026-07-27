@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-const SITE_URL = 'https://assets-manager-site.lovable.app';
+const SITE_URL = 'https://ashets-manager.vercel.app';
 const DEFAULT_IMAGE = `${SITE_URL}/assetPulse.png`;
 
 interface SEOProps {

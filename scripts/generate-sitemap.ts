@@ -4,7 +4,7 @@
 import { writeFileSync } from 'fs';
 import { resolve } from 'path';
 
-const BASE_URL = 'https://assets-manager-site.lovable.app';
+const BASE_URL = 'https://ashets-manager.vercel.app';
 
 interface SitemapEntry {
   path: string;
@@ -14,8 +14,10 @@ interface SitemapEntry {
 
 const entries: SitemapEntry[] = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
+  { path: '/docs', changefreq: 'monthly', priority: '0.8' },
   { path: '/auth', changefreq: 'monthly', priority: '0.4' },
 ];
+
 
 function generateSitemap(entries: SitemapEntry[]) {
   const urls = entries.map((e) =>
