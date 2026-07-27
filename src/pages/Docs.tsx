@@ -84,8 +84,12 @@ function Section({
 }
 
 export default function Docs() {
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
+
   return (
     <div className="min-h-screen w-full overflow-x-hidden flex flex-col bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+
       <SEO
         title="AssetPulse Docs — How the wealth tracker works"
         description="Complete guide to AssetPulse: sign up, add monthly particulars, bulk-import via Excel template, read the dashboard, analytics and comparison screens."
