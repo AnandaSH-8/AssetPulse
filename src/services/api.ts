@@ -26,24 +26,53 @@ const doFetch = (endpoint: string, options: RequestInit, token?: string) =>
     },
   });
 
+// Multiple screens fire requests in parallel. Without de-duplication each 401
+// triggers its own refreshSession(), and the losing calls end up using an
+// already-rotated refresh token — which fails and signs the user out (blank screen).
+let refreshPromise: Promise<string | undefined> | null = null;
+
+const refreshOnce = async () => {
+  if (!refreshPromise) {
+    refreshPromise = supabase.auth
+      .refreshSession()
+      .then(({ data, error }) => (error ? undefined : data.session?.access_token))
+      .catch(() => undefined)
+      .finally(() => {
+        // Allow a later, genuinely new refresh cycle.
+        setTimeout(() => {
+          refreshPromise = null;
+        }, 1000);
+      });
+  }
+  return refreshPromise;
+};
+
 // Helper function to make authenticated API calls
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   let token = await getAuthToken();
+
+  // The session may still be hydrating right after a reload; refresh instead of
+  // firing a guaranteed-401 request with an empty Authorization header.
+  if (!token) {
+    token = await refreshOnce();
+    if (!token) throw new Error('Your session has expired. Please sign in again.');
+  }
+
   let response = await doFetch(endpoint, options, token);
 
-  // A revoked/expired access token yields 401 "Invalid token". Try one refresh
-  // before surfacing the error; if the session is truly gone, sign out cleanly.
+  // A revoked/expired access token yields 401 "Invalid token". Try one shared
+  // refresh before surfacing the error; if the session is truly gone, sign out.
   if (response.status === 401) {
-    const { data, error } = await supabase.auth.refreshSession();
-    if (!error && data.session?.access_token) {
-      token = data.session.access_token;
-      response = await doFetch(endpoint, options, token);
+    const newToken = await refreshOnce();
+    if (newToken) {
+      response = await doFetch(endpoint, options, newToken);
     }
     if (response.status === 401) {
       await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
       throw new Error('Your session has expired. Please sign in again.');
     }
   }
+
 
   if (!response.ok) {
     const text = await response.text();
