@@ -358,9 +358,9 @@ const Auth = () => {
                   onClick={() => {
                     if (isSignUp) {
                       setMode(false);
-                      setEmail(DEMO_EMAIL);
-                      setPassword(DEMO_PASSWORD);
-                    setPwUnlocked(false);
+                      setEmail(HAS_DEMO_CREDENTIALS ? DEMO_EMAIL : '');
+                      setPassword(HAS_DEMO_CREDENTIALS ? DEMO_PASSWORD : '');
+                      setPwUnlocked(!HAS_DEMO_CREDENTIALS);
                       setConfirmPassword('');
                       setErrors({});
                     }
