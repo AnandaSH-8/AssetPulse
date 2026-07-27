@@ -36,7 +36,7 @@ function requireAuth(ctx) {
 async function requireWritable(ctx) {
   const env2 = globalThis.process?.env ?? {};
   const callerEmail = ((ctx.getUser?.() ?? ctx.user)?.email || "").toLowerCase();
-  if (callerEmail !== DEMO_EMAIL) return null;
+  if (!DEMO_EMAIL || callerEmail !== DEMO_EMAIL) return null;
   const serviceKey = env2.SUPABASE_SERVICE_ROLE_KEY;
   const url = env2.SUPABASE_URL;
   if (url && serviceKey) {
