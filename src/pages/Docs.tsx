@@ -12,6 +12,8 @@ import {
   UserPlus,
   HelpCircle,
   ArrowRight,
+  Info,
+
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -30,12 +32,14 @@ const sections = [
   { id: 'settings', label: 'Settings' },
   { id: 'security', label: 'Security & privacy' },
   { id: 'faq', label: 'FAQ' },
+  { id: 'about', label: 'About' },
+
 ];
 
 const categoryHelp = [
   { name: 'Bank Account', note: 'Cash-only — enter the balance in the Cash field.' },
   { name: 'Cash in Hand', note: 'Cash-only — physical cash you hold.' },
-  { name: 'Gold', note: 'Cash-only — current market value of your holdings.' },
+  { name: 'Gold', note: 'Enter Invested and Current value (market value of your holdings).' },
   { name: 'Mutual Fund', note: 'Enter Invested and Current value to track returns.' },
   { name: 'Stocks', note: 'Enter Invested and Current value to track returns.' },
   { name: 'Crypto Currency', note: 'Enter Invested and Current value to track returns.' },
@@ -350,6 +354,33 @@ export default function Docs() {
                   </div>
                 </div>
               </Section>
+
+              <Section id="about" icon={Info} title="About">
+                <p>
+                  AssetPulse is a personal wealth tracker that turns monthly snapshots of your
+                  bank balances, investments, gold and cash into clear trends, growth metrics
+                  and period comparisons — all in one private dashboard.
+                </p>
+                <ul className="list-disc pl-5 space-y-1 mt-3">
+                  <li>Built with React, TypeScript, Tailwind CSS and Supabase.</li>
+                  <li>Your data is protected by row-level security and encrypted amounts.</li>
+                  <li>Amounts are stored per month so history is never overwritten.</li>
+                </ul>
+                <p className="mt-3">
+                  Made by{' '}
+                  <a
+                    href="https://ananda-s-holla.vercel.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    ASH
+                  </a>
+                  .
+                </p>
+              </Section>
+
+
 
               <GlassCard className="p-6 sm:p-8 text-center space-y-4">
                 <h2 className="text-2xl font-bold">Ready to track your wealth?</h2>

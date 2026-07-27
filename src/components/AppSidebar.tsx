@@ -10,6 +10,8 @@ import {
   Settings,
   LogOut,
   User,
+  BookOpen,
+  Info,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -65,6 +67,20 @@ const navigationItems = [
     alwaysShow: true,
   },
   {
+    title: 'Docs',
+    url: '/docs',
+    icon: BookOpen,
+    description: 'How AssetPulse works',
+    alwaysShow: true,
+  },
+  {
+    title: 'About',
+    url: '/docs#about',
+    icon: Info,
+    description: 'About this project',
+    alwaysShow: true,
+  },
+  {
     title: 'Settings',
     url: '/settings',
     icon: Settings,
@@ -72,6 +88,7 @@ const navigationItems = [
     alwaysShow: true,
   },
 ];
+
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -95,7 +112,7 @@ export function AppSidebar() {
   );
 
   const getNavClassName = (path: string) => {
-    const isActive = currentPath === path;
+    const isActive = currentPath === path.split('#')[0];
     return isActive
       ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-r-2 border-green-500'
       : 'hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100';
