@@ -88,6 +88,14 @@ export default function BulkTemplateCard({
     categories.forEach((c, i) => {
       lists.getCell(i + 1, 1).value = c
     })
+    TEMPLATE_MONTHS.forEach((m, i) => {
+      lists.getCell(i + 1, 2).value = m
+    })
+    const currentYear = new Date().getFullYear()
+    const YEAR_OPTIONS = Array.from({ length: 6 }, (_, i) => currentYear - 4 + i)
+    YEAR_OPTIONS.forEach((y, i) => {
+      lists.getCell(i + 1, 3).value = y
+    })
 
     ws.addRow([...TEMPLATE_HEADERS])
     ws.getRow(1).font = { bold: true }
@@ -97,10 +105,12 @@ export default function BulkTemplateCard({
       { width: 14 },
       { width: 14 },
       { width: 14 },
+      { width: 14 },
+      { width: 10 },
     ]
 
     const titles = savedTitles.length > 0 ? savedTitles : ['']
-    titles.forEach(t => ws.addRow([t, '', 0, 0, 0]))
+    titles.forEach(t => ws.addRow([t, '', 0, 0, 0, month, Number(year)]))
 
     const lastRow = Math.max(ws.rowCount, 200)
     for (let r = 2; r <= lastRow; r++) {
@@ -126,7 +136,31 @@ export default function BulkTemplateCard({
           error: 'Enter a non-negative number (no text).',
         }
       }
+
+      const monthCell = ws.getCell(r, 6)
+      if (!monthCell.value) monthCell.value = month
+      monthCell.dataValidation = {
+        type: 'list',
+        allowBlank: false,
+        formulae: [`Lists!$B$1:$B$${TEMPLATE_MONTHS.length}`],
+        showErrorMessage: true,
+        errorTitle: 'Invalid month',
+        error: 'Pick a month from the dropdown list.',
+      }
+
+      const yearCell = ws.getCell(r, 7)
+      if (!yearCell.value) yearCell.value = Number(year)
+      yearCell.numFmt = '0'
+      yearCell.dataValidation = {
+        type: 'list',
+        allowBlank: false,
+        formulae: [`Lists!$C$1:$C$${YEAR_OPTIONS.length}`],
+        showErrorMessage: true,
+        errorTitle: 'Invalid year',
+        error: 'Pick a year from the dropdown list.',
+      }
     }
+
 
     const buf = await wb.xlsx.writeBuffer()
     const url = URL.createObjectURL(
