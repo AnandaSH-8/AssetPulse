@@ -426,8 +426,8 @@ export default function BulkTemplateCard({
           <DialogHeader>
             <DialogTitle>Review template rows</DialogTitle>
             <DialogDescription>
-              {validRows.length} of {rows.length} rows are valid and will be saved to{' '}
-              {month} {year}. Rows with errors are skipped.
+              {validRows.length} of {rows.length} rows are valid and will be saved to the Month
+              and Year given in each row. Rows with errors are skipped.
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[50vh] overflow-auto rounded-xl border border-border">
@@ -439,6 +439,7 @@ export default function BulkTemplateCard({
                   <th className="text-right p-2 font-medium">Cash</th>
                   <th className="text-right p-2 font-medium">Invested</th>
                   <th className="text-right p-2 font-medium">Current</th>
+                  <th className="text-left p-2 font-medium">Period</th>
                   <th className="text-left p-2 font-medium">Status</th>
                 </tr>
               </thead>
@@ -453,6 +454,10 @@ export default function BulkTemplateCard({
                     <td className="p-2 text-right">{r.cash}</td>
                     <td className="p-2 text-right">{r.invested}</td>
                     <td className="p-2 text-right">{r.current}</td>
+                    <td className="p-2 whitespace-nowrap">
+                      {r.month ? `${r.month.slice(0, 3)}-${r.year}` : '—'}
+                    </td>
+
                     <td className="p-2">
                       {r.error ? (
                         <span className="inline-flex items-center gap-1 text-destructive text-xs">
