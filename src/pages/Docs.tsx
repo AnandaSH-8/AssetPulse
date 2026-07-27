@@ -35,7 +35,7 @@ const sections = [
 const categoryHelp = [
   { name: 'Bank Account', note: 'Cash-only — enter the balance in the Cash field.' },
   { name: 'Cash in Hand', note: 'Cash-only — physical cash you hold.' },
-  { name: 'Gold', note: 'Cash-only — current market value of your holdings.' },
+  { name: 'Gold', note: 'Enter Invested and Current value (market value of your holdings).' },
   { name: 'Mutual Fund', note: 'Enter Invested and Current value to track returns.' },
   { name: 'Stocks', note: 'Enter Invested and Current value to track returns.' },
   { name: 'Crypto Currency', note: 'Enter Invested and Current value to track returns.' },
