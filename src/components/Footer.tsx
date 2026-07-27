@@ -104,10 +104,15 @@ export default function Footer() {
               transition={{ duration: 0.5, delay: 0.5 }}
             >
               <p className="text-sm text-muted-foreground">
-                Made with ❤️ by{' '}
-                <span className="font-semibold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                Made by{' '}
+                <a
+                  href="https://ananda-s-holla.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent hover:underline"
+                >
                   ASH
-                </span>
+                </a>
               </p>
               <p className="text-xs text-muted-foreground/70 mt-1">
                 © {new Date().getFullYear()} AssetPulse All rights reserved.
