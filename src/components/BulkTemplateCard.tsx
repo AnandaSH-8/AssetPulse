@@ -236,6 +236,8 @@ export default function BulkTemplateCard({
         const iCash = idx('Cash')
         const iInv = idx('Invested')
         const iCur = idx('Current')
+        const iMonth = idx('Month')
+        const iYear = idx('Year')
 
         const parsed: ParsedRow[] = []
         for (const raw of matrix.slice(1)) {
@@ -244,6 +246,8 @@ export default function BulkTemplateCard({
           const cash = parseNumber(raw?.[iCash])
           const invested = parseNumber(raw?.[iInv])
           const current = parseNumber(raw?.[iCur])
+          const rawMonth = String(raw?.[iMonth] ?? '').trim()
+          const rawYear = String(raw?.[iYear] ?? '').trim()
 
           const rawCash = String(raw?.[iCash] ?? '').trim()
           const rawInv = String(raw?.[iInv] ?? '').trim()
@@ -255,6 +259,10 @@ export default function BulkTemplateCard({
           // Skip untouched rows (pre-filled titles with zero/blank amounts and no category)
           if (!category && amountsUntouched) continue
 
+          const matchedMonth =
+            TEMPLATE_MONTHS.find(m => norm(m) === norm(rawMonth)) || (rawMonth ? '' : month)
+          const parsedYear = rawYear === '' ? Number(year) : Number(rawYear)
+
           let error: string | undefined
           if ([cash, invested, current].some(n => Number.isNaN(n)))
             error = 'Amounts must contain numbers only'
@@ -265,7 +273,9 @@ export default function BulkTemplateCard({
           else if ([cash, invested, current].some(n => n < 0))
             error = 'Amounts cannot be negative'
           else if (!cash && !invested && !current) error = 'Enter at least one amount'
-
+          else if (!matchedMonth) error = `Unknown month "${rawMonth}"`
+          else if (!Number.isInteger(parsedYear) || parsedYear < 1900 || parsedYear > 2999)
+            error = `Invalid year "${rawYear}"`
 
           const matchedCategory = categories.find(c => norm(c) === norm(category)) || category
           parsed.push({
@@ -274,9 +284,12 @@ export default function BulkTemplateCard({
             cash: Number.isNaN(cash) ? 0 : cash,
             invested: Number.isNaN(invested) ? 0 : invested,
             current: Number.isNaN(current) ? 0 : current,
+            month: matchedMonth || rawMonth,
+            year: Number.isNaN(parsedYear) ? Number(year) : parsedYear,
             error,
           })
         }
+
 
         if (!parsed.length) {
           toast({
