@@ -4,7 +4,7 @@
 import { writeFileSync } from 'fs';
 import { resolve } from 'path';
 
-const BASE_URL = 'https://assets-manager-site.lovable.app';
+const BASE_URL = 'https://ashets-manager.vercel.app';
 
 interface SitemapEntry {
   path: string;
