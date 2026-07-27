@@ -67,15 +67,8 @@ const navigationItems = [
     alwaysShow: true,
   },
   {
-    title: 'Docs',
-    url: '/docs',
-    icon: BookOpen,
-    description: 'How AssetPulse works',
-    alwaysShow: true,
-  },
-  {
     title: 'About',
-    url: '/docs#about',
+    url: '/docs',
     icon: Info,
     description: 'About this project',
     alwaysShow: true,
@@ -87,7 +80,7 @@ const navigationItems = [
     description: 'Account and data settings',
     alwaysShow: true,
   },
-];
+]
 
 
 export function AppSidebar() {
