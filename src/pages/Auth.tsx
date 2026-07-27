@@ -337,6 +337,7 @@ const Auth = () => {
                     setMode(false);
                     setEmail(DEMO_EMAIL);
                     setPassword(DEMO_PASSWORD);
+                    setPwUnlocked(false);
                     setConfirmPassword('');
                     setErrors({});
                   }}
@@ -357,6 +358,7 @@ const Auth = () => {
                       setMode(false);
                       setEmail(DEMO_EMAIL);
                       setPassword(DEMO_PASSWORD);
+                    setPwUnlocked(false);
                       setConfirmPassword('');
                       setErrors({});
                     }
@@ -480,6 +482,7 @@ const Auth = () => {
                         onClick={() => {
                           setEmail(DEMO_EMAIL);
                           setPassword(DEMO_PASSWORD);
+                    setPwUnlocked(false);
                         }}
                         className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
                       >
@@ -493,7 +496,10 @@ const Auth = () => {
                       id="password"
                       type={!isDemoPassword && showPassword ? 'text' : 'password'}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (e.target.value === "") setPwUnlocked(true);
+                      }}
                       placeholder={
                         isSignUp
                           ? 'Enter a strong password (min 12 characters)'
