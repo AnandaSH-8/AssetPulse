@@ -20,6 +20,8 @@ import { GlassCard } from '@/components/ui/glass-card';
 import Footer from '@/components/Footer';
 import { SEO } from '@/components/SEO';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useAuth } from '@/hooks/useAuth';
+
 
 const sections = [
   { id: 'overview', label: 'Overview' },
@@ -84,8 +86,12 @@ function Section({
 }
 
 export default function Docs() {
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
+
   return (
     <div className="min-h-screen w-full overflow-x-hidden flex flex-col bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+
       <SEO
         title="AssetPulse Docs — How the wealth tracker works"
         description="Complete guide to AssetPulse: sign up, add monthly particulars, bulk-import via Excel template, read the dashboard, analytics and comparison screens."
@@ -94,7 +100,7 @@ export default function Docs() {
 
       <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-md">
         <div className="w-full px-6 lg:px-10 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
+          <Link to={isLoggedIn ? '/dashboard' : '/'} className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-primary text-white shadow-lg">
               <IndianRupee className="w-5 h-5" />
             </div>
@@ -104,15 +110,18 @@ export default function Docs() {
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle className="mr-1" />
-            <Link to="/">
-              <Button size="sm" variant="outline">
-                Home
-              </Button>
-            </Link>
-            <Link to="/auth?mode=signup">
+            {!isLoggedIn && (
+              <Link to="/">
+                <Button size="sm" variant="outline">
+                  Home
+                </Button>
+              </Link>
+            )}
+            <Link to={isLoggedIn ? '/dashboard' : '/auth?mode=signup'}>
               <Button size="sm">Get Started</Button>
             </Link>
           </div>
+
         </div>
       </header>
 
