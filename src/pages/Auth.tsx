@@ -378,6 +378,8 @@ const Auth = () => {
                       setMode(true);
                       setEmail('');
                       setPassword('');
+                      setPwUnlocked(true);
+
                       setConfirmPassword('');
                       setErrors({});
                     }
