@@ -70,7 +70,9 @@ export default function Landing() {
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#features" className="hover:text-foreground transition-colors">Features</a>
             <a href="#how" className="hover:text-foreground transition-colors">How It Works</a>
+            <Link to="/docs" className="hover:text-foreground transition-colors">Docs</Link>
           </nav>
+
 
           <div className="flex items-center gap-2">
             <ThemeToggle className="mr-1" />
