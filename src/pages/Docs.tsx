@@ -32,6 +32,8 @@ const sections = [
   { id: 'settings', label: 'Settings' },
   { id: 'security', label: 'Security & privacy' },
   { id: 'faq', label: 'FAQ' },
+  { id: 'about', label: 'About' },
+
 ];
 
 const categoryHelp = [
