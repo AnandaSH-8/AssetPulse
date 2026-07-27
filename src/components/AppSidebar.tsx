@@ -10,6 +10,8 @@ import {
   Settings,
   LogOut,
   User,
+  BookOpen,
+  Info,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
