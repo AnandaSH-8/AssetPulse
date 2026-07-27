@@ -1,6 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
 
-const API_BASE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+// The Supabase URL must never be `undefined` at runtime: env vars are inlined at
+// build time and can be missing in some deployments, which made requests hit the
+// SPA itself and return HTML instead of JSON.
+const SUPABASE_URL =
+  import.meta.env.VITE_SUPABASE_URL || 'https://xkyhvkuahdvvlwjgnipt.supabase.co';
+
+const API_BASE_URL = `${SUPABASE_URL}/functions/v1`;
 
 // Helper function to get auth token
 const getAuthToken = async () => {
@@ -10,11 +16,8 @@ const getAuthToken = async () => {
   return session?.access_token;
 };
 
-// Helper function to make authenticated API calls
-const apiCall = async (endpoint: string, options: RequestInit = {}) => {
-  const token = await getAuthToken();
-
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+const doFetch = (endpoint: string, options: RequestInit, token?: string) =>
+  fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -23,9 +26,34 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
     },
   });
 
+// Helper function to make authenticated API calls
+const apiCall = async (endpoint: string, options: RequestInit = {}) => {
+  let token = await getAuthToken();
+  let response = await doFetch(endpoint, options, token);
+
+  // A revoked/expired access token yields 401 "Invalid token". Try one refresh
+  // before surfacing the error; if the session is truly gone, sign out cleanly.
+  if (response.status === 401) {
+    const { data, error } = await supabase.auth.refreshSession();
+    if (!error && data.session?.access_token) {
+      token = data.session.access_token;
+      response = await doFetch(endpoint, options, token);
+    }
+    if (response.status === 401) {
+      await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+      throw new Error('Your session has expired. Please sign in again.');
+    }
+  }
+
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'API request failed');
+    const text = await response.text();
+    let message = 'API request failed';
+    try {
+      message = JSON.parse(text).error || message;
+    } catch {
+      // Non-JSON response (e.g. HTML) — keep the generic message.
+    }
+    throw new Error(message);
   }
 
   return response.json();
