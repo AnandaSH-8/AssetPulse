@@ -359,7 +359,7 @@ export default function BulkTemplateCard({
     setRows([])
     toast({
       title: 'Import complete',
-      description: `${success} entr${success === 1 ? 'y' : 'ies'} added for ${month} ${year}${
+      description: `${success} entr${success === 1 ? 'y' : 'ies'} imported${
         failed ? `, ${failed} failed` : ''
       }.`,
       variant: failed ? 'destructive' : 'default',
@@ -377,15 +377,20 @@ export default function BulkTemplateCard({
           <div>
             <h3 className="text-lg font-semibold">Bulk entry via template</h3>
             <p className="text-xs text-muted-foreground">
-              Add many assets at once for {month} {year}
+              Add many assets at once — defaults to {month} {year}
             </p>
           </div>
         </div>
         <p className="text-xs text-muted-foreground mb-4">
-          Columns: <span className="font-medium">Title, Category, Cash, Invested, Current</span>.
-          Category is a dropdown in the downloaded Excel template. Do not rename or reorder the
-          header row — it is validated on upload.
+          Columns:{' '}
+          <span className="font-medium">
+            Title, Category, Cash, Invested, Current, Month, Year
+          </span>
+          . Category, Month and Year are dropdowns in the downloaded Excel template, pre-filled
+          with {month} {year}. Do not rename or reorder the header row — it is validated on
+          upload.
         </p>
+
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
             type="button"
