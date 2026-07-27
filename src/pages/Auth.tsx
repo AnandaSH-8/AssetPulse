@@ -256,10 +256,11 @@ const Auth = () => {
     }
   };
 
-  const isDemoCreds = !isSignUp && email === DEMO_EMAIL && password === DEMO_PASSWORD;
+  const isDemoCreds =
+    HAS_DEMO_CREDENTIALS && !isSignUp && email === DEMO_EMAIL && password === DEMO_PASSWORD;
   // Keep the demo password masked (no reveal icon) until the user fully clears
   // the field — partially deleting characters must not expose it.
-  const isDemoPassword = !isSignUp && !pwUnlocked;
+  const isDemoPassword = HAS_DEMO_CREDENTIALS && !isSignUp && !pwUnlocked;
 
 
 
