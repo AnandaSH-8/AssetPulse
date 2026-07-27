@@ -6,7 +6,7 @@ export { DEMO_EMAIL, DEMO_PASSWORD, HAS_DEMO_CREDENTIALS } from '@/config/app-co
 import { DEMO_EMAIL } from '@/config/app-config';
 
 export const isDemoEmail = (email?: string | null) =>
-  !!email && email.toLowerCase() === DEMO_EMAIL;
+  !!DEMO_EMAIL && !!email && email.toLowerCase() === DEMO_EMAIL;
 
 export const useIsDemoUser = () => {
   const { user } = useAuth();
