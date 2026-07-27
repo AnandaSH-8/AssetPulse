@@ -65,6 +65,20 @@ const navigationItems = [
     alwaysShow: true,
   },
   {
+    title: 'Docs',
+    url: '/docs',
+    icon: BookOpen,
+    description: 'How AssetPulse works',
+    alwaysShow: true,
+  },
+  {
+    title: 'About',
+    url: '/docs#about',
+    icon: Info,
+    description: 'About this project',
+    alwaysShow: true,
+  },
+  {
     title: 'Settings',
     url: '/settings',
     icon: Settings,
@@ -72,6 +86,7 @@ const navigationItems = [
     alwaysShow: true,
   },
 ];
+
 
 export function AppSidebar() {
   const { state } = useSidebar();
