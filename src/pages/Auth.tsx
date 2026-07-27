@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { PasswordStrengthMeter } from '@/components/ui/password-strength-meter';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { DEMO_EMAIL, DEMO_PASSWORD } from '@/lib/demo-user';
+import { DEMO_EMAIL, DEMO_PASSWORD, HAS_DEMO_CREDENTIALS } from '@/lib/demo-user';
 import {
   Mail,
   Lock,
