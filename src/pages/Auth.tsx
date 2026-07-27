@@ -38,6 +38,9 @@ const Auth = () => {
   const [password, setPassword] = useState(initialSignUp ? '' : DEMO_PASSWORD);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  // Becomes true only once the demo password field is fully emptied.
+  const [pwUnlocked, setPwUnlocked] = useState(initialSignUp);
+
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
