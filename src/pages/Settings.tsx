@@ -728,6 +728,38 @@ export default function Settings() {
           </div>
         </GlassCard>
       </motion.div>
+
+      {(isDeletingMonth || isClearing) && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/70 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-border/60 bg-card/90 px-8 py-6 shadow-xl">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <p className="font-medium">
+              {isClearing
+                ? 'Clearing all financial data...'
+                : 'Deleting month data...'}
+            </p>
+            {isDeletingMonth && deleteProgress && deleteProgress.total > 0 && (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  {deleteProgress.done} of {deleteProgress.total} entries
+                  removed
+                </p>
+                <div className="h-1.5 w-56 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{
+                      width: `${Math.round((deleteProgress.done / deleteProgress.total) * 100)}%`,
+                    }}
+                  />
+                </div>
+              </>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Please don't close this page.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
