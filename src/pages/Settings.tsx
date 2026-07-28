@@ -9,6 +9,7 @@ import {
   Save,
   KeyRound,
   CalendarX,
+  Loader2,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -56,6 +57,10 @@ export default function Settings() {
   >([]);
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [isDeletingMonth, setIsDeletingMonth] = useState(false);
+  const [deleteProgress, setDeleteProgress] = useState<{
+    done: number;
+    total: number;
+  } | null>(null);
 
   const loadMonths = async () => {
     try {
@@ -105,6 +110,7 @@ export default function Settings() {
   const handleDeleteMonth = async () => {
     if (!selectedMonth) return;
     setIsDeletingMonth(true);
+    setDeleteProgress({ done: 0, total: 0 });
     try {
       const response = await financialAPI.getAll();
       const rows: any[] = response.data || [];
@@ -112,8 +118,13 @@ export default function Settings() {
         .filter((item: any) => `${item.month}-${item.year}` === selectedMonth)
         .map((item: any) => item.id);
 
+      setDeleteProgress({ done: 0, total: ids.length });
+
+      let done = 0;
       for (const id of ids) {
         await financialAPI.delete(id);
+        done += 1;
+        setDeleteProgress({ done, total: ids.length });
       }
 
       toast({
@@ -131,8 +142,10 @@ export default function Settings() {
       });
     } finally {
       setIsDeletingMonth(false);
+      setDeleteProgress(null);
     }
   };
+
 
 
   // Creator-only: toggle demo account edit mode
@@ -600,7 +613,11 @@ export default function Settings() {
                         isReadOnly ? 'Disabled for the demo account' : undefined
                       }
                     >
-                      <CalendarX className="w-4 h-4 mr-2" />
+                      {isDeletingMonth ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <CalendarX className="w-4 h-4 mr-2" />
+                      )}
                       {isDeletingMonth ? 'Deleting...' : 'Delete Month'}
                     </Button>
                   </AlertDialogTrigger>
@@ -665,6 +682,9 @@ export default function Settings() {
                       disabled={isClearing}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >
+                      {isClearing && (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      )}
                       {isClearing ? 'Clearing...' : 'Yes, clear all data'}
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -715,6 +735,38 @@ export default function Settings() {
           </div>
         </GlassCard>
       </motion.div>
+
+      {(isDeletingMonth || isClearing) && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/70 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-border/60 bg-card/90 px-8 py-6 shadow-xl">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <p className="font-medium">
+              {isClearing
+                ? 'Clearing all financial data...'
+                : 'Deleting month data...'}
+            </p>
+            {isDeletingMonth && deleteProgress && deleteProgress.total > 0 && (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  {deleteProgress.done} of {deleteProgress.total} entries
+                  removed
+                </p>
+                <div className="h-1.5 w-56 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{
+                      width: `${Math.round((deleteProgress.done / deleteProgress.total) * 100)}%`,
+                    }}
+                  />
+                </div>
+              </>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Please don't close this page.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
