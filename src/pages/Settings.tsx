@@ -682,6 +682,9 @@ export default function Settings() {
                       disabled={isClearing}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >
+                      {isClearing && (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      )}
                       {isClearing ? 'Clearing...' : 'Yes, clear all data'}
                     </AlertDialogAction>
                   </AlertDialogFooter>
