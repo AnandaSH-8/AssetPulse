@@ -12,7 +12,6 @@ import {
   Copy,
   Search,
   X,
-  Upload,
   TrendingUp,
   TrendingDown,
   Star,
@@ -58,7 +57,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { financialAPI } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useDemoReadOnly } from '@/lib/demo-user'
@@ -116,8 +115,6 @@ export default function Statistics() {
 
   // ─── Copy-month state ─────────────────────────────────────────────────────
   const [isCopying, setIsCopying] = useState(false)
-
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // ─────────────────────────────────────────────────────────────────────────
   // Data fetching
