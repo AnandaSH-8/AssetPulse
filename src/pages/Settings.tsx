@@ -8,12 +8,20 @@ import {
   Lock,
   Save,
   KeyRound,
+  CalendarX,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { financialAPI, userAPI } from '@/services/api';
 import { useState, useEffect } from 'react';
@@ -31,7 +39,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { DEMO_EMAIL } from '@/lib/demo-user';
+import { DEMO_EMAIL, useDemoReadOnly } from '@/lib/demo-user';
+
 
 export default function Settings() {
   const { toast } = useToast();
@@ -39,6 +48,92 @@ export default function Settings() {
   const { user } = useAuth();
   const [isClearing, setIsClearing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const isReadOnly = useDemoReadOnly();
+
+  // Month-wise deletion
+  const [monthOptions, setMonthOptions] = useState<
+    { value: string; label: string; count: number }[]
+  >([]);
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [isDeletingMonth, setIsDeletingMonth] = useState(false);
+
+  const loadMonths = async () => {
+    try {
+      const response = await financialAPI.getAll();
+      const rows: any[] = response.data || [];
+      const map = new Map<
+        string,
+        { month: string; year: number; monthNumber: number; count: number }
+      >();
+      for (const item of rows) {
+        const key = `${item.month}-${item.year}`;
+        const existing = map.get(key);
+        if (existing) {
+          existing.count += 1;
+        } else {
+          map.set(key, {
+            month: item.month,
+            year: item.year,
+            monthNumber: item.month_number || 0,
+            count: 1,
+          });
+        }
+      }
+      const sorted = Array.from(map.values()).sort((a, b) =>
+        a.year !== b.year ? b.year - a.year : b.monthNumber - a.monthNumber,
+      );
+      const options = sorted.map(m => ({
+        value: `${m.month}-${m.year}`,
+        label: `${String(m.month).substring(0, 3)}-${m.year}`,
+        count: m.count,
+      }));
+      setMonthOptions(options);
+      setSelectedMonth(prev =>
+        options.some(o => o.value === prev) ? prev : '',
+      );
+    } catch {
+      // silent: month deletion simply stays unavailable
+    }
+  };
+
+  useEffect(() => {
+    loadMonths();
+  }, []);
+
+  const selectedMonthOption = monthOptions.find(o => o.value === selectedMonth);
+
+  const handleDeleteMonth = async () => {
+    if (!selectedMonth) return;
+    setIsDeletingMonth(true);
+    try {
+      const response = await financialAPI.getAll();
+      const rows: any[] = response.data || [];
+      const ids = rows
+        .filter((item: any) => `${item.month}-${item.year}` === selectedMonth)
+        .map((item: any) => item.id);
+
+      for (const id of ids) {
+        await financialAPI.delete(id);
+      }
+
+      toast({
+        title: 'Deleted',
+        description: `${ids.length} ${ids.length === 1 ? 'entry' : 'entries'} removed from ${selectedMonthOption?.label ?? selectedMonth}.`,
+      });
+      setSelectedMonth('');
+      await loadMonths();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description:
+          error instanceof Error ? error.message : 'Failed to delete month data',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeletingMonth(false);
+    }
+  };
+
 
   // Creator-only: toggle demo account edit mode
   const [adminSettings, setAdminSettings] = useState<{ demo_editable: boolean; is_creator: boolean } | null>(null);
@@ -465,7 +560,78 @@ export default function Settings() {
           </div>
 
           <div className="space-y-4">
+            {/* Delete Month Data */}
+            <div className="flex flex-col gap-4 p-4 rounded-lg border border-border/50 bg-background/50 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="font-semibold mb-1">Delete Month Data</h3>
+                <p className="text-sm text-muted-foreground">
+                  Remove every entry for a single month — useful to undo a
+                  copied month you no longer need.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 sm:ml-4 shrink-0">
+                <Select
+                  value={selectedMonth}
+                  onValueChange={setSelectedMonth}
+                  disabled={isReadOnly || monthOptions.length === 0}
+                >
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue
+                      placeholder={
+                        monthOptions.length === 0 ? 'No data' : 'Select month'
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {monthOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label} ({option.count})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      disabled={!selectedMonth || isDeletingMonth || isReadOnly}
+                      title={
+                        isReadOnly ? 'Disabled for the demo account' : undefined
+                      }
+                    >
+                      <CalendarX className="w-4 h-4 mr-2" />
+                      {isDeletingMonth ? 'Deleting...' : 'Delete Month'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete month data?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete{' '}
+                        {selectedMonthOption?.count ?? 0}{' '}
+                        {selectedMonthOption?.count === 1 ? 'entry' : 'entries'}{' '}
+                        from {selectedMonthOption?.label ?? ''}. This action
+                        cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteMonth}
+                        disabled={isDeletingMonth}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        {isDeletingMonth ? 'Deleting...' : 'Yes, delete month'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
+
             {/* Clear All Data */}
+
             <div className="flex items-center justify-between p-4 rounded-lg border border-border/50 bg-background/50">
               <div>
                 <h3 className="font-semibold mb-1">Clear All Financial Data</h3>

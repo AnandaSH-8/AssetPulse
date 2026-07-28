@@ -1,19 +1,23 @@
-## Decision
+# Delete a month's data
 
-Keep the creator identity server-side only. No `VITE_CREATOR_EMAIL` in `.env` or in the bundle.
+Today the only removal options are per-entry delete on Statistics and "Clear All Financial Data" in Settings. Nothing removes one month in one go — which is exactly what you need after a bad "Copy Month".
 
-## Current wiring (already in place — no code changes needed)
+## What to build
 
-- `CREATOR_EMAIL` exists only as a Supabase edge-function secret.
-- `supabase/functions/_shared/config.ts` reads it via `Deno.env.get('CREATOR_EMAIL')`.
-- `admin-settings` compares the caller's JWT email to that secret and returns `is_creator`.
-- `src/lib/demo-user.ts` and `src/pages/Settings.tsx` gate creator-only UI on that returned flag.
-- `.env.example` and `src/config/app-config.ts` document why the var is intentionally absent.
+Add a **Delete Month Data** row in the Settings → Danger Zone, above "Clear All Financial Data":
 
-## Optional verification step
-
-Call the deployed `admin-settings` function with the current preview session and confirm the response contains `is_creator` and `demo_editable`, proving the gating works without any client-side email.
+- A dropdown listing the months that actually have entries (e.g. `Jun-2026`, `Jul-2026`), newest first, same month-year identifier format used elsewhere.
+- Next to it, a red "Delete Month" button, disabled until a month is picked.
+- Confirmation dialog stating the month and the exact number of entries that will be removed, e.g. "This will permanently delete 14 entries from Jul 2026."
+- On confirm: delete those entries, toast success, refresh the dropdown (removing the now-empty month).
+- Disabled for the demo account, matching the existing demo read-only behaviour.
 
 ## Technical notes
 
-Any `VITE_*` value is inlined into the JS bundle at build time, so a client-side creator email is both publicly visible and trivially spoofable. Server-side comparison against the JWT email is the only trustworthy check.
+- `src/pages/Settings.tsx`: load all particulars once via `financialAPI.getAll()`, derive the unique `month-year` options and per-month counts, and reuse the existing `useIsDemoUser` gate.
+- Deletion reuses the existing `financialAPI.delete(id)` endpoint, batched over the ids of the selected month — no new edge function, no migration, and existing RLS/demo server-side guards still apply.
+- Reuse the existing `AlertDialog` pattern already in the Danger Zone for consistency.
+
+## Not included
+
+No change to the Statistics page itself (per-entry delete stays as is). Say the word if you also want a "Delete This Month" button next to "Copy Month" there.
