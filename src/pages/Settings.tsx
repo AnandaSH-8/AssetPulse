@@ -57,6 +57,10 @@ export default function Settings() {
   >([]);
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [isDeletingMonth, setIsDeletingMonth] = useState(false);
+  const [deleteProgress, setDeleteProgress] = useState<{
+    done: number;
+    total: number;
+  } | null>(null);
 
   const loadMonths = async () => {
     try {
