@@ -613,7 +613,11 @@ export default function Settings() {
                         isReadOnly ? 'Disabled for the demo account' : undefined
                       }
                     >
-                      <CalendarX className="w-4 h-4 mr-2" />
+                      {isDeletingMonth ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <CalendarX className="w-4 h-4 mr-2" />
+                      )}
                       {isDeletingMonth ? 'Deleting...' : 'Delete Month'}
                     </Button>
                   </AlertDialogTrigger>
