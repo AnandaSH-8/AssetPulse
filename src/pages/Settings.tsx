@@ -106,6 +106,7 @@ export default function Settings() {
   const handleDeleteMonth = async () => {
     if (!selectedMonth) return;
     setIsDeletingMonth(true);
+    setDeleteProgress({ done: 0, total: 0 });
     try {
       const response = await financialAPI.getAll();
       const rows: any[] = response.data || [];
@@ -113,8 +114,13 @@ export default function Settings() {
         .filter((item: any) => `${item.month}-${item.year}` === selectedMonth)
         .map((item: any) => item.id);
 
+      setDeleteProgress({ done: 0, total: ids.length });
+
+      let done = 0;
       for (const id of ids) {
         await financialAPI.delete(id);
+        done += 1;
+        setDeleteProgress({ done, total: ids.length });
       }
 
       toast({
@@ -132,8 +138,10 @@ export default function Settings() {
       });
     } finally {
       setIsDeletingMonth(false);
+      setDeleteProgress(null);
     }
   };
+
 
 
   // Creator-only: toggle demo account edit mode
