@@ -76,6 +76,7 @@ export default function BulkTemplateCard({
   const [rows, setRows] = useState<ParsedRow[]>([])
   const [open, setOpen] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
+  const [conflicts, setConflicts] = useState<{ row: ParsedRow; existing: any }[]>([])
 
   const validRows = rows.filter(r => !r.error)
 
@@ -536,6 +537,42 @@ export default function BulkTemplateCard({
               disabled={isImporting || validRows.length === 0}
             >
               {isImporting ? 'Importing...' : `Import ${validRows.length} row(s)`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={conflicts.length > 0} onOpenChange={o => !o && setConflicts([])}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Existing entries found</DialogTitle>
+            <DialogDescription>
+              {conflicts.length} row{conflicts.length > 1 ? 's' : ''} already exist for the same
+              title and period. Do you want to override them with the uploaded values?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[40vh] overflow-auto rounded-xl border border-border text-sm">
+            <ul className="divide-y divide-border">
+              {conflicts.map((c, i) => (
+                <li key={i} className="p-2 flex justify-between gap-3">
+                  <span className="truncate">{c.row.title}</span>
+                  <span className="text-muted-foreground whitespace-nowrap">
+                    {c.row.month.slice(0, 3)}-{c.row.year}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" disabled={isImporting} onClick={() => runImport(false, conflicts)}>
+              Skip existing
+            </Button>
+            <Button
+              className="bg-gradient-primary"
+              disabled={isImporting}
+              onClick={() => runImport(true, conflicts)}
+            >
+              {isImporting ? 'Importing...' : 'Override existing'}
             </Button>
           </DialogFooter>
         </DialogContent>
