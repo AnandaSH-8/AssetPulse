@@ -373,12 +373,38 @@ export default function Docs() {
 
               <Section id="settings" icon={SettingsIcon} title="Settings">
                 <p>
-                  Manage your account from Settings: update your password
-                  (minimum 12 characters with mixed case, a number and a
-                  symbol), switch between light and dark theme, and manage your
-                  data.
+                  Manage your account from Settings: update your profile, change
+                  your email, update your password (minimum 12 characters with
+                  mixed case, a number and a symbol), and manage your data.
+                </p>
+                <p className="mt-3">
+                  The <strong>Danger Zone</strong> holds the destructive
+                  actions:
+                </p>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li>
+                    <strong>Delete Month Data</strong> — pick a month from the
+                    dropdown (each option shows how many entries it holds) and
+                    confirm to remove every entry for that month. Handy for
+                    undoing a “Copy Month” you no longer need. Other months stay
+                    untouched.
+                  </li>
+                  <li>
+                    <strong>Clear All Financial Data</strong> — removes every
+                    entry across all months while keeping your account and login
+                    intact.
+                  </li>
+                  <li>
+                    <strong>Delete Account</strong> — permanently removes your
+                    account, profile and all financial data.
+                  </li>
+                </ul>
+                <p className="mt-3 text-sm">
+                  All three actions are irreversible and are disabled for the
+                  read-only demo account.
                 </p>
               </Section>
+
 
               {/* <Section
                 id="security"
