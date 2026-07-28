@@ -12,7 +12,6 @@ import {
   Copy,
   Search,
   X,
-  Upload,
   TrendingUp,
   TrendingDown,
   Star,
@@ -58,7 +57,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { financialAPI } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useDemoReadOnly } from '@/lib/demo-user'
@@ -116,12 +115,6 @@ export default function Statistics() {
 
   // ─── Copy-month state ─────────────────────────────────────────────────────
   const [isCopying, setIsCopying] = useState(false)
-
-  // ─── Bulk import state ────────────────────────────────────────────────────
-  const [importModalOpen, setImportModalOpen] = useState(false)
-  const [importPreview, setImportPreview] = useState<any[]>([])
-  const [isImporting, setIsImporting] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // ─────────────────────────────────────────────────────────────────────────
   // Data fetching
@@ -298,56 +291,6 @@ export default function Statistics() {
     } finally {
       setIsCopying(false)
     }
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Bulk import from Excel/CSV
-  // ─────────────────────────────────────────────────────────────────────────
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = evt => {
-      const data = evt.target?.result
-      const wb = XLSX.read(data, { type: 'binary' })
-      const ws = wb.Sheets[wb.SheetNames[0]]
-      const rows: any[] = XLSX.utils.sheet_to_json(ws)
-      setImportPreview(rows)
-      setImportModalOpen(true)
-    }
-    reader.readAsBinaryString(file)
-    e.target.value = ''
-  }
-
-  const handleBulkImport = async () => {
-    setIsImporting(true)
-    let success = 0, failed = 0
-    for (const row of importPreview) {
-      try {
-        const month = row['Month'] || row['month'] || MONTHS[new Date().getMonth()]
-        const year = Number(row['Year'] || row['year'] || new Date().getFullYear())
-        const monthNumber = MONTHS.indexOf(month) + 1
-        await financialAPI.create({
-          category: row['Category'] || row['category'] || 'Other',
-          description: row['Title'] || row['title'] || row['Description'] || '',
-          amount: Number(row['Amount'] || row['amount'] || 0),
-          cash: Number(row['Cash'] || row['cash'] || row['Cash at Bank'] || 0),
-          investment: Number(row['Investment'] || row['investment'] || row['Cash Invested'] || 0),
-          current_value: Number(row['Current Value'] || row['current_value'] || 0),
-          month, month_number: monthNumber, year,
-        })
-        success++
-      } catch { failed++ }
-    }
-    toast({
-      title: `Import complete`,
-      description: `${success} entries added${failed > 0 ? `, ${failed} failed` : ''}.`,
-      variant: failed > 0 ? 'destructive' : 'default',
-    })
-    setImportModalOpen(false)
-    setImportPreview([])
-    await fetchData()
-    setIsImporting(false)
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -576,21 +519,6 @@ export default function Statistics() {
             <Copy className="w-4 h-4 mr-2" />
             {isCopying ? 'Copying…' : 'Copy Month'}
           </Button>
-
-          {/* Bulk import */}
-          <Button
-            variant="outline" className="h-10 rounded-xl"
-            onClick={() => !isDemoUser && fileInputRef.current?.click()}
-            disabled={isDemoUser}
-            title={isDemoUser ? 'Disabled for the demo account' : 'Bulk import from Excel/CSV'}
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Import
-          </Button>
-          <input
-            ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv"
-            className="hidden" onChange={handleFileChange}
-          />
 
           {/* Export */}
           <DropdownMenu>
@@ -988,58 +916,6 @@ export default function Statistics() {
           </div>
         </GlassCard>
       </motion.div>
-
-      {/* ── Bulk Import Modal ───────────────────────────────────────────── */}
-      <Dialog open={importModalOpen} onOpenChange={setImportModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>Bulk Import Preview</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground -mt-2">
-            Found <strong>{importPreview.length}</strong> rows. Review before importing.
-            Expected columns: <code className="bg-accent px-1 rounded text-xs">Title, Category, Cash, Investment, Current Value, Month, Year</code>
-          </p>
-          <div className="flex-1 overflow-auto mt-3 border rounded-lg">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-background border-b">
-                <tr>
-                  {importPreview[0] && Object.keys(importPreview[0]).map(k => (
-                    <th key={k} className="text-left py-2 px-3 font-medium text-muted-foreground whitespace-nowrap">{k}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {importPreview.slice(0, 50).map((row, i) => (
-                  <tr key={i} className="border-b border-border/20 hover:bg-accent/10">
-                    {Object.values(row).map((val: any, j) => (
-                      <td key={j} className="py-2 px-3 truncate max-w-[150px]" title={String(val)}>{String(val)}</td>
-                    ))}
-                  </tr>
-                ))}
-                {importPreview.length > 50 && (
-                  <tr>
-                    <td colSpan={99} className="py-3 text-center text-muted-foreground text-xs">
-                      … and {importPreview.length - 50} more rows
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex justify-end gap-3 pt-3">
-            <Button variant="outline" onClick={() => { setImportModalOpen(false); setImportPreview([]) }}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleBulkImport} disabled={isImporting}
-              className="bg-gradient-primary hover:shadow-hover-glow transition-all"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              {isImporting ? 'Importing…' : `Import ${importPreview.length} Entries`}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
     </div>
   )

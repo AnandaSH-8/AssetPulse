@@ -76,6 +76,7 @@ export default function BulkTemplateCard({
   const [rows, setRows] = useState<ParsedRow[]>([])
   const [open, setOpen] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
+  const [conflicts, setConflicts] = useState<{ row: ParsedRow; existing: any }[]>([])
 
   const validRows = rows.filter(r => !r.error)
 
@@ -327,17 +328,44 @@ export default function BulkTemplateCard({
     reader.readAsBinaryString(file)
   }
 
-  const handleImport = async () => {
+  const findExisting = async () => {
+    try {
+      const res = await financialAPI.getAll()
+      const all: any[] = res?.data ?? []
+      const key = (t: string, m: string, y: number | string) =>
+        `${String(t).trim().toLowerCase()}|${String(m).trim().toLowerCase()}|${y}`
+      const map = new Map<string, any>()
+      for (const e of all) map.set(key(e.description ?? '', e.month ?? '', e.year), e)
+      const matches: { row: ParsedRow; existing: any }[] = []
+      for (const row of validRows) {
+        const hit = map.get(key(row.title, row.month, row.year))
+        if (hit) matches.push({ row, existing: hit })
+      }
+      return matches
+    } catch {
+      return []
+    }
+  }
+
+  const runImport = async (overwrite: boolean, conflicts: { row: ParsedRow; existing: any }[]) => {
     setIsImporting(true)
+    const conflictMap = new Map(conflicts.map(c => [c.row, c.existing]))
     let success = 0
     let failed = 0
+    let updated = 0
+    let skipped = 0
     for (const row of validRows) {
+      const existing = conflictMap.get(row)
+      if (existing && !overwrite) {
+        skipped++
+        continue
+      }
       try {
         const isCashOnly = cashOnlyCategories.has(row.category)
         const cash = isCashOnly ? row.cash || row.current : 0
         const invested = isCashOnly ? 0 : row.invested
         const current = isCashOnly ? cash : row.current || row.invested
-        await financialAPI.create({
+        const payload = {
           category: row.category,
           description: row.title,
           amount: cash + invested,
@@ -347,25 +375,48 @@ export default function BulkTemplateCard({
           month: row.month,
           month_number: TEMPLATE_MONTHS.indexOf(row.month) + 1 || monthNumber,
           year: row.year,
-
-        })
-        success++
+        }
+        if (existing) {
+          await financialAPI.update(existing.id, payload)
+          updated++
+        } else {
+          await financialAPI.create(payload)
+          success++
+        }
       } catch {
         failed++
       }
     }
     setIsImporting(false)
+    setConflicts([])
     setOpen(false)
     setRows([])
     toast({
       title: 'Import complete',
-      description: `${success} entr${success === 1 ? 'y' : 'ies'} imported${
-        failed ? `, ${failed} failed` : ''
-      }.`,
+      description: [
+        `${success} added`,
+        updated ? `${updated} overwritten` : '',
+        skipped ? `${skipped} skipped (already existed)` : '',
+        failed ? `${failed} failed` : '',
+      ]
+        .filter(Boolean)
+        .join(', ') + '.',
       variant: failed ? 'destructive' : 'default',
     })
-    if (success) onImported()
+    if (success || updated) onImported()
   }
+
+  const handleImport = async () => {
+    setIsImporting(true)
+    const found = await findExisting()
+    setIsImporting(false)
+    if (found.length) {
+      setConflicts(found)
+      return
+    }
+    await runImport(false, [])
+  }
+
 
   return (
     <>
@@ -486,6 +537,42 @@ export default function BulkTemplateCard({
               disabled={isImporting || validRows.length === 0}
             >
               {isImporting ? 'Importing...' : `Import ${validRows.length} row(s)`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={conflicts.length > 0} onOpenChange={o => !o && setConflicts([])}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Existing entries found</DialogTitle>
+            <DialogDescription>
+              {conflicts.length} row{conflicts.length > 1 ? 's' : ''} already exist for the same
+              title and period. Do you want to override them with the uploaded values?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[40vh] overflow-auto rounded-xl border border-border text-sm">
+            <ul className="divide-y divide-border">
+              {conflicts.map((c, i) => (
+                <li key={i} className="p-2 flex justify-between gap-3">
+                  <span className="truncate">{c.row.title}</span>
+                  <span className="text-muted-foreground whitespace-nowrap">
+                    {c.row.month.slice(0, 3)}-{c.row.year}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" disabled={isImporting} onClick={() => runImport(false, conflicts)}>
+              Skip existing
+            </Button>
+            <Button
+              className="bg-gradient-primary"
+              disabled={isImporting}
+              onClick={() => runImport(true, conflicts)}
+            >
+              {isImporting ? 'Importing...' : 'Override existing'}
             </Button>
           </DialogFooter>
         </DialogContent>
