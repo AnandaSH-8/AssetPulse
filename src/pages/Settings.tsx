@@ -560,7 +560,78 @@ export default function Settings() {
           </div>
 
           <div className="space-y-4">
+            {/* Delete Month Data */}
+            <div className="flex flex-col gap-4 p-4 rounded-lg border border-border/50 bg-background/50 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="font-semibold mb-1">Delete Month Data</h3>
+                <p className="text-sm text-muted-foreground">
+                  Remove every entry for a single month — useful to undo a
+                  copied month you no longer need.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 sm:ml-4 shrink-0">
+                <Select
+                  value={selectedMonth}
+                  onValueChange={setSelectedMonth}
+                  disabled={isReadOnly || monthOptions.length === 0}
+                >
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue
+                      placeholder={
+                        monthOptions.length === 0 ? 'No data' : 'Select month'
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {monthOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label} ({option.count})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      disabled={!selectedMonth || isDeletingMonth || isReadOnly}
+                      title={
+                        isReadOnly ? 'Disabled for the demo account' : undefined
+                      }
+                    >
+                      <CalendarX className="w-4 h-4 mr-2" />
+                      {isDeletingMonth ? 'Deleting...' : 'Delete Month'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete month data?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete{' '}
+                        {selectedMonthOption?.count ?? 0}{' '}
+                        {selectedMonthOption?.count === 1 ? 'entry' : 'entries'}{' '}
+                        from {selectedMonthOption?.label ?? ''}. This action
+                        cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteMonth}
+                        disabled={isDeletingMonth}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        {isDeletingMonth ? 'Deleting...' : 'Yes, delete month'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
+
             {/* Clear All Data */}
+
             <div className="flex items-center justify-between p-4 rounded-lg border border-border/50 bg-background/50">
               <div>
                 <h3 className="font-semibold mb-1">Clear All Financial Data</h3>
