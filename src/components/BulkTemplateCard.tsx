@@ -327,17 +327,44 @@ export default function BulkTemplateCard({
     reader.readAsBinaryString(file)
   }
 
-  const handleImport = async () => {
+  const findExisting = async () => {
+    try {
+      const res = await financialAPI.getAll()
+      const all: any[] = res?.data ?? []
+      const key = (t: string, m: string, y: number | string) =>
+        `${String(t).trim().toLowerCase()}|${String(m).trim().toLowerCase()}|${y}`
+      const map = new Map<string, any>()
+      for (const e of all) map.set(key(e.description ?? '', e.month ?? '', e.year), e)
+      const matches: { row: ParsedRow; existing: any }[] = []
+      for (const row of validRows) {
+        const hit = map.get(key(row.title, row.month, row.year))
+        if (hit) matches.push({ row, existing: hit })
+      }
+      return matches
+    } catch {
+      return []
+    }
+  }
+
+  const runImport = async (overwrite: boolean, conflicts: { row: ParsedRow; existing: any }[]) => {
     setIsImporting(true)
+    const conflictMap = new Map(conflicts.map(c => [c.row, c.existing]))
     let success = 0
     let failed = 0
+    let updated = 0
+    let skipped = 0
     for (const row of validRows) {
+      const existing = conflictMap.get(row)
+      if (existing && !overwrite) {
+        skipped++
+        continue
+      }
       try {
         const isCashOnly = cashOnlyCategories.has(row.category)
         const cash = isCashOnly ? row.cash || row.current : 0
         const invested = isCashOnly ? 0 : row.invested
         const current = isCashOnly ? cash : row.current || row.invested
-        await financialAPI.create({
+        const payload = {
           category: row.category,
           description: row.title,
           amount: cash + invested,
@@ -347,25 +374,48 @@ export default function BulkTemplateCard({
           month: row.month,
           month_number: TEMPLATE_MONTHS.indexOf(row.month) + 1 || monthNumber,
           year: row.year,
-
-        })
-        success++
+        }
+        if (existing) {
+          await financialAPI.update(existing.id, payload)
+          updated++
+        } else {
+          await financialAPI.create(payload)
+          success++
+        }
       } catch {
         failed++
       }
     }
     setIsImporting(false)
+    setConflicts([])
     setOpen(false)
     setRows([])
     toast({
       title: 'Import complete',
-      description: `${success} entr${success === 1 ? 'y' : 'ies'} imported${
-        failed ? `, ${failed} failed` : ''
-      }.`,
+      description: [
+        `${success} added`,
+        updated ? `${updated} overwritten` : '',
+        skipped ? `${skipped} skipped (already existed)` : '',
+        failed ? `${failed} failed` : '',
+      ]
+        .filter(Boolean)
+        .join(', ') + '.',
       variant: failed ? 'destructive' : 'default',
     })
-    if (success) onImported()
+    if (success || updated) onImported()
   }
+
+  const handleImport = async () => {
+    setIsImporting(true)
+    const found = await findExisting()
+    setIsImporting(false)
+    if (found.length) {
+      setConflicts(found)
+      return
+    }
+    await runImport(false, [])
+  }
+
 
   return (
     <>
