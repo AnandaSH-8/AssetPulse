@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-const SITE_URL = 'https://ashets-manager.vercel.app';
+const SITE_URL = 'https://ashets-pulse.vercel.app';
 const DEFAULT_IMAGE = `${SITE_URL}/assetPulse.png`;
 
 interface SEOProps {
