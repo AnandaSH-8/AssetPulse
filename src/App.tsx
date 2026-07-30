@@ -51,6 +51,7 @@ const AppContent = () => {
           <Route path="/docs" element={<Docs />} />
           <Route path="/about" element={<Navigate to="/docs" replace />} />
           <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+          <Route path="/confirm-signup" element={<ConfirmSignup />} />
 
           <Route
             path="/auth"
