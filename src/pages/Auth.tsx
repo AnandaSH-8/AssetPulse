@@ -199,10 +199,16 @@ const Auth = () => {
         if (error) throw error;
         setUnconfirmedEmail(null);
         toast({
-          title: 'Verification code sent',
-          description: `Enter the code we emailed to ${email} to activate your account.`,
+          title: 'Account created',
+          description: 'Signup successful. Taking you to your dashboard…',
         });
-        navigate(`/confirm-signup?email=${encodeURIComponent(email)}`);
+        // TEMPORARILY DISABLED: OTP email confirmation step
+        // toast({
+        //   title: 'Verification code sent',
+        //   description: `Enter the code we emailed to ${email} to activate your account.`,
+        // });
+        // navigate(`/confirm-signup?email=${encodeURIComponent(email)}`);
+        navigate(nextPath);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
