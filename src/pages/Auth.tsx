@@ -222,7 +222,7 @@ const Auth = () => {
           variant: 'destructive',
           title: 'Email not verified',
           description:
-            'Please check your inbox for the verification link before signing in.',
+            'Enter the verification code we emailed you to activate your account.',
         });
       } else {
         toast({
