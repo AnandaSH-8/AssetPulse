@@ -304,8 +304,6 @@ const Auth = () => {
 
         {/* Auth card */}
         <div className="bg-card/60 backdrop-blur-2xl border border-border rounded-3xl p-8 shadow-2xl">
-          {(
-            <>
 
               {/* Tab toggle */}
               <div className="flex p-1 bg-muted rounded-xl mb-8">
