@@ -75,7 +75,7 @@ const ConfirmSignup = () => {
       <SEO
         title="Confirm your email | AssetPulse"
         description="Confirm your AssetPulse account by entering the verification code sent to your email."
-        noindex
+        path="/confirm-signup"
       />
 
       <div className="w-full max-w-md">
