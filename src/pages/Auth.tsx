@@ -638,8 +638,6 @@ const Auth = () => {
                 </svg>
                 <span className="text-sm font-medium">Google</span>
               </button>
-            </>
-          )}
         </div>
 
         <p className="text-center text-muted-foreground text-xs mt-8">
