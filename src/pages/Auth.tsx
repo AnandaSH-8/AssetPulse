@@ -44,7 +44,7 @@ const Auth = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [signupSuccessEmail, setSignupSuccessEmail] = useState<string | null>(null);
+  
   const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
   const [resendLoading, setResendLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
