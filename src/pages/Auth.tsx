@@ -304,53 +304,9 @@ const Auth = () => {
 
         {/* Auth card */}
         <div className="bg-card/60 backdrop-blur-2xl border border-border rounded-3xl p-8 shadow-2xl">
-          {signupSuccessEmail ? (
-            <div className="space-y-5 text-center">
-              <div className="mx-auto h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
-                <MailCheck className="h-7 w-7 text-primary" />
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-2xl font-semibold text-foreground">Check your inbox</h2>
-                <p className="text-sm text-muted-foreground">
-                  We sent a verification link to{' '}
-                  <span className="font-medium text-foreground">{signupSuccessEmail}</span>. Click it to
-                  activate your account, then come back to sign in.
-                </p>
-              </div>
-              <div className="space-y-3">
-                <Button
-                  type="button"
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                  disabled={resendLoading || resendCooldown > 0}
-                  onClick={() => handleResendConfirmation(signupSuccessEmail)}
-                >
-                  {resendLoading ? (
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  ) : resendCooldown > 0 ? (
-                    `Resend in ${resendCooldown}s`
-                  ) : (
-                    'Resend verification email'
-                  )}
-                </Button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSignupSuccessEmail(null);
-                    setMode(false);
-                    setEmail(HAS_DEMO_CREDENTIALS ? DEMO_EMAIL : '');
-                    setPassword(HAS_DEMO_CREDENTIALS ? DEMO_PASSWORD : '');
-                    setPwUnlocked(!HAS_DEMO_CREDENTIALS);
-                    setConfirmPassword('');
-                    setErrors({});
-                  }}
-                  className="text-sm text-primary hover:text-primary/80"
-                >
-                  Back to sign in
-                </button>
-              </div>
-            </div>
-          ) : (
+          {(
             <>
+
               {/* Tab toggle */}
               <div className="flex p-1 bg-muted rounded-xl mb-8">
                 <button
