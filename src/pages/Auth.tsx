@@ -198,13 +198,12 @@ const Auth = () => {
           },
         });
         if (error) throw error;
-        setSignupSuccessEmail(email);
         setUnconfirmedEmail(null);
         toast({
-          title: 'Account created!',
-          description:
-            "We've sent a verification link to your email. Confirm it before signing in.",
+          title: 'Verification code sent',
+          description: `Enter the code we emailed to ${email} to activate your account.`,
         });
+        navigate(`/confirm-signup?email=${encodeURIComponent(email)}`);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
