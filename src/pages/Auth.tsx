@@ -15,7 +15,6 @@ import {
   EyeOff,
   ArrowLeft,
   AlertCircle,
-  AlertCircle,
   TrendingUp,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
