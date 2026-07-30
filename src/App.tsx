@@ -16,6 +16,7 @@ import Statistics from './pages/Statistics';
 import Comparison from './pages/Comparison';
 import Settings from './pages/Settings';
 import Auth from './pages/Auth';
+import ConfirmSignup from './pages/ConfirmSignup';
 import OAuthConsent from './pages/OAuthConsent';
 import NotFound from './pages/NotFound';
 
@@ -50,6 +51,7 @@ const AppContent = () => {
           <Route path="/docs" element={<Docs />} />
           <Route path="/about" element={<Navigate to="/docs" replace />} />
           <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+          <Route path="/confirm-signup" element={<ConfirmSignup />} />
 
           <Route
             path="/auth"
