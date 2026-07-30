@@ -531,19 +531,32 @@ const Auth = () => {
                         Your email <span className="font-medium">{unconfirmedEmail}</span> isn't
                         verified yet.
                       </p>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        disabled={resendLoading || resendCooldown > 0}
-                        onClick={() => handleResendConfirmation(unconfirmedEmail)}
-                      >
-                        {resendLoading
-                          ? 'Sending...'
-                          : resendCooldown > 0
-                          ? `Resend in ${resendCooldown}s`
-                          : 'Resend verification email'}
-                      </Button>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() =>
+                            navigate(
+                              `/confirm-signup?email=${encodeURIComponent(unconfirmedEmail)}`,
+                            )
+                          }
+                        >
+                          Enter verification code
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          disabled={resendLoading || resendCooldown > 0}
+                          onClick={() => handleResendConfirmation(unconfirmedEmail)}
+                        >
+                          {resendLoading
+                            ? 'Sending...'
+                            : resendCooldown > 0
+                            ? `Resend in ${resendCooldown}s`
+                            : 'Resend code'}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}
