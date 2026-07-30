@@ -14,7 +14,7 @@ import {
   Eye,
   EyeOff,
   ArrowLeft,
-  MailCheck,
+  AlertCircle,
   AlertCircle,
   TrendingUp,
 } from 'lucide-react';
