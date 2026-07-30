@@ -14,7 +14,6 @@ import {
   Eye,
   EyeOff,
   ArrowLeft,
-  MailCheck,
   AlertCircle,
   TrendingUp,
 } from 'lucide-react';
@@ -45,7 +44,7 @@ const Auth = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [signupSuccessEmail, setSignupSuccessEmail] = useState<string | null>(null);
+  
   const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
   const [resendLoading, setResendLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -198,13 +197,12 @@ const Auth = () => {
           },
         });
         if (error) throw error;
-        setSignupSuccessEmail(email);
         setUnconfirmedEmail(null);
         toast({
-          title: 'Account created!',
-          description:
-            "We've sent a verification link to your email. Confirm it before signing in.",
+          title: 'Verification code sent',
+          description: `Enter the code we emailed to ${email} to activate your account.`,
         });
+        navigate(`/confirm-signup?email=${encodeURIComponent(email)}`);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -224,7 +222,7 @@ const Auth = () => {
           variant: 'destructive',
           title: 'Email not verified',
           description:
-            'Please check your inbox for the verification link before signing in.',
+            'Enter the verification code we emailed you to activate your account.',
         });
       } else {
         toast({
@@ -304,53 +302,7 @@ const Auth = () => {
 
         {/* Auth card */}
         <div className="bg-card/60 backdrop-blur-2xl border border-border rounded-3xl p-8 shadow-2xl">
-          {signupSuccessEmail ? (
-            <div className="space-y-5 text-center">
-              <div className="mx-auto h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
-                <MailCheck className="h-7 w-7 text-primary" />
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-2xl font-semibold text-foreground">Check your inbox</h2>
-                <p className="text-sm text-muted-foreground">
-                  We sent a verification link to{' '}
-                  <span className="font-medium text-foreground">{signupSuccessEmail}</span>. Click it to
-                  activate your account, then come back to sign in.
-                </p>
-              </div>
-              <div className="space-y-3">
-                <Button
-                  type="button"
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                  disabled={resendLoading || resendCooldown > 0}
-                  onClick={() => handleResendConfirmation(signupSuccessEmail)}
-                >
-                  {resendLoading ? (
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  ) : resendCooldown > 0 ? (
-                    `Resend in ${resendCooldown}s`
-                  ) : (
-                    'Resend verification email'
-                  )}
-                </Button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSignupSuccessEmail(null);
-                    setMode(false);
-                    setEmail(HAS_DEMO_CREDENTIALS ? DEMO_EMAIL : '');
-                    setPassword(HAS_DEMO_CREDENTIALS ? DEMO_PASSWORD : '');
-                    setPwUnlocked(!HAS_DEMO_CREDENTIALS);
-                    setConfirmPassword('');
-                    setErrors({});
-                  }}
-                  className="text-sm text-primary hover:text-primary/80"
-                >
-                  Back to sign in
-                </button>
-              </div>
-            </div>
-          ) : (
-            <>
+
               {/* Tab toggle */}
               <div className="flex p-1 bg-muted rounded-xl mb-8">
                 <button
@@ -579,19 +531,32 @@ const Auth = () => {
                         Your email <span className="font-medium">{unconfirmedEmail}</span> isn't
                         verified yet.
                       </p>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        disabled={resendLoading || resendCooldown > 0}
-                        onClick={() => handleResendConfirmation(unconfirmedEmail)}
-                      >
-                        {resendLoading
-                          ? 'Sending...'
-                          : resendCooldown > 0
-                          ? `Resend in ${resendCooldown}s`
-                          : 'Resend verification email'}
-                      </Button>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() =>
+                            navigate(
+                              `/confirm-signup?email=${encodeURIComponent(unconfirmedEmail)}`,
+                            )
+                          }
+                        >
+                          Enter verification code
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          disabled={resendLoading || resendCooldown > 0}
+                          onClick={() => handleResendConfirmation(unconfirmedEmail)}
+                        >
+                          {resendLoading
+                            ? 'Sending...'
+                            : resendCooldown > 0
+                            ? `Resend in ${resendCooldown}s`
+                            : 'Resend code'}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -638,8 +603,6 @@ const Auth = () => {
                 </svg>
                 <span className="text-sm font-medium">Google</span>
               </button>
-            </>
-          )}
         </div>
 
         <p className="text-center text-muted-foreground text-xs mt-8">
