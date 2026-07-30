@@ -1,23 +1,20 @@
-# Delete a month's data
+## Goal
+After signup, stop showing the "verification link sent" success panel on `/auth`. Instead show a toast that an OTP code was emailed, then send the user straight to the `/confirm-signup` screen with their email pre-filled.
 
-Today the only removal options are per-entry delete on Statistics and "Clear All Financial Data" in Settings. Nothing removes one month in one go — which is exactly what you need after a bad "Copy Month".
+## Changes — `src/pages/Auth.tsx`
 
-## What to build
+1. **Signup handler (`handleEmailAuth`, sign-up branch)**
+   - Keep `supabase.auth.signUp(...)` as-is (metadata name/username preserved).
+   - On success: toast `"Verification code sent"` / "Enter the code we emailed to {email} to activate your account."
+   - Immediately `navigate('/confirm-signup?email=' + encodeURIComponent(email))` instead of setting `signupSuccessEmail`.
 
-Add a **Delete Month Data** row in the Settings → Danger Zone, above "Clear All Financial Data":
+2. **Remove the success overlay**
+   - Delete the `signupSuccessEmail` state, its conditional block (the "Check your inbox" card with resend + back-to-sign-in), and the now-unneeded `MailCheck` import if unused elsewhere.
 
-- A dropdown listing the months that actually have entries (e.g. `Jun-2026`, `Jul-2026`), newest first, same month-year identifier format used elsewhere.
-- Next to it, a red "Delete Month" button, disabled until a month is picked.
-- Confirmation dialog stating the month and the exact number of entries that will be removed, e.g. "This will permanently delete 14 entries from Jul 2026."
-- On confirm: delete those entries, toast success, refresh the dropdown (removing the now-empty month).
-- Disabled for the demo account, matching the existing demo read-only behaviour.
+3. **Keep the unconfirmed-sign-in path, retarget to OTP**
+   - When sign-in fails with `email_not_confirmed`, keep the inline banner but change wording from "verification link" to "verification code", and change its primary action to navigate to `/confirm-signup?email=...` (keeping the resend button, which still triggers a fresh code).
 
-## Technical notes
+4. `emailRedirectTo` stays set as a harmless fallback; the email template link points at `{{ .SiteURL }}/confirm-signup`.
 
-- `src/pages/Settings.tsx`: load all particulars once via `financialAPI.getAll()`, derive the unique `month-year` options and per-month counts, and reuse the existing `useIsDemoUser` gate.
-- Deletion reuses the existing `financialAPI.delete(id)` endpoint, batched over the ids of the selected month — no new edge function, no migration, and existing RLS/demo server-side guards still apply.
-- Reuse the existing `AlertDialog` pattern already in the Danger Zone for consistency.
-
-## Not included
-
-No change to the Statistics page itself (per-entry delete stays as is). Say the word if you also want a "Delete This Month" button next to "Copy Month" there.
+## Not changed
+`src/pages/ConfirmSignup.tsx` already reads `?email=` and verifies via `verifyOtp`, then redirects to `/auth?mode=signin` — no edits needed.
