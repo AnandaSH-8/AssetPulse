@@ -89,16 +89,31 @@ export default function Footer() {
           <p className="text-sm text-muted-foreground font-medium">
             © {new Date().getFullYear()} AssetPulse. All rights reserved.
           </p>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>Made by</span>
-            <a
-              href="https://ananda-s-holla.vercel.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-1 rounded-full bg-primary/10 text-primary font-semibold border border-primary/20 hover:bg-primary/20 transition-all"
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+            <Link
+              to="/terms"
+              className="hover:text-primary transition-colors"
             >
-              ASH
-            </a>
+              Terms of Service
+            </Link>
+            <Link
+              to="/privacy"
+              className="hover:text-primary transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <span className="hidden sm:inline text-border">|</span>
+            <div className="flex items-center gap-2">
+              <span>Made by</span>
+              <a
+                href="https://ananda-s-holla.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1 rounded-full bg-primary/10 text-primary font-semibold border border-primary/20 hover:bg-primary/20 transition-all"
+              >
+                ASH
+              </a>
+            </div>
           </div>
         </div>
       </motion.div>
