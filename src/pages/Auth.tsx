@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
+import { TermsTrigger, PrivacyTrigger } from '@/components/LegalModal';
 
 
 const safeNext = (raw: string | null): string => {
