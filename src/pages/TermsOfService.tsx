@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
-import { SEO } from '@/SEO';
+import { SEO } from '@/components/SEO';
 
 const sections = [
   {
