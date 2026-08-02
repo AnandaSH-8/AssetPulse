@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { FileText, Shield, X } from 'lucide-react';
+import { FileText, Shield } from 'lucide-react';
 import {
   Dialog,
+  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
