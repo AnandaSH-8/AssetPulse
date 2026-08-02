@@ -10,6 +10,8 @@ import { AppSidebar } from '@/components/AppSidebar';
 import Footer from '@/components/Footer';
 import Landing from './pages/Landing';
 import Docs from './pages/Docs';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import Dashboard from './pages/Dashboard';
 import AddParticulars from './pages/AddParticulars';
 import Statistics from './pages/Statistics';
@@ -50,6 +52,8 @@ const AppContent = () => {
           <Route path="/" element={<Landing />} />
           <Route path="/docs" element={<Docs />} />
           <Route path="/about" element={<Navigate to="/docs" replace />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
           <Route path="/confirm-signup" element={<ConfirmSignup />} />
 
