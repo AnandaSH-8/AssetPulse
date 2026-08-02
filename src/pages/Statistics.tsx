@@ -419,34 +419,71 @@ export default function Statistics() {
     XLSX.writeFile(wb, `Portfolio_Statistics_${new Date().toLocaleDateString()}.xlsx`)
   }
 
+  // PDF-safe amount format (no ₹ glyph — jsPDF core fonts render it as a stray mark)
+  const formatPdfAmount = (value: number) =>
+    new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)
+
   const exportToPDF = () => {
     const doc = new jsPDF()
-    doc.setFontSize(18)
-    doc.text('Portfolio Statistics', 14, 20)
-    doc.setFontSize(10)
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}  |  Period: ${latestMonth}`, 14, 28)
+    const emerald: [number, number, number] = [16, 122, 78]
+    const pageWidth = doc.internal.pageSize.getWidth()
+
+    // Header band with application name
+    doc.setFillColor(...emerald)
+    doc.rect(0, 0, pageWidth, 22, 'F')
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(15)
+    doc.text('AssetPulse', 14, 14)
+
+    doc.setTextColor(30, 30, 30)
+    doc.setFontSize(12)
+    doc.text('Portfolio Statistics', 14, 32)
+    doc.setFontSize(8)
+    doc.setTextColor(90, 90, 90)
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}  |  Period: ${latestMonth}  |  Amounts in INR`, 14, 38)
 
     autoTable(doc, {
       head: [['Title', 'Category', 'Cash at Bank', 'Cash Invested', 'Current Value', 'ROI %', 'Gain/Loss']],
       body: titleData.map(item => {
         const gainLoss = item.cash === 0 ? item.currentValue - item.investment : item.cash
-        const roi = item.investment > 0 ? ((item.currentValue - item.investment) / item.investment * 100).toFixed(1) + '%' : '—'
-        return [item.title, item.category, formatCurrency(item.cash), formatCurrency(item.investment), formatCurrency(item.currentValue), roi, formatCurrency(gainLoss)]
+        const roi = item.investment > 0 ? ((item.currentValue - item.investment) / item.investment * 100).toFixed(2) + '%' : '-'
+        return [item.title, item.category, formatPdfAmount(item.cash), formatPdfAmount(item.investment), formatPdfAmount(item.currentValue), roi, formatPdfAmount(gainLoss)]
       }),
-      startY: 35, theme: 'grid', headStyles: { fillColor: [79, 70, 229] },
+      startY: 44,
+      theme: 'grid',
+      styles: { fontSize: 7, cellPadding: 1.6, overflow: 'linebreak' },
+      headStyles: { fillColor: emerald, textColor: [255, 255, 255], fontSize: 7 },
+      alternateRowStyles: { fillColor: [240, 249, 244] },
+      columnStyles: {
+        0: { cellWidth: 32 }, 1: { cellWidth: 24 },
+        2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' },
+        5: { halign: 'right', cellWidth: 16 }, 6: { halign: 'right' },
+      },
+      margin: { left: 10, right: 10 },
     })
 
     autoTable(doc, {
       head: [['Category', 'Liquid Balance', 'Invested', 'Current Value', 'Return %', 'Gain/Loss']],
       body: performanceData.map(item => {
         const gainLoss = item.liquid ? item.liquid : item.current - item.invested
-        return [item.category, formatCurrency(item.liquid), formatCurrency(item.invested), formatCurrency(item.current), `${item.return.toFixed(2)}%`, formatCurrency(gainLoss)]
+        return [item.category, formatPdfAmount(item.liquid), formatPdfAmount(item.invested), formatPdfAmount(item.current), `${item.return.toFixed(2)}%`, formatPdfAmount(gainLoss)]
       }),
-      startY: (doc as any).lastAutoTable.finalY + 10, theme: 'grid', headStyles: { fillColor: [79, 70, 229] },
+      startY: (doc as any).lastAutoTable.finalY + 10,
+      theme: 'grid',
+      styles: { fontSize: 7, cellPadding: 1.6, overflow: 'linebreak' },
+      headStyles: { fillColor: emerald, textColor: [255, 255, 255], fontSize: 7 },
+      alternateRowStyles: { fillColor: [240, 249, 244] },
+      columnStyles: {
+        0: { cellWidth: 34 },
+        1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' },
+        4: { halign: 'right', cellWidth: 18 }, 5: { halign: 'right' },
+      },
+      margin: { left: 10, right: 10 },
     })
 
-    doc.save(`Portfolio_Statistics_${new Date().toLocaleDateString()}.pdf`)
+    doc.save(`AssetPulse_Portfolio_Statistics_${new Date().toLocaleDateString()}.pdf`)
   }
+
 
   // ─────────────────────────────────────────────────────────────────────────
   // Loading / empty states
