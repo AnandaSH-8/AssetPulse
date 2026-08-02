@@ -614,13 +614,23 @@ const Auth = () => {
 
         <p className="text-center text-muted-foreground text-xs mt-8">
           By continuing, you agree to AssetPulse's{' '}
-          <Link to="/" className="underline hover:text-primary transition-colors">
-            Terms of Service
-          </Link>{' '}
+          <TermsTrigger>
+            <button
+              type="button"
+              className="underline hover:text-primary transition-colors"
+            >
+              Terms of Service
+            </button>
+          </TermsTrigger>{' '}
           and{' '}
-          <Link to="/" className="underline hover:text-primary transition-colors">
-            Privacy Policy
-          </Link>
+          <PrivacyTrigger>
+            <button
+              type="button"
+              className="underline hover:text-primary transition-colors"
+            >
+              Privacy Policy
+            </button>
+          </PrivacyTrigger>
           .
         </p>
       </div>
