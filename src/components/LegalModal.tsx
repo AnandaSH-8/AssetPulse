@@ -123,9 +123,9 @@ export function LegalModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {trigger ? (
-        <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
+        <DialogTrigger asChild>{trigger}</DialogTrigger>
       ) : (
-        children && <Dialog.Trigger asChild>{children}</Dialog.Trigger>
+        children && <DialogTrigger asChild>{children}</DialogTrigger>
       )}
       <DialogContent className="max-w-2xl max-h-[85vh] p-0 gap-0 overflow-hidden border border-primary/15 bg-background/95 backdrop-blur-xl">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/60">
@@ -207,7 +207,7 @@ export function TermsTrigger({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>{children}</Dialog.Trigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[85vh] p-0 gap-0 overflow-hidden border border-primary/15 bg-background/95 backdrop-blur-xl">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/60">
           <div className="flex items-center justify-between">
@@ -254,7 +254,7 @@ export function PrivacyTrigger({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>{children}</Dialog.Trigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[85vh] p-0 gap-0 overflow-hidden border border-primary/15 bg-background/95 backdrop-blur-xl">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/60">
           <div className="flex items-center justify-between">
