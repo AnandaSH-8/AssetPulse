@@ -62,7 +62,8 @@ Deno.serve(async req => {
     switch (action) {
       case 'profile':
         if (req.method === 'GET') {
-          return await getProfile(userSupabase, user.id);
+          return await getProfile(userSupabase, user);
+
         } else if (req.method === 'PUT') {
           return await updateProfile(req, userSupabase, user.id);
         }
@@ -93,7 +94,8 @@ Deno.serve(async req => {
   }
 });
 
-async function getProfile(userSupabase: any, userId: string) {
+async function getProfile(userSupabase: any, user: any) {
+  const userId = user.id;
   const { data, error } = await userSupabase
     .from('profiles')
     .select('*')
@@ -108,11 +110,41 @@ async function getProfile(userSupabase: any, userId: string) {
   }
 
   if (!data) {
-    return new Response(JSON.stringify({ error: 'Profile not found' }), {
-      status: 404,
+    // Self-heal: social sign-ups (Google) don't provide a username, and older
+    // accounts may predate the profile trigger. Create the row on first read.
+    const meta = user.user_metadata ?? {};
+    const emailLocal = String(user.email ?? '').split('@')[0] ?? 'user';
+    const name = (meta.name || meta.full_name || emailLocal || 'User').trim();
+    const base =
+      (meta.username || meta.preferred_username || emailLocal || 'user')
+        .toString()
+        .toLowerCase()
+        .replace(/[^a-z0-9._-]/g, '') || 'user';
+
+    let created: any = null;
+    for (let i = 0; i < 5 && !created; i++) {
+      const username = i === 0 ? base : `${base}${i}`;
+      const { data: inserted } = await userSupabase
+        .from('profiles')
+        .insert({ user_id: userId, name, username })
+        .select()
+        .maybeSingle();
+      created = inserted;
+    }
+
+    if (!created) {
+      return new Response(JSON.stringify({ error: 'Profile not found' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response(JSON.stringify({ data: created }), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
+
 
   return new Response(JSON.stringify({ data }), {
     status: 200,
