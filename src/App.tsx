@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -15,20 +16,26 @@ import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { AppSidebar } from '@/components/AppSidebar';
 import Footer from '@/components/Footer';
 import Landing from './pages/Landing';
-import Docs from './pages/Docs';
-import TermsOfService from './pages/TermsOfService';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import Dashboard from './pages/Dashboard';
-import AddParticulars from './pages/AddParticulars';
-import Statistics from './pages/Statistics';
-import Comparison from './pages/Comparison';
-import Settings from './pages/Settings';
+const Docs = lazy(() => import('./pages/Docs'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const AddParticulars = lazy(() => import('./pages/AddParticulars'));
+const Statistics = lazy(() => import('./pages/Statistics'));
+const Comparison = lazy(() => import('./pages/Comparison'));
+const Settings = lazy(() => import('./pages/Settings'));
 import Auth from './pages/Auth';
-import ConfirmSignup from './pages/ConfirmSignup';
-import OAuthConsent from './pages/OAuthConsent';
-import NotFound from './pages/NotFound';
+const ConfirmSignup = lazy(() => import('./pages/ConfirmSignup'));
+const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 const queryClient = new QueryClient();
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+  </div>
+);
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -61,6 +68,7 @@ const AppContent = () => {
   return (
     <SidebarProvider>
       <BrowserRouter>
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/docs" element={<Docs />} />
@@ -114,6 +122,7 @@ const AppContent = () => {
             }
           />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </SidebarProvider>
   )
