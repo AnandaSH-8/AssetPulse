@@ -95,15 +95,19 @@ const Auth = () => {
   };
 
   useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
-        navigate(nextPath);
-      }
-    };
-    checkUser();
+    // Fires for an existing session and for the session created when Supabase
+    // returns from an OAuth redirect.
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) navigate(nextPath, { replace: true });
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) navigate(nextPath, { replace: true });
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate, nextPath]);
 
   const validatePassword = (pwd: string) => {
