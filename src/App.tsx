@@ -10,7 +10,11 @@ import {
   Navigate,
   useLocation,
 } from 'react-router-dom';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from '@/components/ui/sidebar';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { AppSidebar } from '@/components/AppSidebar';
@@ -30,6 +34,17 @@ const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 const queryClient = new QueryClient();
+
+const HeaderTitle = () => {
+  const { state, isMobile } = useSidebar();
+  // Sidebar already shows the brand when expanded on desktop — avoid duplication.
+  if (!isMobile && state === 'expanded') return null;
+  return (
+    <h1 className="text-lg font-semibold bg-gradient-to-r from-slate-700 to-slate-900 dark:from-slate-200 dark:to-slate-400 bg-clip-text text-transparent">
+      AssetPulse
+    </h1>
+  );
+};
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -93,9 +108,7 @@ const AppContent = () => {
                     <header className="h-14 flex items-center justify-between border-b bg-white/80 dark:bg-slate-900/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60 px-4 shadow-sm">
                       <div className="flex items-center">
                         <SidebarTrigger className="mr-4 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" />
-                        <h1 className="text-lg font-semibold bg-gradient-to-r from-slate-700 to-slate-900 dark:from-slate-200 dark:to-slate-400 bg-clip-text text-transparent">
-                          AssetPulse
-                        </h1>
+                        <HeaderTitle />
                       </div>
                     </header>
 
