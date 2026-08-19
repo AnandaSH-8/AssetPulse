@@ -20,7 +20,7 @@
     --popover-foreground: 220 15% 15%; /* hsl(220, 15%, 15%) */
 
     /* Soft green primary for finance theme */
-    --primary: 142 76% 36%; /* hsl(142, 76%, 36%) */
+    --primary: 142 76% 28%; /* hsl(142, 76%, 36%) */
     --primary-foreground: 220 20% 98%; /* hsl(220, 20%, 98%) */
     --primary-light: 142 40% 85%; /* hsl(142, 40%, 85%) */
     --primary-glow: 142 76% 36%; /* hsl(142, 76%, 36%) */
@@ -47,7 +47,7 @@
     --border: 220 15% 88%; /* hsl(220, 15%, 88%) */
     --input: 220 20% 96%; /* hsl(220, 20%, 96%) */
     --input-border: 220 15% 75%; /* hsl(220, 15%, 75%) */
-    --ring: 142 76% 36%; /* hsl(142, 76%, 36%) */
+    --ring: 142 76% 28%; /* hsl(142, 76%, 36%) */
 
     /* Neumorphism shadows */
     --neomorph-light: 220 20% 100%; /* hsl(220, 20%, 100%) */
@@ -56,8 +56,8 @@
     /* Gradients */
     --gradient-primary: linear-gradient(
       135deg,
-      hsl(142 76% 36%) 0%,
-      /* hsl(142, 76%, 36%) */ hsl(142 60% 45%) 100% /* hsl(142, 60%, 45%) */
+      hsl(142 76% 28%) 0%,
+      hsl(142 66% 36%) 100%
     );
     --gradient-card: linear-gradient(
       135deg,
@@ -113,7 +113,7 @@
     --popover-foreground: 220 15% 92%; /* hsl(220, 15%, 92%) */
 
     /* Green primary stays consistent */
-    --primary: 142 76% 36%; /* hsl(142, 76%, 36%) */
+    --primary: 142 76% 28%; /* hsl(142, 76%, 36%) */
     --primary-foreground: 220 20% 98%; /* hsl(220, 20%, 98%) */
     --primary-light: 142 40% 25%; /* hsl(142, 40%, 25%) */
     --primary-glow: 142 76% 36%; /* hsl(142, 76%, 36%) */
@@ -140,7 +140,7 @@
     --border: 220 15% 22%; /* hsl(220, 15%, 22%) */
     --input: 220 20% 15%; /* hsl(220, 20%, 15%) */
     --input-border: 220 15% 30%; /* hsl(220, 15%, 30%) */
-    --ring: 142 76% 36%; /* hsl(142, 76%, 36%) */
+    --ring: 142 76% 28%; /* hsl(142, 76%, 36%) */
 
     /* Dark neumorphism */
     --neomorph-light: 220 20% 18%; /* hsl(220, 20%, 18%) */
@@ -149,8 +149,8 @@
     /* Dark gradients */
     --gradient-primary: linear-gradient(
       135deg,
-      hsl(142 76% 36%) 0%,
-      /* hsl(142, 76%, 36%) */ hsl(142 60% 45%) 100% /* hsl(142, 60%, 45%) */
+      hsl(142 76% 28%) 0%,
+      hsl(142 66% 36%) 100%
     );
     --gradient-card: linear-gradient(
       135deg,
