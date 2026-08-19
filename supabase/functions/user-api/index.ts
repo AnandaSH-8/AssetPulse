@@ -62,7 +62,8 @@ Deno.serve(async req => {
     switch (action) {
       case 'profile':
         if (req.method === 'GET') {
-          return await getProfile(userSupabase, user.id);
+          return await getProfile(userSupabase, user);
+
         } else if (req.method === 'PUT') {
           return await updateProfile(req, userSupabase, user.id);
         }
