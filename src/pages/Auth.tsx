@@ -248,7 +248,12 @@ const Auth = () => {
       setLoading(true);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: `${window.location.origin}${nextPath}` },
+        options: {
+          // Land back on /auth so the session is picked up here and then
+          // forwarded to the intended route (Supabase may fall back to the
+          // configured Site URL, which would otherwise show the landing page).
+          redirectTo: `${window.location.origin}/auth?next=${encodeURIComponent(nextPath)}`,
+        },
       });
       if (error) throw error;
     } catch (error: any) {
