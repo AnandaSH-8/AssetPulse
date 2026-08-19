@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import {
   IndianRupee,
@@ -48,6 +49,19 @@ const features = [
 ];
 
 export default function Landing() {
+  const { user, loading } = useAuth();
+
+  // Signed-in users (including those returning from an OAuth redirect that
+  // landed on the Site URL) go straight to the dashboard.
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+  if (user) return <Navigate to="/dashboard" replace />;
+
   return (
     <div className="min-h-screen w-full overflow-x-hidden flex flex-col bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <SEO
