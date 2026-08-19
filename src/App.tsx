@@ -26,6 +26,7 @@ const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -36,7 +37,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) {
-    return <Navigate to="/" replace />;
+    const next = `${location.pathname}${location.search}`;
+    return (
+      <Navigate
+        to={`/auth?mode=signin&next=${encodeURIComponent(next)}`}
+        replace
+      />
+    );
   }
 
   return <>{children}</>;
