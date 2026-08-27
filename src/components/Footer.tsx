@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { IndianRupee } from 'lucide-react';
+import { APP_VERSION } from '@/config/app-config';
 
 
 export default function Footer() {
@@ -115,6 +116,10 @@ export default function Footer() {
                 ASH
               </a>
             </div>
+            <span className="hidden sm:inline text-border">|</span>
+            <span className="text-xs text-muted-foreground/70 font-medium">
+              v{APP_VERSION}
+            </span>
           </div>
         </div>
       </motion.div>
