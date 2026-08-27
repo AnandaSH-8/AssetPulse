@@ -108,7 +108,7 @@ export default function Footer() {
               </a>
             </div>
             <span className="hidden sm:inline text-border">|</span>
-            <span className="text-xl text-muted-foreground/70 font-medium">v{APP_VERSION}</span>
+            <span className="text-base text-muted-foreground/70 font-medium">v{APP_VERSION}</span>
           </div>
         </div>
       </motion.div>
