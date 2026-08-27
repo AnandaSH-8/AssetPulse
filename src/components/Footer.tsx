@@ -1,8 +1,7 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { IndianRupee } from 'lucide-react';
-import { APP_VERSION } from '@/config/app-config';
-
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { IndianRupee } from "lucide-react";
+import { APP_VERSION } from "@/config/app-config";
 
 export default function Footer() {
   const LinkedInIcon = () => (
@@ -25,19 +24,19 @@ export default function Footer() {
 
   const socialLinks = [
     {
-      name: 'LinkedIn',
+      name: "LinkedIn",
       icon: LinkedInIcon,
-      url: 'https://www.linkedin.com/in/ananda-s-holla-268b94147/',
+      url: "https://www.linkedin.com/in/ananda-s-holla-268b94147/",
     },
     {
-      name: 'X (Twitter)',
+      name: "X (Twitter)",
       icon: XIcon,
-      url: 'https://x.com/AnandSHolla8',
+      url: "https://x.com/AnandSHolla8",
     },
     {
-      name: 'GitHub',
+      name: "GitHub",
       icon: GitHubIcon,
-      url: 'https://github.com/AnandaSH-8',
+      url: "https://github.com/AnandaSH-8",
     },
   ];
 
@@ -46,7 +45,7 @@ export default function Footer() {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-60px' }}
+        viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.45 }}
         className="w-full max-w-6xl mx-auto rounded-[2rem] border border-primary/15 bg-card/50 dark:bg-primary/[0.04] backdrop-blur-2xl p-8 md:p-12 shadow-xl shadow-primary/5 transition-all duration-300"
       >
@@ -57,9 +56,7 @@ export default function Footer() {
               <div className="w-10 h-10 rounded-xl bg-gradient-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30">
                 <IndianRupee className="w-5 h-5" />
               </div>
-              <span className="text-2xl font-bold tracking-tight text-foreground">
-                AssetPulse
-              </span>
+              <span className="text-2xl font-bold tracking-tight text-foreground">AssetPulse</span>
             </div>
             <p className="text-xs sm:text-sm font-medium text-primary/80 tracking-wide uppercase">
               Track. Analyze. Grow.
@@ -92,16 +89,10 @@ export default function Footer() {
             © {new Date().getFullYear()} AssetPulse. All rights reserved.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-            <Link
-              to="/terms"
-              className="hover:text-primary transition-colors"
-            >
+            <Link to="/terms" className="hover:text-primary transition-colors">
               Terms of Service
             </Link>
-            <Link
-              to="/privacy"
-              className="hover:text-primary transition-colors"
-            >
+            <Link to="/privacy" className="hover:text-primary transition-colors">
               Privacy Policy
             </Link>
             <span className="hidden sm:inline text-border">|</span>
@@ -117,13 +108,10 @@ export default function Footer() {
               </a>
             </div>
             <span className="hidden sm:inline text-border">|</span>
-            <span className="text-xs text-muted-foreground/70 font-medium">
-              v{APP_VERSION}
-            </span>
+            <span className="text-xl text-muted-foreground/70 font-medium">v{APP_VERSION}</span>
           </div>
         </div>
       </motion.div>
     </footer>
-  )
+  );
 }
-
