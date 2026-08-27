@@ -115,6 +115,10 @@ export default function Footer() {
                 ASH
               </a>
             </div>
+            <span className="hidden sm:inline text-border">|</span>
+            <span className="text-xs text-muted-foreground/70 font-medium">
+              v4.5.0
+            </span>
           </div>
         </div>
       </motion.div>
