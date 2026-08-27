@@ -21,3 +21,6 @@ export const DEMO_PASSWORD = env.VITE_DEMO_PASSWORD || '';
 
 /** True only when a demo account is configured for this deployment. */
 export const HAS_DEMO_CREDENTIALS = !!DEMO_EMAIL && !!DEMO_PASSWORD;
+
+/** Application version displayed in the footer. Bump on every release. */
+export const APP_VERSION = '4.5.0';
