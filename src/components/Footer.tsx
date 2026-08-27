@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { IndianRupee } from 'lucide-react';
+import { APP_VERSION } from '@/config/app-config';
 
 
 export default function Footer() {
