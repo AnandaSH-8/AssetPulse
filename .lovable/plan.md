@@ -1,20 +1,46 @@
-## Goal
-After signup, stop showing the "verification link sent" success panel on `/auth`. Instead show a toast that an OTP code was emailed, then send the user straight to the `/confirm-signup` screen with their email pre-filled.
+# Replacing ExcelJS with xlsx in the template download
 
-## Changes — `src/pages/Auth.tsx`
+## Short answer
 
-1. **Signup handler (`handleEmailAuth`, sign-up branch)**
-   - Keep `supabase.auth.signUp(...)` as-is (metadata name/username preserved).
-   - On success: toast `"Verification code sent"` / "Enter the code we emailed to {email} to activate your account."
-   - Immediately `navigate('/confirm-signup?email=' + encodeURIComponent(email))` instead of setting `signupSuccessEmail`.
+I would not do it. The 938kB chunk is already loaded only when someone clicks "Download Template" — it is not part of what visitors download when they open the app. Removing it would save nothing for normal use, but it would cost the dropdowns inside the template.
 
-2. **Remove the success overlay**
-   - Delete the `signupSuccessEmail` state, its conditional block (the "Check your inbox" card with resend + back-to-sign-in), and the now-unneeded `MailCheck` import if unused elsewhere.
+## What would actually change
 
-3. **Keep the unconfirmed-sign-in path, retarget to OTP**
-   - When sign-in fails with `email_not_confirmed`, keep the inline banner but change wording from "verification link" to "verification code", and change its primary action to navigate to `/confirm-signup?email=...` (keeping the resend button, which still triggers a fresh code).
+The template download is the only place ExcelJS is used. Everything else (reading an uploaded file, the Statistics export) already uses the lighter library.
 
-4. `emailRedirectTo` stays set as a harmless fallback; the email template link points at `{{ .SiteURL }}/confirm-signup`.
+If we switched, the downloaded template would lose:
 
-## Not changed
-`src/pages/ConfirmSignup.tsx` already reads `?email=` and verifies via `verifyOtp`, then redirects to `/auth?mode=signin` — no edits needed.
+- Category dropdown per row
+- Month dropdown per row
+- Year dropdown per row
+- The "numbers only" and "pick from list" warnings Excel shows while typing
+- Bold header row and column widths / number formatting
+
+The free version of the lighter library cannot write those; they are a paid feature there. People would type categories and months by hand, so more uploads would fail validation and bounce back with errors.
+
+## Size effect, realistically
+
+- App start-up bundle today: unchanged either way — ExcelJS is loaded on demand.
+- Only the person clicking "Download Template" fetches the extra file, once, then it is cached.
+- Real saving for that one click: roughly 900kB, at the cost of the guardrails above.
+
+## Effort if you still want it
+
+Small: one file, about 80 lines rewritten, plus removing the dependency. Under an hour, low risk of breaking anything else.
+
+## Recommended alternative
+
+Keep ExcelJS for the download, and reduce weight where it actually matters instead:
+
+1. Keep the on-demand loading as is (already done).
+2. Optionally show a small "Preparing template…" state on the button so the one-time load feels intentional.
+
+## Technical notes
+
+- `src/components/BulkTemplateCard.tsx` line 84 dynamically imports ExcelJS inside `handleDownload`; Vite emits it as a separate async chunk, so it never enters the initial bundle.
+- Data validation (`dataValidation` on cells, `Lists` hidden sheet) has no equivalent in SheetJS CE; `xlsx` writes cell values and basic number formats only.
+- A swap would also drop `ws.getRow(1).font` and `ws.columns` width settings, which have no CE equivalent either.
+
+## Decision needed
+
+Tell me which you want: keep ExcelJS as-is (recommended), or swap to `xlsx` and accept a plain template without dropdowns.
