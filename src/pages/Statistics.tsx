@@ -62,9 +62,7 @@ import { financialAPI } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useDemoReadOnly } from '@/lib/demo-user'
 import { useToast } from '@/hooks/use-toast'
-import * as XLSX from 'xlsx'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
+
 
 const CHART_COLORS = [
   'hsl(var(--chart-1))',
@@ -395,7 +393,8 @@ export default function Statistics() {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
+    const XLSX = await import('xlsx')
     const titleSheet = titleData.map(item => {
       const gainLoss = item.cash === 0 ? item.currentValue - item.investment : item.cash
       const roi = item.investment > 0 ? ((item.currentValue - item.investment) / item.investment * 100).toFixed(2) + '%' : '—'
@@ -423,7 +422,9 @@ export default function Statistics() {
   const formatPdfAmount = (value: number) =>
     new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)
 
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
+    const { default: jsPDF } = await import('jspdf')
+    const { default: autoTable } = await import('jspdf-autotable')
     const doc = new jsPDF()
     const emerald: [number, number, number] = [16, 122, 78]
     const pageWidth = doc.internal.pageSize.getWidth()
