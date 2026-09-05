@@ -6,6 +6,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 import { encryptNumber } from '../_shared/encryption.ts';
 import { DEMO_EMAIL, CREATOR_EMAIL } from '../_shared/config.ts';
+import { SUPABASE_URL, PUBLISHABLE_KEY, SECRET_KEY } from '../_shared/keys.ts';
 
 const ENC_PREFIX = 'enc:v1:';
 const FIELDS = ['amount', 'cash', 'investment', 'current_value'] as const;
