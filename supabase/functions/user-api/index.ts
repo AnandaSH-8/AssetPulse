@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { SUPABASE_URL, PUBLISHABLE_KEY, SECRET_KEY } from '../_shared/keys.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 
 interface ProfileUpdateRequest {
@@ -7,8 +8,8 @@ interface ProfileUpdateRequest {
 }
 
 const supabase = createClient(
-  Deno.env.get('SUPABASE_URL') ?? '',
-  Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+  SUPABASE_URL,
+  PUBLISHABLE_KEY,
 );
 
 Deno.serve(async req => {
@@ -48,8 +49,8 @@ Deno.serve(async req => {
 
     // Create user-scoped Supabase client for RLS
     const userSupabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      SUPABASE_URL,
+      PUBLISHABLE_KEY,
       {
         global: {
           headers: {
