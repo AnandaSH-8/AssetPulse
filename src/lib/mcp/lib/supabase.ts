@@ -5,6 +5,7 @@ import { DEMO_EMAIL } from "./config";
 export function supabaseForUser(ctx: ToolContext): SupabaseClient {
   const env = (globalThis as any).process?.env ?? {};
   const url = env.SUPABASE_URL as string;
+  // Prefer the new JWT-signing-key names; fall back to the deprecated legacy ones.
   const key = (env.SUPABASE_PUBLISHABLE_KEY ?? env.SUPABASE_ANON_KEY) as string;
   if (!url || !key) throw new Error("Supabase env not configured");
   return createClient(url, key, {
