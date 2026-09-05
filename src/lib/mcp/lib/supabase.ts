@@ -30,7 +30,7 @@ export async function requireWritable(ctx: ToolContext) {
   const callerEmail = (((ctx as any).getUser?.() ?? (ctx as any).user)?.email || "").toLowerCase();
   if (!DEMO_EMAIL || callerEmail !== DEMO_EMAIL) return null;
 
-  const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY as string | undefined;
+  const serviceKey = (env.SUPABASE_SECRET_KEY ?? env.SUPABASE_SERVICE_ROLE_KEY) as string | undefined;
   const url = env.SUPABASE_URL as string | undefined;
   if (url && serviceKey) {
     try {
