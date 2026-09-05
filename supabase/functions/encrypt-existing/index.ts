@@ -24,8 +24,8 @@ Deno.serve(async (req) => {
     const token = authHeader.replace('Bearer ', '');
 
     const userClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      SUPABASE_URL,
+      PUBLISHABLE_KEY,
       { global: { headers: { Authorization: `Bearer ${token}` } } },
     );
     const { data: { user }, error: userErr } = await userClient.auth.getUser(token);
@@ -39,8 +39,8 @@ Deno.serve(async (req) => {
 
     // Service-role client for the migration writes
     const admin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      SUPABASE_URL,
+      SECRET_KEY,
     );
 
     // Resolve demo user id (skip their rows)

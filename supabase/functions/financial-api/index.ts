@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { SUPABASE_URL, PUBLISHABLE_KEY, SECRET_KEY } from '../_shared/keys.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 import { DEMO_EMAIL } from '../_shared/config.ts';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
@@ -98,8 +99,8 @@ Deno.serve(async req => {
     const token = authHeader.replace('Bearer ', '');
     // Create authenticated Supabase client for this request
     const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      SUPABASE_URL,
+      PUBLISHABLE_KEY,
       {
         global: {
           headers: {
@@ -135,8 +136,8 @@ Deno.serve(async req => {
     const isMutation = req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE';
     if (isMutation && !!DEMO_EMAIL && callerEmail === DEMO_EMAIL) {
       const admin = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+        SUPABASE_URL,
+        SECRET_KEY,
       );
       const { data: settingRow } = await admin
         .from('app_settings')
