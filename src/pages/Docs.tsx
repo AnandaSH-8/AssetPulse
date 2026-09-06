@@ -527,7 +527,7 @@ export default function Docs() {
         </div>
       </main>
 
-      <Footer />
+      {!isEmbedded && <Footer />}
     </div>
   )
 }
