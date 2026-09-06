@@ -68,7 +68,7 @@ const navigationItems = [
   },
   {
     title: 'About',
-    url: '/docs',
+    url: '/about',
     icon: Info,
     description: 'About this project',
     alwaysShow: true,
@@ -156,10 +156,10 @@ export function AppSidebar() {
                   >
                     <NavLink
                       to={item.url}
-                      className={`${getNavClassName(item.url)} px-3 py-3 rounded-xl group relative overflow-hidden`}
+                      className={`${getNavClassName(item.url)} px-3 py-3 rounded-xl overflow-hidden`}
                     >
                       <motion.div
-                        className="flex items-center gap-3 "
+                        className="flex items-center gap-3 relative z-10"
                         whileHover={{ x: 2 }}
                         transition={{
                           type: 'spring',
@@ -182,12 +182,6 @@ export function AppSidebar() {
                           </motion.div>
                         )}
                       </motion.div>
-
-                      {/* Hover effect */}
-                      <motion.div
-                        className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 group-hover:opacity-100"
-                        transition={{ duration: 0.2 }}
-                      />
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
