@@ -88,6 +88,9 @@ function Section({
 export default function Docs() {
   const { user } = useAuth();
   const isLoggedIn = !!user;
+  // When opened from the sidebar (/about) the app shell already renders a footer.
+  const isEmbedded = useLocation().pathname === '/about';
+
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden flex flex-col bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
