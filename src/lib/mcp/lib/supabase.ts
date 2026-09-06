@@ -5,6 +5,7 @@ import { DEMO_EMAIL } from "./config";
 export function supabaseForUser(ctx: ToolContext): SupabaseClient {
   const env = (globalThis as any).process?.env ?? {};
   const url = env.SUPABASE_URL as string;
+  // Prefer the new JWT-signing-key names; fall back to the deprecated legacy ones.
   const key = (env.SUPABASE_PUBLISHABLE_KEY ?? env.SUPABASE_ANON_KEY) as string;
   if (!url || !key) throw new Error("Supabase env not configured");
   return createClient(url, key, {
@@ -29,7 +30,7 @@ export async function requireWritable(ctx: ToolContext) {
   const callerEmail = (((ctx as any).getUser?.() ?? (ctx as any).user)?.email || "").toLowerCase();
   if (!DEMO_EMAIL || callerEmail !== DEMO_EMAIL) return null;
 
-  const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY as string | undefined;
+  const serviceKey = (env.SUPABASE_SECRET_KEY ?? env.SUPABASE_SERVICE_ROLE_KEY) as string | undefined;
   const url = env.SUPABASE_URL as string | undefined;
   if (url && serviceKey) {
     try {

@@ -6,6 +6,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 import { encryptNumber } from '../_shared/encryption.ts';
 import { DEMO_EMAIL, CREATOR_EMAIL } from '../_shared/config.ts';
+import { SUPABASE_URL, PUBLISHABLE_KEY, SECRET_KEY } from '../_shared/keys.ts';
 
 const ENC_PREFIX = 'enc:v1:';
 const FIELDS = ['amount', 'cash', 'investment', 'current_value'] as const;
@@ -24,8 +25,8 @@ Deno.serve(async (req) => {
     const token = authHeader.replace('Bearer ', '');
 
     const userClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      SUPABASE_URL,
+      PUBLISHABLE_KEY,
       { global: { headers: { Authorization: `Bearer ${token}` } } },
     );
     const { data: { user }, error: userErr } = await userClient.auth.getUser(token);
@@ -39,8 +40,8 @@ Deno.serve(async (req) => {
 
     // Service-role client for the migration writes
     const admin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      SUPABASE_URL,
+      SECRET_KEY,
     );
 
     // Resolve demo user id (skip their rows)
