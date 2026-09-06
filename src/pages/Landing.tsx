@@ -69,6 +69,18 @@ export default function Landing() {
         description="Personal wealth tracker with monthly snapshots, net-worth analytics, and category performance. Sign up free and take control of your portfolio."
         path="/"
       />
+      {/* WebSite schema for sitelinks */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'AssetPulse',
+        url: 'https://www.ashetpulse.com',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: 'https://www.ashetpulse.com/docs',
+          'query-input': 'required name=search_term_string',
+        },
+      }) }} />
       {/* Header — fixed mirror glass */}
       <header className="fixed inset-x-0 top-0 z-50">
         <div className="absolute inset-0 bg-background/50 backdrop-blur-2xl backdrop-saturate-150 border-b border-white/10 shadow-[0_8px_32px_-12px_hsl(var(--foreground)/0.25)]" />

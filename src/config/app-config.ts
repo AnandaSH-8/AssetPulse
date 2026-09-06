@@ -23,4 +23,4 @@ export const DEMO_PASSWORD = env.VITE_DEMO_PASSWORD || "";
 export const HAS_DEMO_CREDENTIALS = !!DEMO_EMAIL && !!DEMO_PASSWORD;
 
 /** Application version displayed in the footer. Bump on every release. */
-export const APP_VERSION = "4.5.0";
+export const APP_VERSION = '4.5.1'

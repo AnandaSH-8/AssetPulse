@@ -4,20 +4,22 @@
 import { writeFileSync } from 'fs';
 import { resolve } from 'path';
 
-const BASE_URL = 'https://ashets-pulse.vercel.app';
+const BASE_URL = 'https://www.ashetpulse.com'
+const TODAY = new Date().toISOString().split('T')[0];
 
 interface SitemapEntry {
   path: string;
   changefreq?: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
   priority?: string;
+  lastmod?: string;
 }
 
 const entries: SitemapEntry[] = [
-  { path: '/', changefreq: 'weekly', priority: '1.0' },
-  { path: '/docs', changefreq: 'monthly', priority: '0.8' },
-  { path: '/terms', changefreq: 'monthly', priority: '0.5' },
-  { path: '/privacy', changefreq: 'monthly', priority: '0.5' },
-  { path: '/auth', changefreq: 'monthly', priority: '0.4' },
+  { path: '/', changefreq: 'weekly', priority: '1.0', lastmod: TODAY },
+  { path: '/docs', changefreq: 'monthly', priority: '0.8', lastmod: TODAY },
+  { path: '/auth', changefreq: 'monthly', priority: '0.6', lastmod: TODAY },
+  { path: '/terms', changefreq: 'yearly', priority: '0.3', lastmod: TODAY },
+  { path: '/privacy', changefreq: 'yearly', priority: '0.3', lastmod: TODAY },
 ];
 
 
@@ -26,6 +28,7 @@ function generateSitemap(entries: SitemapEntry[]) {
     [
       `  <url>`,
       `    <loc>${BASE_URL}${e.path}</loc>`,
+      e.lastmod ? `    <lastmod>${e.lastmod}</lastmod>` : null,
       e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
       e.priority ? `    <priority>${e.priority}</priority>` : null,
       `  </url>`,

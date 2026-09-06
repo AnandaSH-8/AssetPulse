@@ -1,4 +1,11 @@
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /add-particulars
+Disallow: /statistics
+Disallow: /comparison
+Disallow: /settings
+Disallow: /confirm-signup
+Disallow: /.lovable/
 
-Sitemap: https://ashets-pulse.vercel.app/sitemap.xml
+Sitemap: https://www.ashetpulse.com/sitemap.xml

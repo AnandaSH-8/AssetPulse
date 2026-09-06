@@ -1,5 +1,9 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+  "redirects": [
+    {
+      "source": "/:path*",
+      "destination": "https://www.ashetpulse.com/:path*",
+      "permanent": true
+    }
   ]
 }
