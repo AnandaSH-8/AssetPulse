@@ -47,7 +47,7 @@ const HeaderTitle = () => {
 };
 
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center">
+  <div className="min-h-screen w-full flex items-center justify-center">
     <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
   </div>
 );
@@ -57,11 +57,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (!user) {
@@ -124,6 +120,7 @@ const AppContent = () => {
                           <Route path="/statistics" element={<Statistics />} />
                           <Route path="/comparison" element={<Comparison />} />
                           <Route path="/settings" element={<Settings />} />
+                          <Route path="/about" element={<Docs />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </div>
