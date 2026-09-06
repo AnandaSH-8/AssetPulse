@@ -83,7 +83,6 @@ const AppContent = () => {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/docs" element={<Docs />} />
-          <Route path="/about" element={<Navigate to="/docs" replace />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
