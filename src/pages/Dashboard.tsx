@@ -361,7 +361,7 @@ export default function Dashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="w-full flex items-center justify-center min-h-[calc(100vh-3.5rem)]">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
       </div>
     )
