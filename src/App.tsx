@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -19,6 +19,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { AppSidebar } from '@/components/AppSidebar';
 import Footer from '@/components/Footer';
+import { prefetchAllRoutes } from '@/lib/prefetch';
 import Landing from './pages/Landing';
 const Docs = lazy(() => import('./pages/Docs'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
@@ -75,6 +76,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AppContent = () => {
   const { user } = useAuth();
+
+  useEffect(() => {
+    prefetchAllRoutes();
+  }, []);
 
   return (
     <SidebarProvider>

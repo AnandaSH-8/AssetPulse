@@ -14,6 +14,7 @@ import {
   Info,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { prefetchRoute } from '@/lib/prefetch';
 
 import {
   Sidebar,
@@ -156,6 +157,8 @@ export function AppSidebar() {
                   >
                     <NavLink
                       to={item.url}
+                      onMouseEnter={() => prefetchRoute(item.url)}
+                      onFocus={() => prefetchRoute(item.url)}
                       className={`${getNavClassName(item.url)} px-3 py-3 rounded-xl overflow-hidden`}
                     >
                       <motion.div
