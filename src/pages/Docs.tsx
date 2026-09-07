@@ -406,15 +406,6 @@ export default function Docs() {
                   All three actions are irreversible and are disabled for the
                   read-only demo account.
                 </p>
-                <p className="mt-3">
-                  <strong>Admin Settings</strong> is a separate page that only the
-                  creator account can open. It lists how many people have visited
-                  AssetPulse and how many accounts exist, with a top-10 table of
-                  visitors and a top-10 table of newest accounts. Signed-in
-                  visitors show their email; everyone else is shown by a masked
-                  network address and browser, which is an estimate — people on the
-                  same office or mobile network can look like one visitor.
-                </p>
               </Section>
 
 
