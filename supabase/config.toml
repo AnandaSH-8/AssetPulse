@@ -11,3 +11,8 @@ verify_jwt = true
 
 [functions.mcp]
 verify_jwt = false
+[functions.track-visit]
+verify_jwt = false
+
+[functions.admin-stats]
+verify_jwt = false

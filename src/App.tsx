@@ -20,6 +20,7 @@ import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { AppSidebar } from '@/components/AppSidebar';
 import Footer from '@/components/Footer';
 import { prefetchAllRoutes } from '@/lib/prefetch';
+import { trackVisit } from '@/lib/visitor';
 import Landing from './pages/Landing';
 const Docs = lazy(() => import('./pages/Docs'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
@@ -29,6 +30,7 @@ const AddParticulars = lazy(() => import('./pages/AddParticulars'));
 const Statistics = lazy(() => import('./pages/Statistics'));
 const Comparison = lazy(() => import('./pages/Comparison'));
 const Settings = lazy(() => import('./pages/Settings'));
+const AdminSettings = lazy(() => import('./pages/AdminSettings'));
 import Auth from './pages/Auth';
 const ConfirmSignup = lazy(() => import('./pages/ConfirmSignup'));
 const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
@@ -81,6 +83,11 @@ const AppContent = () => {
     prefetchAllRoutes();
   }, []);
 
+  // Record one anonymous/authenticated visit per browser session.
+  useEffect(() => {
+    void trackVisit();
+  }, [user]);
+
   return (
     <SidebarProvider>
       <BrowserRouter>
@@ -124,6 +131,10 @@ const AppContent = () => {
                           <Route path="/statistics" element={<Statistics />} />
                           <Route path="/comparison" element={<Comparison />} />
                           <Route path="/settings" element={<Settings />} />
+                          <Route
+                            path="/admin-settings"
+                            element={<AdminSettings />}
+                          />
                           <Route path="/about" element={<Docs />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
