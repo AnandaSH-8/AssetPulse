@@ -12,9 +12,11 @@ import {
   User,
   BookOpen,
   Info,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { prefetchRoute } from '@/lib/prefetch';
+import { useAdminSettings } from '@/lib/demo-user';
 
 import {
   Sidebar,
@@ -31,7 +33,16 @@ import {
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 
-const navigationItems = [
+type NavItem = {
+  title: string;
+  url: string;
+  icon: typeof Home;
+  description: string;
+  alwaysShow: boolean;
+  creatorOnly?: boolean;
+};
+
+const navigationItems: NavItem[] = [
   {
     title: 'Dashboard',
     url: '/dashboard',
@@ -75,6 +86,14 @@ const navigationItems = [
     alwaysShow: true,
   },
   {
+    title: 'Admin Settings',
+    url: '/admin-settings',
+    icon: ShieldCheck,
+    description: 'Visitors and accounts',
+    alwaysShow: true,
+    creatorOnly: true,
+  },
+  {
     title: 'Settings',
     url: '/settings',
     icon: Settings,
@@ -87,6 +106,8 @@ const navigationItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const { user, signOut } = useAuth();
+  const adminSettings = useAdminSettings();
+  const isCreator = !!adminSettings?.is_creator;
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -102,7 +123,7 @@ export function AppSidebar() {
 
   // Filter navigation items based on data availability
   const visibleItems = navigationItems.filter(
-    item => item.alwaysShow || hasData,
+    item => (item.alwaysShow || hasData) && (!item.creatorOnly || isCreator),
   );
 
   const getNavClassName = (path: string) => {

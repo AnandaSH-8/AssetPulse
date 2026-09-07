@@ -5,6 +5,7 @@ const loaders: Record<string, () => Promise<unknown>> = {
   '/statistics': () => import('@/pages/Statistics'),
   '/comparison': () => import('@/pages/Comparison'),
   '/settings': () => import('@/pages/Settings'),
+  '/admin-settings': () => import('@/pages/AdminSettings'),
   '/about': () => import('@/pages/Docs'),
   '/docs': () => import('@/pages/Docs'),
 };
