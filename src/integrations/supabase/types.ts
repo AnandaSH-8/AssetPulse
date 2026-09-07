@@ -110,6 +110,51 @@ export type Database = {
         }
         Relationships: []
       }
+      visitor_events: {
+        Row: {
+          created_at: string
+          device_id: string
+          email: string | null
+          first_seen: string
+          id: string
+          ip_hash: string | null
+          ip_masked: string | null
+          last_seen: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string | null
+          visit_count: number
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          email?: string | null
+          first_seen?: string
+          id?: string
+          ip_hash?: string | null
+          ip_masked?: string | null
+          last_seen?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+          visit_count?: number
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          email?: string | null
+          first_seen?: string
+          id?: string
+          ip_hash?: string | null
+          ip_masked?: string | null
+          last_seen?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+          visit_count?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
