@@ -185,6 +185,7 @@ export default function AdminSettings() {
       <SEO
         title="Admin Settings | AssetPulse"
         description="Creator-only overview of visitors and registered accounts."
+        path="/admin-settings"
         noindex
       />
 
