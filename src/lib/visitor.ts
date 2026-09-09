@@ -39,10 +39,6 @@ export const trackVisit = async () => {
       body: {
         device_id: deviceId,
         timezone,
-        language: navigator.language,
-        screen: `${window.screen?.width ?? 0}x${window.screen?.height ?? 0}`,
-        platform: navigator.platform,
-        referrer: document.referrer || undefined,
       },
     });
   } catch {

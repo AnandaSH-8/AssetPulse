@@ -31,7 +31,6 @@ type Visitor = {
   user_id: string | null
   user_agent: string | null
   visit_count: number
-  first_seen: string
   last_seen: string
   name: string | null
   username: string | null
@@ -40,11 +39,7 @@ type Visitor = {
   city: string | null
   region: string | null
   timezone: string | null
-  language: string | null
-  platform: string | null
-  screen: string | null
   device_type: string | null
-  referrer: string | null
 }
 
 type Account = {
@@ -128,8 +123,7 @@ const describeCountry = (v: Visitor) => {
 
 const VisitorTooltip = ({ v }: { v: Visitor }) => {
   const rows: Array<[string, string]> = [
-    ['First seen', formatDate(v.first_seen)],
-    ['Last seen', formatDate(v.last_seen)],
+    ['Seen time', formatDate(v.last_seen)],
     ['Visits', String(v.visit_count)],
     ['Country', describeCountry(v)],
     [

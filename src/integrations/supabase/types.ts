@@ -119,16 +119,11 @@ export type Database = {
           device_id: string
           device_type: string | null
           email: string | null
-          first_seen: string
           id: string
           ip_hash: string | null
           ip_masked: string | null
-          language: string | null
           last_seen: string
-          platform: string | null
-          referrer: string | null
           region: string | null
-          screen: string | null
           timezone: string | null
           updated_at: string
           user_agent: string | null
@@ -143,16 +138,11 @@ export type Database = {
           device_id: string
           device_type?: string | null
           email?: string | null
-          first_seen?: string
           id?: string
           ip_hash?: string | null
           ip_masked?: string | null
-          language?: string | null
           last_seen?: string
-          platform?: string | null
-          referrer?: string | null
           region?: string | null
-          screen?: string | null
           timezone?: string | null
           updated_at?: string
           user_agent?: string | null
@@ -167,16 +157,11 @@ export type Database = {
           device_id?: string
           device_type?: string | null
           email?: string | null
-          first_seen?: string
           id?: string
           ip_hash?: string | null
           ip_masked?: string | null
-          language?: string | null
           last_seen?: string
-          platform?: string | null
-          referrer?: string | null
           region?: string | null
-          screen?: string | null
           timezone?: string | null
           updated_at?: string
           user_agent?: string | null
