@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 import { componentTagger } from 'lovable-tagger';
 import { mcpPlugin } from '@lovable.dev/mcp-js/stacks/supabase/vite';
+import { readFileSync } from 'fs';
+
+const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -15,6 +18,9 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' && componentTagger(),
     mcpPlugin(),
   ].filter(Boolean),
+  define: {
+    __APP_VERSION__: JSON.stringify(version),
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

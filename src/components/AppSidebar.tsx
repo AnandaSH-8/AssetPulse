@@ -86,7 +86,7 @@ const navigationItems: NavItem[] = [
     alwaysShow: true,
   },
   {
-    title: 'Admin Settings',
+    title: 'Admin Panel',
     url: '/admin-settings',
     icon: ShieldCheck,
     description: 'Visitors and accounts',

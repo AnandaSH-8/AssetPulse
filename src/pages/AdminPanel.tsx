@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import {
   ShieldCheck,
   Users,
@@ -9,71 +9,70 @@ import {
   Activity,
   RefreshCw,
   Loader2,
-} from 'lucide-react';
-import { GlassCard } from '@/components/ui/glass-card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+} from 'lucide-react'
+import { GlassCard } from '@/components/ui/glass-card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { useAdminSettings } from '@/lib/demo-user';
-import { SEO } from '@/components/SEO';
+} from '@/components/ui/tooltip'
+import { supabase } from '@/integrations/supabase/client'
+import { useToast } from '@/hooks/use-toast'
+import { useAdminSettings } from '@/lib/demo-user'
+import { SEO } from '@/components/SEO'
 
 type Visitor = {
-  device_id: string;
-  ip_masked: string | null;
-  email: string | null;
-  user_id: string | null;
-  user_agent: string | null;
-  visit_count: number;
-  first_seen: string;
-  last_seen: string;
-  name: string | null;
-  username: string | null;
-  country: string | null;
-  country_code: string | null;
-  city: string | null;
-  region: string | null;
-  timezone: string | null;
-  language: string | null;
-  platform: string | null;
-  screen: string | null;
-  device_type: string | null;
-  referrer: string | null;
-};
+  device_id: string
+  ip_masked: string | null
+  email: string | null
+  user_id: string | null
+  user_agent: string | null
+  visit_count: number
+  first_seen: string
+  last_seen: string
+  name: string | null
+  username: string | null
+  country: string | null
+  country_code: string | null
+  city: string | null
+  region: string | null
+  timezone: string | null
+  language: string | null
+  platform: string | null
+  screen: string | null
+  device_type: string | null
+  referrer: string | null
+}
 
 type Account = {
-  id: string;
-  email: string | null;
-  username: string | null;
-  name: string | null;
-  provider: string;
-  confirmed: boolean;
-  created_at: string;
-  last_sign_in_at: string | null;
-};
-
+  id: string
+  email: string | null
+  username: string | null
+  name: string | null
+  provider: string
+  confirmed: boolean
+  created_at: string
+  last_sign_in_at: string | null
+}
 
 type Stats = {
   summary: {
-    total_visitors: number;
-    total_visits: number;
-    registered_visitors: number;
-    anonymous_visitors: number;
-    active_last_7_days: number;
-    total_accounts: number;
-  };
-  top_visitors: Visitor[];
-  remaining_visitors: number;
-  remaining_visitors_registered: number;
-  top_accounts: Account[];
-  remaining_accounts: number;
-};
+    total_visitors: number
+    total_visits: number
+    registered_visitors: number
+    anonymous_visitors: number
+    active_last_7_days: number
+    total_accounts: number
+  }
+  top_visitors: Visitor[]
+  remaining_visitors: number
+  remaining_visitors_registered: number
+  top_accounts: Account[]
+  remaining_accounts: number
+}
 
 const formatDate = (value?: string | null) =>
   value
@@ -84,10 +83,10 @@ const formatDate = (value?: string | null) =>
         hour: '2-digit',
         minute: '2-digit',
       })
-    : '—';
+    : '—'
 
 const describeDevice = (ua?: string | null) => {
-  if (!ua) return 'Unknown device';
+  if (!ua) return 'Unknown device'
   const browser = /Edg\//.test(ua)
     ? 'Edge'
     : /Chrome\//.test(ua)
@@ -96,7 +95,7 @@ const describeDevice = (ua?: string | null) => {
         ? 'Safari'
         : /Firefox\//.test(ua)
           ? 'Firefox'
-          : 'Other browser';
+          : 'Other browser'
   const os = /Android/.test(ua)
     ? 'Android'
     : /iPhone|iPad|iOS/.test(ua)
@@ -107,25 +106,25 @@ const describeDevice = (ua?: string | null) => {
           ? 'macOS'
           : /Linux/.test(ua)
             ? 'Linux'
-            : 'Unknown OS';
-  return `${browser} · ${os}`;
-};
+            : 'Unknown OS'
+  return `${browser} · ${os}`
+}
 
 const flagEmoji = (code?: string | null) => {
-  if (!code || code.length !== 2) return '';
+  if (!code || code.length !== 2) return ''
   return String.fromCodePoint(
     ...code
       .toUpperCase()
       .split('')
-      .map((c) => 127397 + c.charCodeAt(0)),
-  );
-};
+      .map(c => 127397 + c.charCodeAt(0)),
+  )
+}
 
 const describeCountry = (v: Visitor) => {
-  if (!v.country && !v.country_code) return 'Unknown';
-  const flag = flagEmoji(v.country_code);
-  return `${flag ? `${flag} ` : ''}${v.country ?? v.country_code}`;
-};
+  if (!v.country && !v.country_code) return 'Unknown'
+  const flag = flagEmoji(v.country_code)
+  return `${flag ? `${flag} ` : ''}${v.country ?? v.country_code}`
+}
 
 const VisitorTooltip = ({ v }: { v: Visitor }) => {
   const rows: Array<[string, string]> = [
@@ -146,8 +145,8 @@ const VisitorTooltip = ({ v }: { v: Visitor }) => {
     ['Came from', v.referrer || 'Direct visit'],
     ['Network (masked)', v.ip_masked ?? 'Unknown'],
     ['Device id', v.device_id],
-  ];
-  if (v.user_id) rows.push(['Account id', v.user_id]);
+  ]
+  if (v.user_id) rows.push(['Account id', v.user_id])
 
   return (
     <div className="space-y-1 text-xs max-w-xs">
@@ -158,9 +157,8 @@ const VisitorTooltip = ({ v }: { v: Visitor }) => {
         </div>
       ))}
     </div>
-  );
-};
-
+  )
+}
 
 const SummaryCard = ({
   icon: Icon,
@@ -168,10 +166,10 @@ const SummaryCard = ({
   value,
   hint,
 }: {
-  icon: typeof Users;
-  label: string;
-  value: number | string;
-  hint?: string;
+  icon: typeof Users
+  label: string
+  value: number | string
+  hint?: string
 }) => (
   <GlassCard className="p-5">
     <div className="flex items-center gap-3 mb-2">
@@ -183,54 +181,54 @@ const SummaryCard = ({
     <p className="text-2xl font-bold">{value}</p>
     {hint && <p className="text-xs text-muted-foreground mt-1">{hint}</p>}
   </GlassCard>
-);
+)
 
 export default function AdminSettings() {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const adminSettings = useAdminSettings();
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [forbidden, setForbidden] = useState(false);
+  const { toast } = useToast()
+  const navigate = useNavigate()
+  const adminSettings = useAdminSettings()
+  const [stats, setStats] = useState<Stats | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [forbidden, setForbidden] = useState(false)
 
   const load = async (refresh = false) => {
-    refresh ? setIsRefreshing(true) : setIsLoading(true);
+    refresh ? setIsRefreshing(true) : setIsLoading(true)
     try {
       const { data, error } = await supabase.functions.invoke('admin-stats', {
         method: 'GET',
-      });
-      if (error || !data) throw new Error('Unable to load admin data');
+      })
+      if (error || !data) throw new Error('Unable to load admin data')
       if ((data as { error?: string }).error) {
-        setForbidden(true);
-        return;
+        setForbidden(true)
+        return
       }
-      setStats(data as Stats);
-      setForbidden(false);
+      setStats(data as Stats)
+      setForbidden(false)
     } catch {
-      setForbidden(true);
+      setForbidden(true)
       toast({
         title: 'Could not load admin data',
         description: 'This page is only available to the creator account.',
         variant: 'destructive',
-      });
+      })
     } finally {
-      setIsRefreshing(false);
-      setIsLoading(false);
+      setIsRefreshing(false)
+      setIsLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    load();
+    load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [])
 
   if (isLoading) {
     return (
       <div className="w-full flex items-center justify-center min-h-[calc(100vh-3.5rem)]">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
       </div>
-    );
+    )
   }
 
   if (forbidden || adminSettings?.is_creator === false) {
@@ -238,24 +236,26 @@ export default function AdminSettings() {
       <div className="p-6 max-w-2xl mx-auto">
         <GlassCard className="p-8 text-center space-y-4">
           <ShieldCheck className="h-10 w-10 mx-auto text-primary" />
-          <h1 className="text-xl font-semibold">Admin Settings unavailable</h1>
+          <h1 className="text-xl font-semibold">Admin Panel unavailable</h1>
           <p className="text-sm text-muted-foreground">
             This area is reserved for the creator account.
           </p>
-          <Button onClick={() => navigate('/dashboard')}>Back to Dashboard</Button>
+          <Button onClick={() => navigate('/dashboard')}>
+            Back to Dashboard
+          </Button>
         </GlassCard>
       </div>
-    );
+    )
   }
 
-  const s = stats?.summary;
+  const s = stats?.summary
 
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-6xl mx-auto w-full">
       <SEO
-        title="Admin Settings | AssetPulse"
+        title="Admin Panel | AssetPulse"
         description="Creator-only overview of visitors and registered accounts."
-        path="/admin-settings"
+        path="/admin-panel"
         noindex
       />
 
@@ -267,12 +267,12 @@ export default function AdminSettings() {
         <div>
           <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
             <ShieldCheck className="h-7 w-7 text-primary" />
-            Admin Settings
+            Admin Panel
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Visitors and accounts across AssetPulse. Anonymous visitors are estimated
-            from their network address and browser, so shared networks may group people
-            together.
+            Visitors and accounts across AssetPulse. Anonymous visitors are
+            estimated from their network address and browser, so shared networks
+            may group people together.
           </p>
         </div>
         <Button
@@ -339,7 +339,9 @@ export default function AdminSettings() {
                   <Tooltip key={v.device_id}>
                     <TooltipTrigger asChild>
                       <tr className="border-b border-border/40 hover:bg-primary/5 cursor-default">
-                        <td className="py-2 pr-4 text-muted-foreground">{i + 1}</td>
+                        <td className="py-2 pr-4 text-muted-foreground">
+                          {i + 1}
+                        </td>
                         <td className="py-2 pr-4 font-medium">
                           {v.email ?? (
                             <span>
@@ -351,7 +353,9 @@ export default function AdminSettings() {
                             </span>
                           )}
                         </td>
-                        <td className="py-2 pr-4">{v.name ?? v.username ?? '—'}</td>
+                        <td className="py-2 pr-4">
+                          {v.name ?? v.username ?? '—'}
+                        </td>
                         <td className="py-2 pr-4 whitespace-nowrap">
                           {describeCountry(v)}
                         </td>
@@ -383,7 +387,10 @@ export default function AdminSettings() {
               </TooltipProvider>
               {(stats?.top_visitors ?? []).length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-6 text-center text-muted-foreground">
+                  <td
+                    colSpan={8}
+                    className="py-6 text-center text-muted-foreground"
+                  >
                     No visits recorded yet.
                   </td>
                 </tr>
@@ -396,7 +403,8 @@ export default function AdminSettings() {
           <p className="text-sm text-muted-foreground mt-4">
             + {stats.remaining_visitors} more visitors (
             {stats.remaining_visitors_registered} with an account,{' '}
-            {stats.remaining_visitors - stats.remaining_visitors_registered} without)
+            {stats.remaining_visitors - stats.remaining_visitors_registered}{' '}
+            without)
           </p>
         )}
       </GlassCard>
@@ -434,7 +442,10 @@ export default function AdminSettings() {
               ))}
               {(stats?.top_accounts ?? []).length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-6 text-center text-muted-foreground">
+                  <td
+                    colSpan={6}
+                    className="py-6 text-center text-muted-foreground"
+                  >
                     No accounts yet.
                   </td>
                 </tr>
@@ -449,5 +460,5 @@ export default function AdminSettings() {
         )}
       </GlassCard>
     </div>
-  );
+  )
 }
