@@ -111,6 +111,57 @@ const describeDevice = (ua?: string | null) => {
   return `${browser} · ${os}`;
 };
 
+const flagEmoji = (code?: string | null) => {
+  if (!code || code.length !== 2) return '';
+  return String.fromCodePoint(
+    ...code
+      .toUpperCase()
+      .split('')
+      .map((c) => 127397 + c.charCodeAt(0)),
+  );
+};
+
+const describeCountry = (v: Visitor) => {
+  if (!v.country && !v.country_code) return 'Unknown';
+  const flag = flagEmoji(v.country_code);
+  return `${flag ? `${flag} ` : ''}${v.country ?? v.country_code}`;
+};
+
+const VisitorTooltip = ({ v }: { v: Visitor }) => {
+  const rows: Array<[string, string]> = [
+    ['First seen', formatDate(v.first_seen)],
+    ['Last seen', formatDate(v.last_seen)],
+    ['Visits', String(v.visit_count)],
+    ['Country', describeCountry(v)],
+    [
+      'City / region',
+      [v.city, v.region].filter(Boolean).join(', ') || 'Unknown',
+    ],
+    ['Timezone', v.timezone ?? 'Unknown'],
+    ['Language', v.language ?? 'Unknown'],
+    ['Browser / OS', describeDevice(v.user_agent)],
+    ['Device type', v.device_type ?? 'Unknown'],
+    ['Platform', v.platform ?? 'Unknown'],
+    ['Screen', v.screen ?? 'Unknown'],
+    ['Came from', v.referrer || 'Direct visit'],
+    ['Network (masked)', v.ip_masked ?? 'Unknown'],
+    ['Device id', v.device_id],
+  ];
+  if (v.user_id) rows.push(['Account id', v.user_id]);
+
+  return (
+    <div className="space-y-1 text-xs max-w-xs">
+      {rows.map(([label, value]) => (
+        <div key={label} className="flex gap-2">
+          <span className="text-muted-foreground shrink-0">{label}:</span>
+          <span className="break-all">{value}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+
 const SummaryCard = ({
   icon: Icon,
   label,
