@@ -137,12 +137,8 @@ const VisitorTooltip = ({ v }: { v: Visitor }) => {
       [v.city, v.region].filter(Boolean).join(', ') || 'Unknown',
     ],
     ['Timezone', v.timezone ?? 'Unknown'],
-    ['Language', v.language ?? 'Unknown'],
     ['Browser / OS', describeDevice(v.user_agent)],
     ['Device type', v.device_type ?? 'Unknown'],
-    ['Platform', v.platform ?? 'Unknown'],
-    ['Screen', v.screen ?? 'Unknown'],
-    ['Came from', v.referrer || 'Direct visit'],
     ['Network (masked)', v.ip_masked ?? 'Unknown'],
     ['Device id', v.device_id],
   ]
@@ -183,7 +179,7 @@ const SummaryCard = ({
   </GlassCard>
 )
 
-export default function AdminSettings() {
+export default function AdminPanel() {
   const { toast } = useToast()
   const navigate = useNavigate()
   const adminSettings = useAdminSettings()
