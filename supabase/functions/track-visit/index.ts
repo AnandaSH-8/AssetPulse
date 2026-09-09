@@ -118,10 +118,6 @@ Deno.serve(async (req) => {
   let body: {
     device_id?: string;
     timezone?: string;
-    language?: string;
-    screen?: string;
-    platform?: string;
-    referrer?: string;
   } = {};
   try {
     body = await req.json();
@@ -175,10 +171,6 @@ Deno.serve(async (req) => {
     user_agent: userAgent,
     last_seen: new Date().toISOString(),
     timezone: clean(body.timezone, 60),
-    language: clean(body.language, 20),
-    screen: clean(body.screen, 20),
-    platform: clean(body.platform, 60),
-    referrer: clean(body.referrer, 300),
     device_type: deviceTypeFrom(userAgent),
     ...geo,
   };
