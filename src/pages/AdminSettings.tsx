@@ -315,59 +315,75 @@ export default function AdminSettings() {
       </div>
 
       <GlassCard className="p-4 md:p-6">
-        <h2 className="text-lg font-semibold mb-4">Top 10 visitors</h2>
+        <h2 className="text-lg font-semibold mb-1">Top 10 recent visitors</h2>
+        <p className="text-xs text-muted-foreground mb-4">
+          Latest activity first. Hover a row for full details.
+        </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-muted-foreground border-b border-border/60">
                 <th className="py-2 pr-4 font-medium">#</th>
                 <th className="py-2 pr-4 font-medium">Identity</th>
+                <th className="py-2 pr-4 font-medium">Name</th>
+                <th className="py-2 pr-4 font-medium">Country</th>
                 <th className="py-2 pr-4 font-medium">Account</th>
                 <th className="py-2 pr-4 font-medium text-right">Visits</th>
                 <th className="py-2 pr-4 font-medium">Device</th>
-                <th className="py-2 pr-4 font-medium">First seen</th>
-                <th className="py-2 font-medium">Last seen</th>
+                <th className="py-2 font-medium">Seen time</th>
               </tr>
             </thead>
             <tbody>
-              {(stats?.top_visitors ?? []).map((v, i) => (
-                <tr key={v.device_id} className="border-b border-border/40">
-                  <td className="py-2 pr-4 text-muted-foreground">{i + 1}</td>
-                  <td className="py-2 pr-4 font-medium">
-                    {v.email ?? (
-                      <span>
-                        {v.ip_masked ?? 'unknown IP'}
-                        <span className="text-muted-foreground text-xs">
-                          {' '}
-                          · {v.device_id.slice(0, 8)}
-                        </span>
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-2 pr-4">
-                    {v.user_id ? (
-                      <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
-                        Registered
-                      </Badge>
-                    ) : (
-                      <Badge variant="secondary">Visitor</Badge>
-                    )}
-                  </td>
-                  <td className="py-2 pr-4 text-right tabular-nums">{v.visit_count}</td>
-                  <td className="py-2 pr-4 text-muted-foreground">
-                    {describeDevice(v.user_agent)}
-                  </td>
-                  <td className="py-2 pr-4 text-muted-foreground whitespace-nowrap">
-                    {formatDate(v.first_seen)}
-                  </td>
-                  <td className="py-2 text-muted-foreground whitespace-nowrap">
-                    {formatDate(v.last_seen)}
-                  </td>
-                </tr>
-              ))}
+              <TooltipProvider delayDuration={150}>
+                {(stats?.top_visitors ?? []).map((v, i) => (
+                  <Tooltip key={v.device_id}>
+                    <TooltipTrigger asChild>
+                      <tr className="border-b border-border/40 hover:bg-primary/5 cursor-default">
+                        <td className="py-2 pr-4 text-muted-foreground">{i + 1}</td>
+                        <td className="py-2 pr-4 font-medium">
+                          {v.email ?? (
+                            <span>
+                              {v.ip_masked ?? 'unknown IP'}
+                              <span className="text-muted-foreground text-xs">
+                                {' '}
+                                · {v.device_id.slice(0, 8)}
+                              </span>
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-2 pr-4">{v.name ?? v.username ?? '—'}</td>
+                        <td className="py-2 pr-4 whitespace-nowrap">
+                          {describeCountry(v)}
+                        </td>
+                        <td className="py-2 pr-4">
+                          {v.user_id ? (
+                            <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
+                              Registered
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary">Visitor</Badge>
+                          )}
+                        </td>
+                        <td className="py-2 pr-4 text-right tabular-nums">
+                          {v.visit_count}
+                        </td>
+                        <td className="py-2 pr-4 text-muted-foreground">
+                          {describeDevice(v.user_agent)}
+                        </td>
+                        <td className="py-2 text-muted-foreground whitespace-nowrap">
+                          {formatDate(v.last_seen)}
+                        </td>
+                      </tr>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" align="start">
+                      <VisitorTooltip v={v} />
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+              </TooltipProvider>
               {(stats?.top_visitors ?? []).length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-6 text-center text-muted-foreground">
+                  <td colSpan={8} className="py-6 text-center text-muted-foreground">
                     No visits recorded yet.
                   </td>
                 </tr>
@@ -375,6 +391,7 @@ export default function AdminSettings() {
             </tbody>
           </table>
         </div>
+
         {!!stats?.remaining_visitors && (
           <p className="text-sm text-muted-foreground mt-4">
             + {stats.remaining_visitors} more visitors (
