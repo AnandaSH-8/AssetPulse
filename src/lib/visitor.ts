@@ -27,10 +27,26 @@ export const trackVisit = async () => {
     const deviceId = getDeviceId();
     if (!deviceId) return;
     sessionStorage.setItem(SESSION_KEY, '1');
+
+    let timezone: string | undefined;
+    try {
+      timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } catch {
+      timezone = undefined;
+    }
+
     await supabase.functions.invoke('track-visit', {
-      body: { device_id: deviceId },
+      body: {
+        device_id: deviceId,
+        timezone,
+        language: navigator.language,
+        screen: `${window.screen?.width ?? 0}x${window.screen?.height ?? 0}`,
+        platform: navigator.platform,
+        referrer: document.referrer || undefined,
+      },
     });
   } catch {
     // ignore
   }
 };
+
