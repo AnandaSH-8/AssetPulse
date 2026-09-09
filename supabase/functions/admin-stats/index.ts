@@ -36,16 +36,31 @@ Deno.serve(async (req) => {
 
   const admin = createClient(SUPABASE_URL, SECRET_KEY);
 
-  // Visitors
+  // Visitors — newest activity first.
   const { data: visitors, error: visitorErr } = await admin
     .from('visitor_events')
-    .select('device_id, ip_masked, email, user_id, user_agent, visit_count, first_seen, last_seen')
-    .order('visit_count', { ascending: false })
+    .select(
+      'device_id, ip_masked, email, user_id, user_agent, visit_count, first_seen, last_seen, country, country_code, city, region, timezone, language, platform, screen, device_type, referrer',
+    )
     .order('last_seen', { ascending: false })
     .limit(1000);
   if (visitorErr) return json({ error: visitorErr.message }, 500);
 
-  const all = visitors ?? [];
+  const { data: visitorProfiles } = await admin
+    .from('profiles')
+    .select('user_id, username, name');
+  const visitorProfileMap = new Map(
+    (visitorProfiles ?? []).map((p) => [p.user_id, p]),
+  );
+
+  const all = (visitors ?? []).map((v) => ({
+    ...v,
+    name: v.user_id ? (visitorProfileMap.get(v.user_id)?.name ?? null) : null,
+    username: v.user_id
+      ? (visitorProfileMap.get(v.user_id)?.username ?? null)
+      : null,
+  }));
+
   const registered = all.filter((v) => !!v.user_id).length;
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const activeLast7Days = all.filter(
