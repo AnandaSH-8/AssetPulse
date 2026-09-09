@@ -13,6 +13,12 @@ import {
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminSettings } from '@/lib/demo-user';
@@ -27,6 +33,18 @@ type Visitor = {
   visit_count: number;
   first_seen: string;
   last_seen: string;
+  name: string | null;
+  username: string | null;
+  country: string | null;
+  country_code: string | null;
+  city: string | null;
+  region: string | null;
+  timezone: string | null;
+  language: string | null;
+  platform: string | null;
+  screen: string | null;
+  device_type: string | null;
+  referrer: string | null;
 };
 
 type Account = {
@@ -39,6 +57,7 @@ type Account = {
   created_at: string;
   last_sign_in_at: string | null;
 };
+
 
 type Stats = {
   summary: {
