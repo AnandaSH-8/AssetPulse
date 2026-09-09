@@ -36,6 +36,77 @@ const maskIp = (ip: string) => {
   return `${parts[0]}.${parts[1]}.x.x`;
 };
 
+const COUNTRY_NAMES = new Intl.DisplayNames(['en'], { type: 'region' });
+
+const countryName = (code: string | null) => {
+  if (!code || code.length !== 2) return null;
+  try {
+    return COUNTRY_NAMES.of(code.toUpperCase()) ?? null;
+  } catch {
+    return null;
+  }
+};
+
+const isPrivateIp = (ip: string) =>
+  !ip ||
+  ip === '127.0.0.1' ||
+  ip === '::1' ||
+  ip.startsWith('10.') ||
+  ip.startsWith('192.168.') ||
+  /^172\.(1[6-9]|2\d|3[01])\./.test(ip);
+
+// Best-effort location: prefer edge headers, fall back to a keyless lookup.
+const resolveGeo = async (req: Request, ip: string) => {
+  const header = (name: string) => {
+    const value = req.headers.get(name);
+    return value && value.trim() ? value.trim() : null;
+  };
+
+  let code = header('cf-ipcountry') || header('x-vercel-ip-country');
+  let city = header('x-vercel-ip-city');
+  let region = header('x-vercel-ip-country-region');
+
+  if (!code && !isPrivateIp(ip)) {
+    try {
+      const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`);
+      if (res.ok) {
+        const geo = (await res.json()) as {
+          success?: boolean;
+          country_code?: string;
+          city?: string;
+          region?: string;
+        };
+        if (geo?.success !== false) {
+          code = geo.country_code ?? null;
+          city = city ?? geo.city ?? null;
+          region = region ?? geo.region ?? null;
+        }
+      }
+    } catch {
+      // Location is optional.
+    }
+  }
+
+  if (code === 'XX') code = null;
+
+  return {
+    country_code: code ? code.toUpperCase() : null,
+    country: countryName(code),
+    city: city ? decodeURIComponent(city).slice(0, 120) : null,
+    region: region ? decodeURIComponent(region).slice(0, 120) : null,
+  };
+};
+
+const deviceTypeFrom = (ua: string) => {
+  if (/iPad|Tablet/i.test(ua)) return 'Tablet';
+  if (/Mobi|Android|iPhone/i.test(ua)) return 'Mobile';
+  if (!ua) return null;
+  return 'Desktop';
+};
+
+const clean = (value: unknown, max = 120) =>
+  typeof value === 'string' && value.trim() ? value.trim().slice(0, max) : null;
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -44,7 +115,14 @@ Deno.serve(async (req) => {
     return json({ error: 'Method not allowed' }, 405);
   }
 
-  let body: { device_id?: string } = {};
+  let body: {
+    device_id?: string;
+    timezone?: string;
+    language?: string;
+    screen?: string;
+    platform?: string;
+    referrer?: string;
+  } = {};
   try {
     body = await req.json();
   } catch {
@@ -89,11 +167,20 @@ Deno.serve(async (req) => {
     .eq('device_id', deviceId)
     .maybeSingle();
 
+  const geo = await resolveGeo(req, ip);
+
   const payload: Record<string, unknown> = {
     ip_hash: ip ? await hashIp(ip) : null,
     ip_masked: ip ? maskIp(ip) : null,
     user_agent: userAgent,
     last_seen: new Date().toISOString(),
+    timezone: clean(body.timezone, 60),
+    language: clean(body.language, 20),
+    screen: clean(body.screen, 20),
+    platform: clean(body.platform, 60),
+    referrer: clean(body.referrer, 300),
+    device_type: deviceTypeFrom(userAgent),
+    ...geo,
   };
   if (userId) {
     payload.user_id = userId;
@@ -115,3 +202,4 @@ Deno.serve(async (req) => {
 
   return json({ ok: true });
 });
+

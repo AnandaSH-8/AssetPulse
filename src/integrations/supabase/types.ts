@@ -112,42 +112,72 @@ export type Database = {
       }
       visitor_events: {
         Row: {
+          city: string | null
+          country: string | null
+          country_code: string | null
           created_at: string
           device_id: string
+          device_type: string | null
           email: string | null
           first_seen: string
           id: string
           ip_hash: string | null
           ip_masked: string | null
+          language: string | null
           last_seen: string
+          platform: string | null
+          referrer: string | null
+          region: string | null
+          screen: string | null
+          timezone: string | null
           updated_at: string
           user_agent: string | null
           user_id: string | null
           visit_count: number
         }
         Insert: {
+          city?: string | null
+          country?: string | null
+          country_code?: string | null
           created_at?: string
           device_id: string
+          device_type?: string | null
           email?: string | null
           first_seen?: string
           id?: string
           ip_hash?: string | null
           ip_masked?: string | null
+          language?: string | null
           last_seen?: string
+          platform?: string | null
+          referrer?: string | null
+          region?: string | null
+          screen?: string | null
+          timezone?: string | null
           updated_at?: string
           user_agent?: string | null
           user_id?: string | null
           visit_count?: number
         }
         Update: {
+          city?: string | null
+          country?: string | null
+          country_code?: string | null
           created_at?: string
           device_id?: string
+          device_type?: string | null
           email?: string | null
           first_seen?: string
           id?: string
           ip_hash?: string | null
           ip_masked?: string | null
+          language?: string | null
           last_seen?: string
+          platform?: string | null
+          referrer?: string | null
+          region?: string | null
+          screen?: string | null
+          timezone?: string | null
           updated_at?: string
           user_agent?: string | null
           user_id?: string | null
