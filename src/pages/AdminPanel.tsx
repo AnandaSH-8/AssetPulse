@@ -262,10 +262,12 @@ export default function AdminPanel() {
             Admin Panel
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Visitors and accounts across AssetPulse. Anonymous visitors are
-            estimated from their network address and browser, so shared networks
-            may group people together.
+            Visitors and accounts across AssetPulse. Automated crawlers are
+            excluded from these numbers. Anonymous visitors are estimated from
+            their network address and browser, so shared networks may group
+            people together.
           </p>
+
         </div>
         <Button
           variant="outline"
@@ -287,8 +289,11 @@ export default function AdminPanel() {
           icon={Users}
           label="Total visitors"
           value={s?.total_visitors ?? 0}
-          hint={`${s?.total_visits ?? 0} visits recorded`}
+          hint={`${s?.total_visits ?? 0} visits recorded${
+            s?.bot_visitors ? ` · ${s.bot_visitors} bot hits excluded` : ''
+          }`}
         />
+
         <SummaryCard
           icon={UserPlus}
           label="Accounts created"
