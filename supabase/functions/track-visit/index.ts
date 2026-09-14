@@ -104,8 +104,17 @@ const deviceTypeFrom = (ua: string) => {
   return 'Desktop';
 };
 
+// Known automated traffic: search crawlers, uptime/preview bots, headless
+// browsers and scanners. Flagged so the admin numbers reflect real people.
+const isBotAgent = (ua: string) =>
+  !ua ||
+  /bot|crawl|spider|slurp|bingpreview|facebookexternalhit|whatsapp|telegram|discord|slack|embedly|preview|monitor|uptime|pingdom|lighthouse|headless|phantom|puppeteer|playwright|selenium|curl|wget|python-requests|axios|go-http-client|java\/|okhttp|scan|semrush|ahrefs|dataprovider|censys|zgrab|expanse/i.test(
+    ua,
+  );
+
 const clean = (value: unknown, max = 120) =>
   typeof value === 'string' && value.trim() ? value.trim().slice(0, max) : null;
+
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
