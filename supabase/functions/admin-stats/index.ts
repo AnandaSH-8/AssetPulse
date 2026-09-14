@@ -108,7 +108,9 @@ Deno.serve(async (req) => {
       anonymous_visitors: all.length - registered,
       active_last_7_days: activeLast7Days,
       total_accounts: accounts.length,
+      bot_visitors: botVisitors,
     },
+
     top_visitors: all.slice(0, 10),
     remaining_visitors: Math.max(all.length - 10, 0),
     remaining_visitors_registered: Math.max(

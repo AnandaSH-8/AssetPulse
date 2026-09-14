@@ -61,7 +61,9 @@ type Stats = {
     anonymous_visitors: number
     active_last_7_days: number
     total_accounts: number
+    bot_visitors?: number
   }
+
   top_visitors: Visitor[]
   remaining_visitors: number
   remaining_visitors_registered: number
