@@ -40,10 +40,10 @@ Deno.serve(async (req) => {
   const { data: visitors, error: visitorErr } = await admin
     .from('visitor_events')
     .select(
-      'device_id, ip_masked, email, user_id, user_agent, visit_count, last_seen, country, country_code, city, region, timezone, device_type',
+      'device_id, ip_masked, email, user_id, user_agent, visit_count, last_seen, country, country_code, city, region, timezone, device_type, is_bot',
     )
     .order('last_seen', { ascending: false })
-    .limit(1000);
+    .limit(2000);
   if (visitorErr) return json({ error: visitorErr.message }, 500);
 
   const { data: visitorProfiles } = await admin
@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     (visitorProfiles ?? []).map((p) => [p.user_id, p]),
   );
 
-  const all = (visitors ?? []).map((v) => ({
+  const rows = (visitors ?? []).map((v) => ({
     ...v,
     name: v.user_id ? (visitorProfileMap.get(v.user_id)?.name ?? null) : null,
     username: v.user_id
@@ -61,12 +61,18 @@ Deno.serve(async (req) => {
       : null,
   }));
 
+  // Automated traffic (crawlers, scanners, uptime bots) is kept out of the
+  // people-facing numbers and only reported as a count.
+  const botVisitors = rows.filter((v) => v.is_bot).length;
+  const all = rows.filter((v) => !v.is_bot);
+
   const registered = all.filter((v) => !!v.user_id).length;
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const activeLast7Days = all.filter(
     (v) => v.last_seen && new Date(v.last_seen).getTime() >= sevenDaysAgo,
   ).length;
   const totalVisits = all.reduce((sum, v) => sum + (v.visit_count || 0), 0);
+
 
   // Accounts
   const { data: authUsers, error: authErr } = await admin.auth.admin.listUsers({
