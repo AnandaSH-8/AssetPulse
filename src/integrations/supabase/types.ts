@@ -122,6 +122,7 @@ export type Database = {
           id: string
           ip_hash: string | null
           ip_masked: string | null
+          is_bot: boolean
           last_seen: string
           region: string | null
           timezone: string | null
@@ -141,6 +142,7 @@ export type Database = {
           id?: string
           ip_hash?: string | null
           ip_masked?: string | null
+          is_bot?: boolean
           last_seen?: string
           region?: string | null
           timezone?: string | null
@@ -160,6 +162,7 @@ export type Database = {
           id?: string
           ip_hash?: string | null
           ip_masked?: string | null
+          is_bot?: boolean
           last_seen?: string
           region?: string | null
           timezone?: string | null
