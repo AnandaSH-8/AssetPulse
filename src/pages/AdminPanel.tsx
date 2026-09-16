@@ -31,7 +31,6 @@ type Visitor = {
   user_id: string | null
   user_agent: string | null
   visit_count: number
-  first_seen: string
   last_seen: string
   name: string | null
   username: string | null
@@ -40,11 +39,7 @@ type Visitor = {
   city: string | null
   region: string | null
   timezone: string | null
-  language: string | null
-  platform: string | null
-  screen: string | null
   device_type: string | null
-  referrer: string | null
 }
 
 type Account = {
@@ -66,7 +61,9 @@ type Stats = {
     anonymous_visitors: number
     active_last_7_days: number
     total_accounts: number
+    bot_visitors?: number
   }
+
   top_visitors: Visitor[]
   remaining_visitors: number
   remaining_visitors_registered: number
@@ -128,8 +125,7 @@ const describeCountry = (v: Visitor) => {
 
 const VisitorTooltip = ({ v }: { v: Visitor }) => {
   const rows: Array<[string, string]> = [
-    ['First seen', formatDate(v.first_seen)],
-    ['Last seen', formatDate(v.last_seen)],
+    ['Seen time', formatDate(v.last_seen)],
     ['Visits', String(v.visit_count)],
     ['Country', describeCountry(v)],
     [
@@ -137,12 +133,8 @@ const VisitorTooltip = ({ v }: { v: Visitor }) => {
       [v.city, v.region].filter(Boolean).join(', ') || 'Unknown',
     ],
     ['Timezone', v.timezone ?? 'Unknown'],
-    ['Language', v.language ?? 'Unknown'],
     ['Browser / OS', describeDevice(v.user_agent)],
     ['Device type', v.device_type ?? 'Unknown'],
-    ['Platform', v.platform ?? 'Unknown'],
-    ['Screen', v.screen ?? 'Unknown'],
-    ['Came from', v.referrer || 'Direct visit'],
     ['Network (masked)', v.ip_masked ?? 'Unknown'],
     ['Device id', v.device_id],
   ]
@@ -183,7 +175,7 @@ const SummaryCard = ({
   </GlassCard>
 )
 
-export default function AdminSettings() {
+export default function AdminPanel() {
   const { toast } = useToast()
   const navigate = useNavigate()
   const adminSettings = useAdminSettings()
@@ -270,10 +262,12 @@ export default function AdminSettings() {
             Admin Panel
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Visitors and accounts across AssetPulse. Anonymous visitors are
-            estimated from their network address and browser, so shared networks
-            may group people together.
+            Visitors and accounts across AssetPulse. Automated crawlers are
+            excluded from these numbers. Anonymous visitors are estimated from
+            their network address and browser, so shared networks may group
+            people together.
           </p>
+
         </div>
         <Button
           variant="outline"
@@ -295,8 +289,11 @@ export default function AdminSettings() {
           icon={Users}
           label="Total visitors"
           value={s?.total_visitors ?? 0}
-          hint={`${s?.total_visits ?? 0} visits recorded`}
+          hint={`${s?.total_visits ?? 0} visits recorded${
+            s?.bot_visitors ? ` · ${s.bot_visitors} bot hits excluded` : ''
+          }`}
         />
+
         <SummaryCard
           icon={UserPlus}
           label="Accounts created"

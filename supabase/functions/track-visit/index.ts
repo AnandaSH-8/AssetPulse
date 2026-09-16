@@ -104,8 +104,17 @@ const deviceTypeFrom = (ua: string) => {
   return 'Desktop';
 };
 
+// Known automated traffic: search crawlers, uptime/preview bots, headless
+// browsers and scanners. Flagged so the admin numbers reflect real people.
+const isBotAgent = (ua: string) =>
+  !ua ||
+  /bot|crawl|spider|slurp|bingpreview|facebookexternalhit|whatsapp|telegram|discord|slack|embedly|preview|monitor|uptime|pingdom|lighthouse|headless|phantom|puppeteer|playwright|selenium|curl|wget|python-requests|axios|go-http-client|java\/|okhttp|scan|semrush|ahrefs|dataprovider|censys|zgrab|expanse/i.test(
+    ua,
+  );
+
 const clean = (value: unknown, max = 120) =>
   typeof value === 'string' && value.trim() ? value.trim().slice(0, max) : null;
+
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -118,10 +127,7 @@ Deno.serve(async (req) => {
   let body: {
     device_id?: string;
     timezone?: string;
-    language?: string;
-    screen?: string;
-    platform?: string;
-    referrer?: string;
+    count_visit?: boolean;
   } = {};
   try {
     body = await req.json();
@@ -160,46 +166,87 @@ Deno.serve(async (req) => {
   }
 
   const admin = createClient(SUPABASE_URL, SECRET_KEY);
+  const ipHash = ip ? await hashIp(ip) : null;
 
-  const { data: existing } = await admin
-    .from('visitor_events')
-    .select('id, visit_count')
-    .eq('device_id', deviceId)
-    .maybeSingle();
+  // Find the visitor: by browser id first, then by account (same person on a
+  // reset browser), then by network + browser fingerprint. This stops one
+  // person turning into many rows with a visit count of 1.
+  const findExisting = async () => {
+    const byDevice = await admin
+      .from('visitor_events')
+      .select('id, visit_count, timezone')
+      .eq('device_id', deviceId)
+      .maybeSingle();
+    if (byDevice.data) return byDevice.data;
 
+    if (userId) {
+      const byUser = await admin
+        .from('visitor_events')
+        .select('id, visit_count, timezone')
+        .eq('user_id', userId)
+        .order('last_seen', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (byUser.data) return byUser.data;
+    }
+
+    if (ipHash && userAgent) {
+      const byFingerprint = await admin
+        .from('visitor_events')
+        .select('id, visit_count, timezone')
+        .eq('ip_hash', ipHash)
+        .eq('user_agent', userAgent)
+        .is('user_id', null)
+        .order('last_seen', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (byFingerprint.data) return byFingerprint.data;
+    }
+
+    return null;
+  };
+
+  const existing = await findExisting();
   const geo = await resolveGeo(req, ip);
+  const bot = isBotAgent(userAgent);
 
   const payload: Record<string, unknown> = {
-    ip_hash: ip ? await hashIp(ip) : null,
+    device_id: deviceId,
+    ip_hash: ipHash,
     ip_masked: ip ? maskIp(ip) : null,
     user_agent: userAgent,
     last_seen: new Date().toISOString(),
-    timezone: clean(body.timezone, 60),
-    language: clean(body.language, 20),
-    screen: clean(body.screen, 20),
-    platform: clean(body.platform, 60),
-    referrer: clean(body.referrer, 300),
     device_type: deviceTypeFrom(userAgent),
+    is_bot: bot,
     ...geo,
   };
+  const timezone = clean(body.timezone, 60);
+  if (timezone) payload.timezone = timezone;
   if (userId) {
     payload.user_id = userId;
     payload.email = email;
   }
 
+  // Signing in mid-session links the account without inflating the count.
+  const countVisit = body.count_visit !== false;
+
   if (existing) {
     const { error } = await admin
       .from('visitor_events')
-      .update({ ...payload, visit_count: (existing.visit_count ?? 0) + 1 })
+      .update({
+        ...payload,
+        visit_count: (existing.visit_count ?? 0) + (countVisit ? 1 : 0),
+      })
       .eq('id', existing.id);
     if (error) return json({ error: error.message }, 500);
   } else {
     const { error } = await admin
       .from('visitor_events')
-      .insert({ ...payload, device_id: deviceId, visit_count: 1 });
+      .insert({ ...payload, visit_count: 1 });
     if (error) return json({ error: error.message }, 500);
   }
 
   return json({ ok: true });
 });
+
 
