@@ -164,6 +164,7 @@ const describeCountry = (v: Visitor) => {
 
 const VisitorTooltip = ({ v }: { v: Visitor }) => {
   const rows: Array<[string, string]> = [
+    ['Type', `${classifyVisitor(v).label} — ${classifyVisitor(v).hint}`],
     ['Seen time', formatDate(v.last_seen)],
     ['Visits', String(v.visit_count)],
     ['Country', describeCountry(v)],
