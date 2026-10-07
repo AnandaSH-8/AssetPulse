@@ -111,10 +111,11 @@ Deno.serve(async (req) => {
       bot_visitors: botVisitors,
     },
 
-    top_visitors: all.slice(0, 10),
-    remaining_visitors: Math.max(all.length - 10, 0),
+    // The list shows everyone (tagged in the UI); totals above stay human-only.
+    top_visitors: rows.slice(0, 10),
+    remaining_visitors: Math.max(rows.length - 10, 0),
     remaining_visitors_registered: Math.max(
-      all.slice(10).filter((v) => !!v.user_id).length,
+      rows.slice(10).filter((v) => !!v.user_id).length,
       0,
     ),
     top_accounts: accounts.slice(0, 10),

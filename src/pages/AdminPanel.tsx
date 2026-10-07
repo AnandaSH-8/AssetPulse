@@ -40,6 +40,45 @@ type Visitor = {
   region: string | null
   timezone: string | null
   device_type: string | null
+  is_bot?: boolean
+}
+
+const CRAWLER_RE =
+  /googlebot|google-inspectiontool|bingbot|bingpreview|slurp|duckduckbot|baiduspider|yandex|applebot|semrush|ahrefs|mj12bot|dotbot|petalbot|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegram|discord|slack|crawl|spider/i
+
+type VisitorTag = {
+  label: string
+  hint: string
+  variant: 'default' | 'secondary' | 'destructive' | 'outline'
+  className?: string
+}
+
+const classifyVisitor = (v: Visitor): VisitorTag => {
+  const ua = v.user_agent ?? ''
+  if (v.user_id)
+    return {
+      label: 'Verified user',
+      hint: 'Signed in with an account',
+      variant: 'default',
+      className: 'bg-primary/15 text-primary hover:bg-primary/15',
+    }
+  if (v.is_bot && CRAWLER_RE.test(ua))
+    return {
+      label: 'Crawler',
+      hint: 'Search engine, SEO or link-preview bot',
+      variant: 'outline',
+    }
+  if (v.is_bot)
+    return {
+      label: 'Automated',
+      hint: 'Script, headless browser or scanner — possibly probing the site',
+      variant: 'destructive',
+    }
+  return {
+    label: 'Genuine visitor',
+    hint: 'Normal browser, not signed in',
+    variant: 'secondary',
+  }
 }
 
 type Account = {
@@ -125,6 +164,7 @@ const describeCountry = (v: Visitor) => {
 
 const VisitorTooltip = ({ v }: { v: Visitor }) => {
   const rows: Array<[string, string]> = [
+    ['Type', `${classifyVisitor(v).label} — ${classifyVisitor(v).hint}`],
     ['Seen time', formatDate(v.last_seen)],
     ['Visits', String(v.visit_count)],
     ['Country', describeCountry(v)],
@@ -357,13 +397,14 @@ export default function AdminPanel() {
                           {describeCountry(v)}
                         </td>
                         <td className="py-2 pr-4">
-                          {v.user_id ? (
-                            <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
-                              Registered
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary">Visitor</Badge>
-                          )}
+                          {(() => {
+                            const t = classifyVisitor(v)
+                            return (
+                              <Badge variant={t.variant} className={t.className}>
+                                {t.label}
+                              </Badge>
+                            )
+                          })()}
                         </td>
                         <td className="py-2 pr-4 text-right tabular-nums">
                           {v.visit_count}
