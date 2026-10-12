@@ -59,6 +59,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
+  // Marks the visitor as having reached the dashboard (once per session).
+  useEffect(() => {
+    if (user) void trackVisit();
+  }, [user]);
+
   if (loading) {
     return <PageLoader />;
   }

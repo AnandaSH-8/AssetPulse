@@ -41,6 +41,9 @@ type Visitor = {
   timezone: string | null
   device_type: string | null
   is_bot?: boolean
+  reached_dashboard?: boolean
+  last_route?: string | null
+  used_demo?: boolean
 }
 
 const CRAWLER_RE =
@@ -55,6 +58,13 @@ type VisitorTag = {
 
 const classifyVisitor = (v: Visitor): VisitorTag => {
   const ua = v.user_agent ?? ''
+  if (v.used_demo)
+    return {
+      label: 'Demo user',
+      hint: 'Signed in with the demo account and opened the dashboard',
+      variant: 'default',
+      className: 'bg-amber-500/15 text-amber-700 dark:text-amber-400 hover:bg-amber-500/15',
+    }
   if (v.user_id)
     return {
       label: 'Verified user',
@@ -75,8 +85,8 @@ const classifyVisitor = (v: Visitor): VisitorTag => {
       variant: 'destructive',
     }
   return {
-    label: 'Genuine visitor',
-    hint: 'Normal browser, not signed in',
+    label: 'Landing only',
+    hint: 'Real browser that viewed public pages and left without signing in',
     variant: 'secondary',
   }
 }
@@ -167,6 +177,8 @@ const VisitorTooltip = ({ v }: { v: Visitor }) => {
     ['Type', `${classifyVisitor(v).label} — ${classifyVisitor(v).hint}`],
     ['Seen time', formatDate(v.last_seen)],
     ['Visits', String(v.visit_count)],
+    ['Reached dashboard', v.reached_dashboard ? 'Yes' : 'No'],
+    ['Last page', v.last_route ?? 'Unknown'],
     ['Country', describeCountry(v)],
     [
       'City / region',
