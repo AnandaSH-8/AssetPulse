@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
 import { SUPABASE_URL, PUBLISHABLE_KEY, SECRET_KEY } from '../_shared/keys.ts';
+import { DEMO_EMAIL } from '../_shared/config.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -128,6 +129,7 @@ Deno.serve(async (req) => {
     device_id?: string;
     timezone?: string;
     count_visit?: boolean;
+    route?: string;
   } = {};
   try {
     body = await req.json();
@@ -226,6 +228,12 @@ Deno.serve(async (req) => {
     payload.user_id = userId;
     payload.email = email;
   }
+  const route = typeof body.route === 'string' && /^\/[\w\-/.]{0,63}$/.test(body.route) ? body.route : null;
+  if (route) payload.last_route = route;
+  const PUBLIC = ['/', '/auth', '/docs', '/terms', '/privacy', '/confirm-signup'];
+  // Sticky flags: once true, never reset.
+  if (userId && route && !PUBLIC.includes(route)) payload.reached_dashboard = true;
+  if (userId && DEMO_EMAIL && (email || '').toLowerCase() === DEMO_EMAIL) payload.used_demo = true;
 
   // Signing in mid-session links the account without inflating the count.
   const countVisit = body.count_visit !== false;

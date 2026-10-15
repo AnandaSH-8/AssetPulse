@@ -1,0 +1,2 @@
+ALTER TABLE public.visitor_events ADD COLUMN IF NOT EXISTS reached_dashboard boolean NOT NULL DEFAULT false, ADD COLUMN IF NOT EXISTS last_route text, ADD COLUMN IF NOT EXISTS used_demo boolean NOT NULL DEFAULT false;
+UPDATE public.visitor_events SET reached_dashboard = true WHERE user_id IS NOT NULL;

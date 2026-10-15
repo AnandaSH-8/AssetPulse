@@ -2,6 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 const DEVICE_KEY = 'assetpulse-device-id';
 const SESSION_KEY = 'assetpulse-visit-tracked';
+const PUBLIC_ROUTES = ['/', '/auth', '/docs', '/terms', '/privacy', '/confirm-signup'];
 
 const readCookie = (name: string) => {
   try {
@@ -58,7 +59,10 @@ export const trackVisit = async () => {
   try {
     const { data } = await supabase.auth.getSession();
     const identity = data.session?.user?.id ?? 'anon';
-    const marker = `${SESSION_KEY}:${identity}`;
+    const route = window.location.pathname.slice(0, 64);
+    const isApp = identity !== 'anon' && !PUBLIC_ROUTES.includes(route);
+    // One ping per session per identity, plus one when a signed-in user first opens the app area.
+    const marker = `${SESSION_KEY}:${identity}${isApp ? ':app' : ''}`;
     if (sessionStorage.getItem(marker)) return;
 
     const deviceId = getDeviceId();
@@ -76,8 +80,9 @@ export const trackVisit = async () => {
       body: {
         device_id: deviceId,
         timezone,
+        route,
         // Only counted as a fresh visit the first time in a session.
-        count_visit: identity === 'anon' || !sessionStorage.getItem(`${SESSION_KEY}:anon`),
+        count_visit: !isApp && (identity === 'anon' || !sessionStorage.getItem(`${SESSION_KEY}:anon`)),
       },
     });
   } catch {

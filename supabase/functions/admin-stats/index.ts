@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
   const { data: visitors, error: visitorErr } = await admin
     .from('visitor_events')
     .select(
-      'device_id, ip_masked, email, user_id, user_agent, visit_count, last_seen, country, country_code, city, region, timezone, device_type, is_bot',
+      'device_id, ip_masked, email, user_id, user_agent, visit_count, last_seen, country, country_code, city, region, timezone, device_type, is_bot, reached_dashboard, last_route, used_demo',
     )
     .order('last_seen', { ascending: false })
     .limit(2000);
@@ -111,10 +111,11 @@ Deno.serve(async (req) => {
       bot_visitors: botVisitors,
     },
 
-    top_visitors: all.slice(0, 10),
-    remaining_visitors: Math.max(all.length - 10, 0),
+    // The list shows everyone (tagged in the UI); totals above stay human-only.
+    top_visitors: rows.slice(0, 10),
+    remaining_visitors: Math.max(rows.length - 10, 0),
     remaining_visitors_registered: Math.max(
-      all.slice(10).filter((v) => !!v.user_id).length,
+      rows.slice(10).filter((v) => !!v.user_id).length,
       0,
     ),
     top_accounts: accounts.slice(0, 10),
