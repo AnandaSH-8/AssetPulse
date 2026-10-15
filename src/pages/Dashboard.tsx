@@ -99,6 +99,7 @@ const formatCurrency = (value: number) => {
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const guide = useFirstTimeGuide('dashboard', user?.id)
   const isDemoUser = useDemoReadOnly()
   const navigate = useNavigate()
   const [hasData, setHasData] = useState(false)
