@@ -17,6 +17,18 @@ import { financialAPI } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import { useDemoReadOnly } from '@/lib/demo-user';
 import BulkTemplateCard from '@/components/BulkTemplateCard';
+import { HelpCircle } from 'lucide-react';
+import { GuidedTour, useFirstTimeGuide, type TourStep } from '@/components/GuidedTour';
+
+const tourSteps: TourStep[] = [
+  { target: 'ap-title', title: 'Name your asset', body: 'Pick a title you used before, or choose "Custom" to type a new one like "HDFC Savings".' },
+  { target: 'ap-category', title: 'Choose a category', body: 'Bank Account and Cash in Hand only need a cash balance. Investments like Stocks, Mutual Funds and Gold ask for invested and current value.' },
+  { target: 'ap-amounts', title: 'Enter the amounts', body: 'Fill in what you invested and what it is worth today. Profit or loss is worked out for you.' },
+  { target: 'ap-period', title: 'Pick the month', body: 'Each entry is a monthly snapshot. It defaults to this month — add one every month to see your growth.' },
+  { target: 'ap-preview', title: 'Check the preview', body: 'See the totals for this entry update live before you save.' },
+  { target: 'ap-save', title: 'Save it', body: 'Click to save. Your amounts are encrypted before they are stored.' },
+  { target: 'ap-bulk', title: 'Have many entries?', body: 'Download the Excel template, fill it in, and upload it to add everything at once.' },
+];
 
 const categories = [
   'Bank Account',
@@ -53,6 +65,7 @@ export default function AddParticulars() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isReadOnly = useDemoReadOnly();
+  const tour = useFirstTimeGuide('add-particulars', user?.id);
 
   const currentMonth = MONTHS[new Date().getMonth()];
 
@@ -342,14 +355,22 @@ export default function AddParticulars() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-4xl font-bold mb-2 bg-gradient-primary bg-clip-text text-transparent">
-          {isEditMode ? 'Edit' : 'Add'} Financial Particulars
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          {isEditMode
-            ? 'Update your financial particular details'
-            : 'Add new assets, investments, or financial entries to track your portfolio'}
-        </p>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-4xl font-bold mb-2 bg-gradient-primary bg-clip-text text-transparent">
+              {isEditMode ? 'Edit' : 'Add'} Financial Particulars
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              {isEditMode
+                ? 'Update your financial particular details'
+                : 'Add new assets, investments, or financial entries to track your portfolio'}
+            </p>
+          </div>
+          <Button type="button" variant="outline" size="sm" onClick={tour.show}>
+            <HelpCircle className="h-4 w-4 mr-2" /> Take tour
+          </Button>
+        </div>
+        <GuidedTour steps={tourSteps} open={tour.open} onClose={tour.close} />
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -382,7 +403,7 @@ export default function AddParticulars() {
               </div>
 
               {/* Title Field - Dropdown + Input */}
-              <div className="space-y-2">
+              <div className="space-y-2" data-tour="ap-title">
                 <label htmlFor="title" className="text-sm font-medium">
                   Title
                 </label>
@@ -439,7 +460,7 @@ export default function AddParticulars() {
               </div>
 
               {/* Category Field */}
-              <div>
+              <div data-tour="ap-category">
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Category
                 </label>
@@ -466,7 +487,7 @@ export default function AddParticulars() {
               </div>
 
               {/* Amount Fields - Conditional based on category */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6" data-tour="ap-amounts">
                 {isCashOnlyCategory ? (
                   // For Bank Account, Cash in Hand, RD, PF - Show only Actual Cash
                   <div className="space-y-2 md:col-span-3">
@@ -534,7 +555,7 @@ export default function AddParticulars() {
               </div>
 
               {/* Month & Year Fields */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4" data-tour="ap-period">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Month</label>
                   <Select
@@ -589,7 +610,7 @@ export default function AddParticulars() {
               </div>
 
               {/* Submit Button */}
-              <motion.div
+              <motion.div data-tour="ap-save"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -607,7 +628,7 @@ export default function AddParticulars() {
           </GlassCard>
 
           {!isEditMode && (
-            <div className="mt-6">
+            <div className="mt-6" data-tour="ap-bulk">
               <BulkTemplateCard
                 savedTitles={savedTitles}
                 categories={categories}
@@ -630,7 +651,7 @@ export default function AddParticulars() {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           {/* Preview Card */}
-          <GlassCard className="p-6">
+          <GlassCard className="p-6" data-tour="ap-preview">
             <h3 className="text-lg font-semibold mb-4">Preview</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">

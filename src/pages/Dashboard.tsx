@@ -46,6 +46,9 @@ import { financialAPI } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useDemoReadOnly } from '@/lib/demo-user'
 import { useNavigate } from 'react-router-dom'
+import { HelpCircle } from 'lucide-react'
+import { DashboardMiniGuide } from '@/components/DashboardMiniGuide'
+import { useFirstTimeGuide } from '@/components/GuidedTour'
 
 interface SummaryData {
   totalLiquidAssets: number
@@ -96,6 +99,7 @@ const formatCurrency = (value: number) => {
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const guide = useFirstTimeGuide('dashboard', user?.id)
   const isDemoUser = useDemoReadOnly()
   const navigate = useNavigate()
   const [hasData, setHasData] = useState(false)
@@ -384,12 +388,20 @@ export default function Dashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-4xl font-bold mb-2 bg-gradient-primary bg-clip-text text-transparent">
-          Financial Portfolio Overview
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          Track, analyze, and grow your wealth with confidence.
-        </p>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-4xl font-bold mb-2 bg-gradient-primary bg-clip-text text-transparent">
+              Financial Portfolio Overview
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Track, analyze, and grow your wealth with confidence.
+            </p>
+          </div>
+          <Button variant="outline" size="sm" onClick={guide.show}>
+            <HelpCircle className="h-4 w-4 mr-2" /> Quick guide
+          </Button>
+        </div>
+        <DashboardMiniGuide open={guide.open} onClose={guide.close} />
       </motion.div>
 
       {/* Summary Cards */}
