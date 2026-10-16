@@ -44,6 +44,7 @@ type Visitor = {
   reached_dashboard?: boolean
   last_route?: string | null
   used_demo?: boolean
+  solved_puzzle?: boolean
 }
 
 const CRAWLER_RE =
@@ -178,6 +179,7 @@ const VisitorTooltip = ({ v }: { v: Visitor }) => {
     ['Seen time', formatDate(v.last_seen)],
     ['Visits', String(v.visit_count)],
     ['Reached dashboard', v.reached_dashboard ? 'Yes' : 'No'],
+    ['Human check', v.solved_puzzle ? 'Passed' : 'Not solved'],
     ['Last page', v.last_route ?? 'Unknown'],
     ['Country', describeCountry(v)],
     [
@@ -412,9 +414,16 @@ export default function AdminPanel() {
                           {(() => {
                             const t = classifyVisitor(v)
                             return (
-                              <Badge variant={t.variant} className={t.className}>
-                                {t.label}
-                              </Badge>
+                              <div className="flex flex-wrap gap-1">
+                                {v.solved_puzzle && !v.is_bot && (
+                                  <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
+                                    Genuine user
+                                  </Badge>
+                                )}
+                                <Badge variant={t.variant} className={t.className}>
+                                  {t.label}
+                                </Badge>
+                              </div>
                             )
                           })()}
                         </td>

@@ -89,3 +89,41 @@ export const trackVisit = async () => {
     // ignore
   }
 };
+
+const HUMAN_KEY = 'assetpulse-human-verified';
+
+// True when this network (IP) already passed the human check.
+export const checkHumanVerified = async (): Promise<boolean> => {
+  try {
+    const { data } = await supabase.functions.invoke('track-visit', {
+      body: { device_id: getDeviceId(), mode: 'check', count_visit: false },
+    });
+    return !!(data as { solved?: boolean } | null)?.solved;
+  } catch {
+    // If the check fails, fall back to this browser's own record.
+    return localStorage.getItem(HUMAN_KEY) === '1';
+  }
+};
+
+export const submitHumanVerified = async (gesture: {
+  duration: number;
+  points: number;
+  jitter: number;
+}): Promise<boolean> => {
+  try {
+    const { error } = await supabase.functions.invoke('track-visit', {
+      body: {
+        device_id: getDeviceId(),
+        mode: 'solve',
+        gesture,
+        route: window.location.pathname.slice(0, 64),
+        count_visit: false,
+      },
+    });
+    if (error) return false;
+    localStorage.setItem(HUMAN_KEY, '1');
+    return true;
+  } catch {
+    return false;
+  }
+};
