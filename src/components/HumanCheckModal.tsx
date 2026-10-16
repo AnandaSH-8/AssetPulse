@@ -63,11 +63,9 @@ export function HumanCheckModal() {
   useEffect(() => {
     let cancelled = false;
     const timer = window.setTimeout(async () => {
-      // TEMP: always show for testing. Restore the check below when done.
-      // const solved = await checkHumanVerified();
-      // if (!cancelled && !solved) setOpen(true);
-      void checkHumanVerified;
-      if (!cancelled) setOpen(true);
+      // Show only when this network (IP) has never solved the puzzle before.
+      const solved = await checkHumanVerified();
+      if (!cancelled && !solved) setOpen(true);
     }, 3000);
     return () => {
       cancelled = true;
