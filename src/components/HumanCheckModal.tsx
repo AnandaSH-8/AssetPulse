@@ -71,18 +71,14 @@ export function HumanCheckModal() {
 
   const onMove = (e: React.PointerEvent) => {
     if (!dragging || !start.current) return;
+    // Freeform: the circle moves anywhere inside the pad.
     const nx = Math.max(0, Math.min(target, e.clientX - start.current.px));
-    // Stop the circle from jumping far ahead in one move (no teleporting past the peak).
-    const stepped = Math.min(nx, x + 40);
-    const ideal = pathY(stepped);
-    const rawY = e.clientY - start.current.py;
-    const dev = rawY - ideal;
-    // Pointer must stay near the slope; if it wanders off, the circle stops following.
-    if (Math.abs(dev) > 45) return;
-    if (Math.abs(stepped - MID) < 22 && Math.abs(dev) < 35) peaked.current = true;
-    setX(stepped);
-    setY(ideal);
-    pts.current.push({ x: e.clientX, y: dev, t: performance.now() });
+    const ny = Math.max(-BASE_TOP, Math.min(0, e.clientY - start.current.py));
+    // Waypoint: the drag must pass near the peak marker before reaching the hole.
+    if (Math.abs(nx - MID) < 40 && Math.abs(ny - pathY(MID)) < 40) peaked.current = true;
+    setX(nx);
+    setY(ny);
+    pts.current.push({ x: e.clientX, y: ny - pathY(nx), t: performance.now() });
   };
 
   const reset = () => {
