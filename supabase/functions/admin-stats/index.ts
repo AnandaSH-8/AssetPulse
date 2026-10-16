@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
   const { data: visitors, error: visitorErr } = await admin
     .from('visitor_events')
     .select(
-      'device_id, ip_masked, email, user_id, user_agent, visit_count, last_seen, country, country_code, city, region, timezone, device_type, is_bot, reached_dashboard, last_route, used_demo',
+      'device_id, ip_masked, email, user_id, user_agent, visit_count, last_seen, country, country_code, city, region, timezone, device_type, is_bot, reached_dashboard, last_route, used_demo, solved_puzzle',
     )
     .order('last_seen', { ascending: false })
     .limit(2000);
