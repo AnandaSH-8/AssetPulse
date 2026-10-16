@@ -19,6 +19,7 @@ import { GlassCard } from '@/components/ui/glass-card';
 import Footer from '@/components/Footer';
 import { SEO } from '@/components/SEO';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { HumanCheckModal } from '@/components/HumanCheckModal';
 
 
 const features = [
