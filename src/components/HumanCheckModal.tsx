@@ -40,8 +40,11 @@ export function HumanCheckModal() {
   useEffect(() => {
     let cancelled = false;
     const timer = window.setTimeout(async () => {
-      const solved = await checkHumanVerified();
-      if (!cancelled && !solved) setOpen(true);
+      // TEMP: always show for testing. Restore the check below when done.
+      // const solved = await checkHumanVerified();
+      // if (!cancelled && !solved) setOpen(true);
+      void checkHumanVerified;
+      if (!cancelled) setOpen(true);
     }, 3000);
     return () => {
       cancelled = true;
