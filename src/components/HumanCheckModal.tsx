@@ -51,6 +51,7 @@ export function HumanCheckModal() {
   // The hole only glows while the drop window is open (2s after the last point turns green).
   const [armed, setArmed] = useState(false);
   const armTimer = useRef<number | null>(null);
+  const failTimer = useRef<number | null>(null);
 
   const clearArm = () => {
     if (armTimer.current !== null) {
@@ -81,7 +82,10 @@ export function HumanCheckModal() {
     };
   }, [open]);
 
-  useEffect(() => clearArm, []);
+  useEffect(() => () => {
+    clearArm();
+    if (failTimer.current !== null) window.clearTimeout(failTimer.current);
+  }, []);
 
   const onDown = (e: React.PointerEvent) => {
     if (status === 'checking' || status === 'done') return;
@@ -136,6 +140,19 @@ export function HumanCheckModal() {
     setWp(wpRef.current);
   };
 
+  // On failure: show the red/pulsing state for 2s only, then return to normal.
+  const fail = (message: string, resetDelay: number) => {
+    setStatus('fail');
+    setMsg(message);
+    window.setTimeout(reset, resetDelay);
+    if (failTimer.current !== null) window.clearTimeout(failTimer.current);
+    failTimer.current = window.setTimeout(() => {
+      failTimer.current = null;
+      setStatus((s) => (s === 'fail' ? 'idle' : s));
+      setMsg('');
+    }, 2000);
+  };
+
   const onUp = async () => {
     if (!dragging) return;
     setDragging(false);
@@ -146,18 +163,14 @@ export function HumanCheckModal() {
     if (!inHole || !allHit) {
       const marked = wpRef.current.map((s) => (s === 'hit' ? 'hit' : 'miss')) as WpState[];
       setWp(marked);
-      setStatus('fail');
-      setMsg(inHole ? 'Some points were missed. Follow the full path up and down.' : 'Drop the circle into the hole.');
-      window.setTimeout(reset, 900);
+      fail(inHole ? 'Some points were missed. Follow the full path up and down.' : 'Drop the circle into the hole.', 900);
       return;
     }
     setX(target);
     setY(0);
     const g = gestureStats(pts.current);
     if (g.duration < 250 || g.points < 6 || g.jitter <= 0) {
-      setStatus('fail');
-      setMsg('That looked automated. Please try again slowly.');
-      window.setTimeout(reset, 400);
+      fail('That looked automated. Please try again slowly.', 400);
       return;
     }
     setStatus('checking');
@@ -166,8 +179,7 @@ export function HumanCheckModal() {
       setStatus('done');
       window.setTimeout(() => setOpen(false), 900);
     } else {
-      setStatus('fail');
-      window.setTimeout(reset, 400);
+      fail('Please try again.', 400);
     }
   };
 
@@ -282,8 +294,8 @@ export function HumanCheckModal() {
                   : armed
                     ? 'Every point is clear — drop it in now.'
                     : wp.every((v) => v === 'hit')
-                      ? 'The hole stopped glowing. Drop the circle in to finish.'
-                      : 'Asked only once per network.'}
+                      ? 'Drop the circle into the hole to finish.'
+                      : ''}
             </p>
           </motion.div>
         </motion.div>
