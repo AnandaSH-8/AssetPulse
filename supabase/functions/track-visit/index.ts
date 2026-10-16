@@ -208,6 +208,32 @@ Deno.serve(async (req) => {
     return null;
   };
 
+  // Human-check: "check" asks whether this network already passed;
+  // "solve" records a pass after basic gesture sanity checks.
+  const mode = (body as { mode?: string }).mode;
+  if (mode === 'check') {
+    if (!ipHash) return json({ solved: false });
+    const { data } = await admin
+      .from('visitor_events')
+      .select('id')
+      .eq('ip_hash', ipHash)
+      .eq('solved_puzzle', true)
+      .limit(1)
+      .maybeSingle();
+    return json({ solved: !!data });
+  }
+  let solvedNow = false;
+  if (mode === 'solve') {
+    const g = (body as { gesture?: { duration?: number; points?: number; jitter?: number } }).gesture || {};
+    const duration = Number(g.duration) || 0;
+    const points = Number(g.points) || 0;
+    const jitter = Number(g.jitter) || 0;
+    if (isBotAgent(userAgent) || duration < 250 || duration > 120000 || points < 6 || jitter <= 0) {
+      return json({ ok: false, error: 'Verification failed' }, 400);
+    }
+    solvedNow = true;
+  }
+
   const existing = await findExisting();
   const geo = await resolveGeo(req, ip);
   const bot = isBotAgent(userAgent);
@@ -234,6 +260,7 @@ Deno.serve(async (req) => {
   // Sticky flags: once true, never reset.
   if (userId && route && !PUBLIC.includes(route)) payload.reached_dashboard = true;
   if (userId && DEMO_EMAIL && (email || '').toLowerCase() === DEMO_EMAIL) payload.used_demo = true;
+  if (solvedNow) payload.solved_puzzle = true;
 
   // Signing in mid-session links the account without inflating the count.
   const countVisit = body.count_visit !== false;

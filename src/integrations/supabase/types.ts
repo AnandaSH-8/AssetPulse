@@ -127,6 +127,7 @@ export type Database = {
           last_seen: string
           reached_dashboard: boolean
           region: string | null
+          solved_puzzle: boolean
           timezone: string | null
           updated_at: string
           used_demo: boolean
@@ -150,6 +151,7 @@ export type Database = {
           last_seen?: string
           reached_dashboard?: boolean
           region?: string | null
+          solved_puzzle?: boolean
           timezone?: string | null
           updated_at?: string
           used_demo?: boolean
@@ -173,6 +175,7 @@ export type Database = {
           last_seen?: string
           reached_dashboard?: boolean
           region?: string | null
+          solved_puzzle?: boolean
           timezone?: string | null
           updated_at?: string
           used_demo?: boolean
