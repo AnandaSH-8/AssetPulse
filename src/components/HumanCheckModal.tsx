@@ -6,12 +6,20 @@ import { checkHumanVerified, submitHumanVerified } from '@/lib/visitor';
 const TRACK_W = 300;
 const TOKEN = 56;
 const SNAP = 18;
+const AREA_H = 160;
+const APEX = 80; // how high the peak rises above the baseline
+const BASE_TOP = AREA_H - TOKEN - 4;
+const TARGET = TRACK_W - TOKEN;
+const MID = TARGET / 2;
+// Inverted-V: rises from start to the apex at MID, then falls into the hole.
+const pathY = (x: number) => -APEX * (1 - Math.abs(x - MID) / MID);
 
 type Pt = { x: number; y: number; t: number };
 
 // Measures how "human" a drag was: real hands wobble off a perfectly straight line.
 const gestureStats = (pts: Pt[]) => {
   const duration = pts.length > 1 ? pts[pts.length - 1].t - pts[0].t : 0;
+  // y holds the pointer's deviation from the V guide — real hands wobble.
   const ys = pts.map((p) => p.y);
   const mean = ys.reduce((a, b) => a + b, 0) / (ys.length || 1);
   const jitter = Math.sqrt(ys.reduce((a, b) => a + (b - mean) ** 2, 0) / (ys.length || 1));
@@ -26,7 +34,8 @@ export function HumanCheckModal() {
   const [status, setStatus] = useState<'idle' | 'checking' | 'done' | 'fail'>('idle');
   const start = useRef<{ px: number; py: number } | null>(null);
   const pts = useRef<Pt[]>([]);
-  const target = TRACK_W - TOKEN;
+  const target = TARGET;
+  const peaked = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,7 +60,8 @@ export function HumanCheckModal() {
     if (status === 'checking' || status === 'done') return;
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
     start.current = { px: e.clientX - x, py: e.clientY - y };
-    pts.current = [{ x: e.clientX, y: e.clientY, t: performance.now() }];
+    pts.current = [{ x: e.clientX, y: 0, t: performance.now() }];
+    peaked.current = false;
     setDragging(true);
     setStatus('idle');
   };
@@ -59,10 +69,17 @@ export function HumanCheckModal() {
   const onMove = (e: React.PointerEvent) => {
     if (!dragging || !start.current) return;
     const nx = Math.max(0, Math.min(target, e.clientX - start.current.px));
-    const ny = Math.max(-20, Math.min(20, e.clientY - start.current.py));
-    setX(nx);
-    setY(ny);
-    pts.current.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+    // Stop the circle from jumping far ahead in one move (no teleporting past the peak).
+    const stepped = Math.min(nx, x + 40);
+    const ideal = pathY(stepped);
+    const rawY = e.clientY - start.current.py;
+    const dev = rawY - ideal;
+    // Pointer must stay near the slope; if it wanders off, the circle stops following.
+    if (Math.abs(dev) > 45) return;
+    if (Math.abs(stepped - MID) < 22 && Math.abs(dev) < 35) peaked.current = true;
+    setX(stepped);
+    setY(ideal);
+    pts.current.push({ x: e.clientX, y: dev, t: performance.now() });
   };
 
   const reset = () => {
@@ -73,7 +90,7 @@ export function HumanCheckModal() {
   const onUp = async () => {
     if (!dragging) return;
     setDragging(false);
-    const inHole = Math.abs(x - target) <= SNAP && Math.abs(y) <= SNAP;
+    const inHole = Math.abs(x - target) <= SNAP && peaked.current;
     if (!inHole) {
       reset();
       return;
@@ -122,22 +139,39 @@ export function HumanCheckModal() {
               Quick human check
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Drag the green circle into the empty hole to continue.
+              Drag the green circle up over the peak and down into the hole.
             </p>
 
             <div
-              className="relative mx-auto mt-6 h-[96px] select-none touch-none"
-              style={{ width: TRACK_W }}
+              className="relative mx-auto mt-6 select-none touch-none"
+              style={{ width: TRACK_W, height: AREA_H }}
             >
-              <div className="absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-muted" />
+              <svg className="pointer-events-none absolute inset-0" width={TRACK_W} height={AREA_H}>
+                <polyline
+                  points={`${TOKEN / 2},${BASE_TOP + TOKEN / 2} ${MID + TOKEN / 2},${BASE_TOP + TOKEN / 2 - APEX} ${TARGET + TOKEN / 2},${BASE_TOP + TOKEN / 2}`}
+                  fill="none"
+                  className="stroke-muted"
+                  strokeWidth={6}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <polyline
+                  points={`${TOKEN / 2},${BASE_TOP + TOKEN / 2} ${MID + TOKEN / 2},${BASE_TOP + TOKEN / 2 - APEX} ${TARGET + TOKEN / 2},${BASE_TOP + TOKEN / 2}`}
+                  fill="none"
+                  className="stroke-primary/50"
+                  strokeWidth={2}
+                  strokeDasharray="4 6"
+                  strokeLinecap="round"
+                />
+              </svg>
               {/* Hole */}
               <div
-                className={`absolute top-1/2 -translate-y-1/2 rounded-full border-2 border-dashed transition-colors ${
+                className={`absolute rounded-full border-2 border-dashed transition-colors ${
                   status === 'done'
                     ? 'border-primary bg-primary/20'
                     : 'border-primary/60 bg-muted/60 shadow-inner'
                 }`}
-                style={{ left: target, width: TOKEN, height: TOKEN }}
+                style={{ left: target, top: BASE_TOP, width: TOKEN, height: TOKEN }}
               />
               {/* Cover */}
               <div
@@ -146,13 +180,14 @@ export function HumanCheckModal() {
                 onPointerUp={onUp}
                 onPointerCancel={onUp}
                 aria-label="Drag this circle into the hole"
-                className={`absolute top-1/2 flex cursor-grab items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg active:cursor-grabbing ${
+                className={`absolute left-0 flex cursor-grab items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg active:cursor-grabbing ${
                   dragging ? '' : 'transition-all duration-300'
                 } ${status === 'fail' ? 'animate-pulse' : ''}`}
                 style={{
                   width: TOKEN,
                   height: TOKEN,
-                  transform: `translate(${x}px, calc(-50% + ${y}px))`,
+                  top: BASE_TOP,
+                  transform: `translate(${x}px, ${y}px)`,
                 }}
               >
                 {status === 'checking' ? (
