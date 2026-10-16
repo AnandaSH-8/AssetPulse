@@ -16,6 +16,16 @@ const pathY = (x: number) => -APEX * (1 - Math.abs(x - MID) / MID);
 
 type Pt = { x: number; y: number; t: number };
 
+// Checkpoints along the V that the white tracker dot must pass, in order.
+const N_WP = 12;
+const WP_R = 20;
+const WAYPOINTS = Array.from({ length: N_WP }, (_, i) => {
+  const wx = (TARGET * (i + 1)) / (N_WP + 1);
+  return { x: wx, y: pathY(wx) };
+});
+type WpState = 'idle' | 'hit' | 'miss';
+const freshWp = (): WpState[] => Array(N_WP).fill('idle');
+
 // Measures how "human" a drag was: real hands wobble off a perfectly straight line.
 const gestureStats = (pts: Pt[]) => {
   const duration = pts.length > 1 ? pts[pts.length - 1].t - pts[0].t : 0;
@@ -35,7 +45,9 @@ export function HumanCheckModal() {
   const start = useRef<{ px: number; py: number } | null>(null);
   const pts = useRef<Pt[]>([]);
   const target = TARGET;
-  const peaked = useRef(false);
+  const [wp, setWp] = useState<WpState[]>(freshWp);
+  const wpRef = useRef<WpState[]>(freshWp());
+  const [msg, setMsg] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -64,7 +76,9 @@ export function HumanCheckModal() {
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
     start.current = { px: e.clientX - x, py: e.clientY - y };
     pts.current = [{ x: e.clientX, y: 0, t: performance.now() }];
-    peaked.current = false;
+    wpRef.current = freshWp();
+    setWp(wpRef.current);
+    setMsg('');
     setDragging(true);
     setStatus('idle');
   };
@@ -74,8 +88,15 @@ export function HumanCheckModal() {
     // Freeform: the circle moves anywhere inside the pad.
     const nx = Math.max(0, Math.min(target, e.clientX - start.current.px));
     const ny = Math.max(-BASE_TOP, Math.min(0, e.clientY - start.current.py));
-    // Waypoint: the drag must pass near the peak marker before reaching the hole.
-    if (Math.abs(nx - MID) < 40 && Math.abs(ny - pathY(MID)) < 40) peaked.current = true;
+    // Sequential checkpoints: next one turns green; touching a later one first marks skipped ones red.
+    const st = [...wpRef.current];
+    let changed = false;
+    WAYPOINTS.forEach((w, i) => {
+      if (st[i] === 'hit' || Math.hypot(nx - w.x, ny - w.y) > WP_R) return;
+      for (let j = 0; j < i; j++) if (st[j] !== 'hit' && st[j] !== 'miss') { st[j] = 'miss'; changed = true; }
+      if (st[i] !== 'miss') { st[i] = 'hit'; changed = true; }
+    });
+    if (changed) { wpRef.current = st; setWp(st); }
     setX(nx);
     setY(ny);
     pts.current.push({ x: e.clientX, y: ny - pathY(nx), t: performance.now() });
@@ -84,14 +105,21 @@ export function HumanCheckModal() {
   const reset = () => {
     setX(0);
     setY(0);
+    wpRef.current = freshWp();
+    setWp(wpRef.current);
   };
 
   const onUp = async () => {
     if (!dragging) return;
     setDragging(false);
-    const inHole = Math.abs(x - target) <= SNAP && Math.abs(y) <= SNAP && peaked.current;
-    if (!inHole) {
-      reset();
+    const inHole = Math.abs(x - target) <= SNAP && Math.abs(y) <= SNAP;
+    const allHit = wpRef.current.every((s) => s === 'hit');
+    if (!inHole || !allHit) {
+      const marked = wpRef.current.map((s) => (s === 'hit' ? 'hit' : 'miss')) as WpState[];
+      setWp(marked);
+      setStatus('fail');
+      setMsg(inHole ? 'Some points were missed. Follow the full path up and down.' : 'Drop the circle into the hole.');
+      window.setTimeout(reset, 900);
       return;
     }
     setX(target);
@@ -99,6 +127,7 @@ export function HumanCheckModal() {
     const g = gestureStats(pts.current);
     if (g.duration < 250 || g.points < 6 || g.jitter <= 0) {
       setStatus('fail');
+      setMsg('That looked automated. Please try again slowly.');
       window.setTimeout(reset, 400);
       return;
     }
@@ -138,7 +167,7 @@ export function HumanCheckModal() {
               Quick human check
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Drag the green circle over the peak, then drop it into the hole.
+              Guide the white dot over every point up and down the path, then drop it into the hole.
             </p>
 
             <div
@@ -162,13 +191,30 @@ export function HumanCheckModal() {
                   strokeDasharray="4 6"
                   strokeLinecap="round"
                 />
+                {WAYPOINTS.map((w, i) => {
+                  const prev = i === 0 ? { x: 0, y: 0 } : WAYPOINTS[i - 1];
+                  const c = wp[i] === 'hit' ? 'stroke-primary' : wp[i] === 'miss' ? 'stroke-destructive' : 'stroke-muted-foreground/40';
+                  return (
+                    <line key={`l${i}`} x1={prev.x + TOKEN / 2} y1={BASE_TOP + TOKEN / 2 + prev.y} x2={w.x + TOKEN / 2} y2={BASE_TOP + TOKEN / 2 + w.y}
+                      className={`${c} transition-colors`} strokeWidth={4} strokeDasharray="6 4" strokeLinecap="round" />
+                  );
+                })}
+                {WAYPOINTS.map((w, i) => {
+                  const c = wp[i] === 'hit' ? 'fill-primary' : wp[i] === 'miss' ? 'fill-destructive' : 'fill-muted-foreground/50';
+                  return (
+                    <circle key={`d${i}`} cx={w.x + TOKEN / 2} cy={BASE_TOP + TOKEN / 2 + w.y} r={wp[i] === 'idle' ? 3.5 : 5}
+                      className={`${c} transition-all`} style={wp[i] !== 'idle' ? { filter: 'drop-shadow(0 0 4px currentColor)' } : undefined} />
+                  );
+                })}
               </svg>
               {/* Hole */}
               <div
                 className={`absolute rounded-full border-2 border-dashed transition-colors ${
                   status === 'done'
                     ? 'border-primary bg-primary/20'
-                    : 'border-primary/60 bg-muted/60 shadow-inner'
+                    : wp.every((v) => v === 'hit')
+                      ? 'border-primary bg-primary/10 shadow-[0_0_16px_hsl(var(--primary)/0.7)]'
+                      : 'border-primary/60 bg-muted/60 shadow-inner'
                 }`}
                 style={{ left: target, top: BASE_TOP, width: TOKEN, height: TOKEN }}
               />
@@ -194,7 +240,7 @@ export function HumanCheckModal() {
                 ) : status === 'done' ? (
                   <Check className="h-6 w-6" />
                 ) : (
-                  <span className="h-3 w-3 rounded-full bg-primary-foreground/80" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-primary-foreground ring-2 ring-primary-foreground/40" />
                 )}
               </div>
             </div>
@@ -203,7 +249,7 @@ export function HumanCheckModal() {
               {status === 'done'
                 ? 'Verified — welcome!'
                 : status === 'fail'
-                  ? 'That looked automated. Please try again slowly.'
+                  ? msg || 'Please try again.'
                   : 'Asked only once per network.'}
             </p>
           </motion.div>
