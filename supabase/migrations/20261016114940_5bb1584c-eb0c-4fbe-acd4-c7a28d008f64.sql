@@ -1,0 +1,2 @@
+ALTER TABLE public.visitor_events ADD COLUMN IF NOT EXISTS solved_puzzle boolean NOT NULL DEFAULT false;
+CREATE INDEX IF NOT EXISTS visitor_events_ip_hash_solved_idx ON public.visitor_events (ip_hash) WHERE solved_puzzle;
