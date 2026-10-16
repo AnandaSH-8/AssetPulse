@@ -48,6 +48,16 @@ export function HumanCheckModal() {
   const [wp, setWp] = useState<WpState[]>(freshWp);
   const wpRef = useRef<WpState[]>(freshWp());
   const [msg, setMsg] = useState('');
+  // The hole only glows while the drop window is open (2s after the last point turns green).
+  const [armed, setArmed] = useState(false);
+  const armTimer = useRef<number | null>(null);
+
+  const clearArm = () => {
+    if (armTimer.current !== null) {
+      window.clearTimeout(armTimer.current);
+      armTimer.current = null;
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -71,6 +81,8 @@ export function HumanCheckModal() {
     };
   }, [open]);
 
+  useEffect(() => clearArm, []);
+
   const onDown = (e: React.PointerEvent) => {
     if (status === 'checking' || status === 'done') return;
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -79,6 +91,8 @@ export function HumanCheckModal() {
     wpRef.current = freshWp();
     setWp(wpRef.current);
     setMsg('');
+    clearArm();
+    setArmed(false);
     setDragging(true);
     setStatus('idle');
   };
@@ -96,7 +110,18 @@ export function HumanCheckModal() {
       for (let j = 0; j < i; j++) if (st[j] !== 'hit' && st[j] !== 'miss') { st[j] = 'miss'; changed = true; }
       if (st[i] !== 'miss') { st[i] = 'hit'; changed = true; }
     });
-    if (changed) { wpRef.current = st; setWp(st); }
+    if (changed) {
+      wpRef.current = st;
+      setWp(st);
+      // Last point cleared: open a 2s drop window. Miss it and the glow switches off.
+      if (st.every((s) => s === 'hit') && armTimer.current === null) {
+        setArmed(true);
+        armTimer.current = window.setTimeout(() => {
+          armTimer.current = null;
+          setArmed(false);
+        }, 2000);
+      }
+    }
     setX(nx);
     setY(ny);
     pts.current.push({ x: e.clientX, y: ny - pathY(nx), t: performance.now() });
@@ -105,6 +130,8 @@ export function HumanCheckModal() {
   const reset = () => {
     setX(0);
     setY(0);
+    clearArm();
+    setArmed(false);
     wpRef.current = freshWp();
     setWp(wpRef.current);
   };
@@ -112,6 +139,8 @@ export function HumanCheckModal() {
   const onUp = async () => {
     if (!dragging) return;
     setDragging(false);
+    clearArm();
+    setArmed(false);
     const inHole = Math.abs(x - target) <= SNAP && Math.abs(y) <= SNAP;
     const allHit = wpRef.current.every((s) => s === 'hit');
     if (!inHole || !allHit) {
@@ -212,7 +241,7 @@ export function HumanCheckModal() {
                 className={`absolute rounded-full border-2 border-dashed transition-colors ${
                   status === 'done'
                     ? 'border-primary bg-primary/20'
-                    : wp.every((v) => v === 'hit')
+                    : armed
                       ? 'border-primary bg-primary/10 shadow-[0_0_16px_hsl(var(--primary)/0.7)]'
                       : 'border-primary/60 bg-muted/60 shadow-inner'
                 }`}
@@ -250,7 +279,11 @@ export function HumanCheckModal() {
                 ? 'Verified — welcome!'
                 : status === 'fail'
                   ? msg || 'Please try again.'
-                  : 'Asked only once per network.'}
+                  : armed
+                    ? 'Every point is clear — drop it in now.'
+                    : wp.every((v) => v === 'hit')
+                      ? 'The hole stopped glowing. Drop the circle in to finish.'
+                      : 'Asked only once per network.'}
             </p>
           </motion.div>
         </motion.div>
