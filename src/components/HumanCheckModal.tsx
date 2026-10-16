@@ -89,7 +89,7 @@ export function HumanCheckModal() {
   const onUp = async () => {
     if (!dragging) return;
     setDragging(false);
-    const inHole = Math.abs(x - target) <= SNAP && peaked.current;
+    const inHole = Math.abs(x - target) <= SNAP && Math.abs(y) <= SNAP && peaked.current;
     if (!inHole) {
       reset();
       return;
@@ -138,7 +138,7 @@ export function HumanCheckModal() {
               Quick human check
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Drag the green circle up over the peak and down into the hole.
+              Drag the green circle over the peak, then drop it into the hole.
             </p>
 
             <div
