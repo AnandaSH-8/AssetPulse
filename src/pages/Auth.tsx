@@ -500,6 +500,16 @@ const Auth = () => {
                     <p className="text-xs text-destructive ml-1">{errors.password}</p>
                   )}
                   {isSignUp && <PasswordStrengthMeter password={password} />}
+                  {isDemoCreds && (
+                    <div className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-foreground">
+                      <span className="rounded-full bg-primary px-2 py-0.5 font-semibold text-primary-foreground">
+                        Demo Account
+                      </span>
+                      <span className="text-muted-foreground">
+                        Pre-filled to explore sample data. Read-only access.
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {isSignUp && (
