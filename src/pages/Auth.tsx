@@ -39,6 +39,7 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
+  const [ownLogin, setOwnLogin] = useState(false);
   const [pwUnlocked, setPwUnlocked] = useState(true);
 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -395,14 +396,33 @@ const Auth = () => {
                       Instant access · sample data · read-only
                     </span>
                   </Button>
-                  <div className="flex items-center gap-3 mt-6">
-                    <div className="h-px flex-1 bg-border" />
-                    <span className="text-xs text-muted-foreground">or sign in with email</span>
-                    <div className="h-px flex-1 bg-border" />
-                  </div>
+                  {!ownLogin ? (
+                    <Button
+                      type="button"
+                      onClick={() => setOwnLogin(true)}
+                      disabled={demoLoading || loading}
+                      className="w-full mt-4 py-3 h-auto rounded-xl font-semibold"
+                    >
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Sign in with your own account
+                    </Button>
+                  ) : (
+                    <div className="flex items-center gap-3 mt-6">
+                      <div className="h-px flex-1 bg-border" />
+                      <button
+                        type="button"
+                        onClick={() => { setOwnLogin(false); setErrors({}); }}
+                        className="text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        or sign in with email · hide
+                      </button>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+                  )}
                 </div>
               )}
 
+              {(isSignUp || !HAS_DEMO_CREDENTIALS || ownLogin) && (
               <form onSubmit={handleEmailAuth} className="space-y-5">
                 {isSignUp && (
                   <>
@@ -622,6 +642,7 @@ const Auth = () => {
                   )}
                 </Button>
               </form>
+              )}
 
               <div className="relative my-8">
                 <div className="absolute inset-0 flex items-center">
