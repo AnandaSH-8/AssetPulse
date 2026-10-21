@@ -34,13 +34,13 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(initialSignUp);
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
-  const prefillDemo = !initialSignUp && HAS_DEMO_CREDENTIALS;
-  const [email, setEmail] = useState(prefillDemo ? DEMO_EMAIL : '');
-  const [password, setPassword] = useState(prefillDemo ? DEMO_PASSWORD : '');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  // Becomes true only once the demo password field is fully emptied.
-  const [pwUnlocked, setPwUnlocked] = useState(!prefillDemo);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [ownLogin, setOwnLogin] = useState(false);
+  const [pwUnlocked, setPwUnlocked] = useState(true);
 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -270,10 +270,26 @@ const Auth = () => {
     }
   };
 
-  const isDemoCreds =
-    HAS_DEMO_CREDENTIALS && !isSignUp && email === DEMO_EMAIL && password === DEMO_PASSWORD;
-  // Keep the demo password masked (no reveal icon) until the user fully clears
-  // the field — partially deleting characters must not expose it.
+  const handleDemoSignIn = async () => {
+    setDemoLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: DEMO_EMAIL,
+        password: DEMO_PASSWORD,
+      });
+      if (error) throw error;
+      navigate('/dashboard');
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Demo sign in failed',
+        description: error?.message || 'Please try again.',
+      });
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
   const isDemoPassword = HAS_DEMO_CREDENTIALS && !isSignUp && !pwUnlocked;
 
 
@@ -326,9 +342,9 @@ const Auth = () => {
                   onClick={() => {
                     if (isSignUp) {
                       setMode(false);
-                      setEmail(HAS_DEMO_CREDENTIALS ? DEMO_EMAIL : '');
-                      setPassword(HAS_DEMO_CREDENTIALS ? DEMO_PASSWORD : '');
-                      setPwUnlocked(!HAS_DEMO_CREDENTIALS);
+                      setEmail('');
+                      setPassword('');
+                      setPwUnlocked(true);
                       setConfirmPassword('');
                       setErrors({});
                     }
@@ -364,6 +380,49 @@ const Auth = () => {
                 </button>
               </div>
 
+              {!isSignUp && HAS_DEMO_CREDENTIALS && (
+                <div className="mb-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleDemoSignIn}
+                    disabled={demoLoading || loading}
+                    className="w-full h-auto py-3 rounded-xl border-primary/40 bg-primary/10 hover:bg-primary/20 flex flex-col gap-0.5"
+                  >
+                    <span className="font-semibold text-foreground">
+                      {demoLoading ? 'Entering demo…' : 'Explore with Demo Account'}
+                    </span>
+                    <span className="text-xs text-muted-foreground font-normal">
+                      Instant access · sample data · read-only
+                    </span>
+                  </Button>
+                  {!ownLogin ? (
+                    <Button
+                      type="button"
+                      onClick={() => setOwnLogin(true)}
+                      disabled={demoLoading || loading}
+                      className="w-full mt-4 py-3 h-auto rounded-xl font-semibold"
+                    >
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Sign in with your own account
+                    </Button>
+                  ) : (
+                    <div className="flex items-center gap-3 mt-6">
+                      <div className="h-px flex-1 bg-border" />
+                      <button
+                        type="button"
+                        onClick={() => { setOwnLogin(false); setErrors({}); }}
+                        className="text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        or sign in with email · hide
+                      </button>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {(isSignUp || !HAS_DEMO_CREDENTIALS || ownLogin) && (
               <form onSubmit={handleEmailAuth} className="space-y-5">
                 {isSignUp && (
                   <>
@@ -448,19 +507,6 @@ const Auth = () => {
                     >
                       Password
                     </label>
-                    {HAS_DEMO_CREDENTIALS && !isSignUp && !isDemoCreds && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEmail(DEMO_EMAIL);
-                          setPassword(DEMO_PASSWORD);
-                          setPwUnlocked(false);
-                        }}
-                        className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
-                      >
-                        Use demo?
-                      </button>
-                    )}
                   </div>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -596,6 +642,7 @@ const Auth = () => {
                   )}
                 </Button>
               </form>
+              )}
 
               <div className="relative my-8">
                 <div className="absolute inset-0 flex items-center">
